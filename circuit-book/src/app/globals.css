@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+/*
+  Circuit Book — station placards.
+  A circuit is a numbered sequence of stations, so the design borrows from the
+  placard bolted to a gym wall: a big station number, the sets and reps large
+  enough to read at arm's length, everything else quiet.
+
+  Lime is state, never decoration. If something is lime it is either happening
+  now or already done.
+*/
+
+@theme {
+  /* Charcoal carries a faint green cast so the lime belongs to the palette
+     instead of sitting on top of neutral black. */
+  --color-base: #0e1110;
+  --color-surface: #171b19;
+  --color-raise: #202523;
+  --color-line: #2c3330;
+  --color-line-soft: #212724;
+
+  --color-lime: #c9ff46;
+  --color-lime-deep: #9bcc24;
+  --color-lime-shade: #8fbf1f;
+
+  --color-chalk: #ecf1ee;
+  --color-muted: #8b948f;
+  --color-faint: #5d6661;
+
+  --color-warn: #ffb545;
+
+  --font-ui: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-placard: 14px;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-base);
+  /* Keep the whole app from rubber-banding like a web page; it should feel
+     like a fixed app surface with scrolling panels inside it. */
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--color-base);
+  color: var(--color-chalk);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+/* Archivo is a variable font with a width axis. Expanded width does the work
+   that condensed type does in most sports apps — it reads as signage, and it
+   keeps the app to a single family. */
+.ex {
+  font-stretch: 115%;
+  letter-spacing: -0.01em;
+}
+
+.ex-tight {
+  font-stretch: 112%;
+  letter-spacing: -0.02em;
+}
+
+/* Tabular figures everywhere a number can change under the reader's eye:
+   progress counts, set counts, timers. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Respect the notch and the home indicator — this app is used one-handed. */
+.pad-safe-b {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+.pad-safe-t {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+
+/* Visible, lime focus ring. Keyboard users and switch-control users get the
+   same affordance as everyone else. */
+:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Motion only ever answers a tap in this app, but honour the preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The station strip scrolls horizontally one card at a time. */
+.snap-x-strip {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.snap-x-strip::-webkit-scrollbar {
+  display: none;
+}
+.snap-item {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+/* Hide scrollbars on the filter rails without losing keyboard scrolling. */
+.rail {
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+/* A tick closing when a station is completed: the one piece of motion that
+   is not a direct transform of the button being pressed. */
+@keyframes tick-fill {
+  from {
+    transform: scaleX(0.2);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+.tick-done {
+  animation: tick-fill 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: left center;
+}
+
+/* Inputs: dark, flat, with a lime caret so typing feels part of the system. */
+input,
+textarea,
+select {
+  caret-color: var(--color-lime);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Stop iOS zooming the viewport when a field is focused. 16px is the floor. */
+@supports (-webkit-touch-callout: none) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}

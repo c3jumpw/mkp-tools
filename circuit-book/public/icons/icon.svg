@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Circuit Book">
+  <rect width="64" height="64" rx="14" fill="#0e1110"/>
+  <rect x="12" y="17" width="7.5" height="30" rx="1.8" fill="#c9ff46"/>
+  <rect x="23.5" y="17" width="7.5" height="30" rx="1.8" fill="#c9ff46"/>
+  <rect x="35" y="17" width="7.5" height="30" rx="1.8" fill="#333b37"/>
+  <rect x="46.5" y="17" width="7.5" height="30" rx="1.8" fill="#333b37"/>
+</svg>

@@ -1,0 +1,46 @@
+{
+  "name": "Circuit Book",
+  "short_name": "Circuit",
+  "description": "Build a library of workouts and drills, set them into routines by day, and work through them station by station.",
+  "start_url": "/today",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1110",
+  "theme_color": "#0e1110",
+  "categories": ["fitness", "health", "sports"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "url": "/today",
+      "description": "Start what is scheduled for today"
+    },
+    {
+      "name": "Library",
+      "short_name": "Library",
+      "url": "/library",
+      "description": "Add or edit a workout"
+    }
+  ]
+}
