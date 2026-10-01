@@ -14,8 +14,15 @@ import type { SessionItem } from "@/lib/database.types";
  */
 
 export type PendingOp =
-  | { id: string; kind: "item_complete"; itemId: string; completedAt: string }
-  | { id: string; kind: "item_reopen"; itemId: string }
+  | {
+      id: string;
+      kind: "set_complete";
+      sessionId: string;
+      itemId: string;
+      round: number;
+      completedAt: string;
+    }
+  | { id: string; kind: "set_reopen"; itemId: string; round: number }
   | { id: string; kind: "item_swap"; itemId: string; patch: Partial<SessionItem> }
   | { id: string; kind: "session_finish"; sessionId: string; completedAt: string };
 
@@ -67,14 +74,14 @@ export function enqueue(op: NewOp) {
   const ops = read();
   const withId = { ...op, id: crypto.randomUUID() } as PendingOp;
 
-  // Completing and reopening the same station cancel out; keep only the latest
-  // intent so a flaky tap does not replay a dozen writes.
+  // Completing and reopening the same set cancel out; keep only the latest
+  // intent so tapping a dot repeatedly does not replay a dozen writes.
   const filtered = ops.filter((existing) => {
     if (
-      (withId.kind === "item_complete" || withId.kind === "item_reopen") &&
-      (existing.kind === "item_complete" || existing.kind === "item_reopen")
+      (withId.kind === "set_complete" || withId.kind === "set_reopen") &&
+      (existing.kind === "set_complete" || existing.kind === "set_reopen")
     ) {
-      return existing.itemId !== withId.itemId;
+      return !(existing.itemId === withId.itemId && existing.round === withId.round);
     }
     return true;
   });
@@ -105,17 +112,25 @@ export async function flush(): Promise<{ sent: number; remaining: number }> {
     while (ops.length > 0) {
       const op = ops[0];
       try {
-        if (op.kind === "item_complete") {
-          const { error } = await supabase
-            .from("cb_session_items")
-            .update({ completed_at: op.completedAt })
-            .eq("id", op.itemId);
+        if (op.kind === "set_complete") {
+          // Upsert on the unique (item, round) pair, so a replayed tap after a
+          // flaky connection lands on the same row instead of duplicating it.
+          const { error } = await supabase.from("cb_session_sets").upsert(
+            {
+              session_id: op.sessionId,
+              session_item_id: op.itemId,
+              round_number: op.round,
+              completed_at: op.completedAt,
+            },
+            { onConflict: "session_item_id,round_number" },
+          );
           if (error) throw error;
-        } else if (op.kind === "item_reopen") {
+        } else if (op.kind === "set_reopen") {
           const { error } = await supabase
-            .from("cb_session_items")
-            .update({ completed_at: null })
-            .eq("id", op.itemId);
+            .from("cb_session_sets")
+            .delete()
+            .eq("session_item_id", op.itemId)
+            .eq("round_number", op.round);
           if (error) throw error;
         } else if (op.kind === "item_swap") {
           const { error } = await supabase

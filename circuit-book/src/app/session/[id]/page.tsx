@@ -4,27 +4,36 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import type { Session, SessionItem, Workout } from "@/lib/database.types";
+import type {
+  Session,
+  SessionBlock,
+  SessionBlockWithItems,
+  SessionItem,
+  SessionSet,
+  Workout,
+} from "@/lib/database.types";
 import { byPosition, formatTarget } from "@/lib/format";
 import { clearSnapshot, enqueue, flush, loadSnapshot, saveSnapshot } from "@/lib/outbox";
-import StationCard, { CheckIcon } from "@/components/StationCard";
+import BlockCard, { CheckIcon, setKey, type SetKey } from "@/components/BlockCard";
 import Thumb from "@/components/Thumb";
 import { Button, LoadingPanel, Notice, Sheet, Spinner } from "@/components/ui";
 
-type Snapshot = { session: Session; items: SessionItem[] };
+type Snapshot = {
+  session: Session;
+  blocks: SessionBlock[];
+  items: SessionItem[];
+  done: SetKey[];
+};
 
-/**
- * Session mode. The whole display belongs to one station, because this screen
- * gets read at arm's length by someone out of breath. Everything that is not
- * the station number, the target, or the button is quiet.
- */
 export default function SessionPage() {
   const params = useParams<{ id: string }>();
   const sessionId = params.id;
   const router = useRouter();
 
   const [session, setSession] = useState<Session | null>(null);
+  const [blocks, setBlocks] = useState<SessionBlock[]>([]);
   const [items, setItems] = useState<SessionItem[]>([]);
+  const [done, setDone] = useState<Set<SetKey>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
@@ -34,32 +43,31 @@ export default function SessionPage() {
   const [confirmQuit, setConfirmQuit] = useState(false);
 
   const strip = useRef<HTMLDivElement>(null);
-  const userId = useRef<string | null>(null);
 
   /* --- Load ---------------------------------------------------------- */
 
   useEffect(() => {
     let active = true;
 
-    // Paint from the local snapshot first so a dead connection still shows the
-    // session the user is standing in the middle of.
+    // Paint from the device first so a dead connection still shows the session
+    // you are standing in the middle of.
     const cached = loadSnapshot<Snapshot>(sessionId);
     if (cached) {
       setSession(cached.session);
-      setItems(byPosition(cached.items));
+      setBlocks(cached.blocks);
+      setItems(cached.items);
+      setDone(new Set(cached.done));
       setLoading(false);
     }
 
     (async () => {
       const supabase = supabaseBrowser();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) userId.current = user.id;
 
-      const [sessionRes, itemsRes, libraryRes] = await Promise.all([
+      const [sessionRes, blocksRes, itemsRes, setsRes, libraryRes] = await Promise.all([
         supabase.from("cb_sessions").select("*").eq("id", sessionId).single(),
+        supabase.from("cb_session_blocks").select("*").eq("session_id", sessionId),
         supabase.from("cb_session_items").select("*").eq("session_id", sessionId),
+        supabase.from("cb_session_sets").select("*").eq("session_id", sessionId),
         supabase.from("cb_workouts").select("*").order("name"),
       ]);
 
@@ -71,11 +79,17 @@ export default function SessionPage() {
         return;
       }
 
-      const loaded = byPosition(itemsRes.data ?? []);
+      const loadedBlocks = byPosition(blocksRes.data ?? []);
+      const loadedItems = itemsRes.data ?? [];
+      const loadedDone = new Set(
+        (setsRes.data ?? []).map((s: SessionSet) => setKey(s.session_item_id, s.round_number)),
+      );
+
       setSession(sessionRes.data);
-      setItems(loaded);
+      setBlocks(loadedBlocks);
+      setItems(loadedItems);
+      setDone(loadedDone);
       setLibrary(libraryRes.data ?? []);
-      saveSnapshot(sessionId, { session: sessionRes.data, items: loaded });
       setLoading(false);
     })();
 
@@ -84,27 +98,47 @@ export default function SessionPage() {
     };
   }, [sessionId]);
 
-  // Open on the first station that still needs doing.
+  /** Blocks with their exercises attached, in the order they are performed. */
+  const grouped: SessionBlockWithItems[] = useMemo(
+    () =>
+      blocks.map((block) => ({
+        ...block,
+        items: byPosition(items.filter((i) => i.block_id === block.id)),
+      })),
+    [blocks, items],
+  );
+
+  const totalSets = useMemo(
+    () => grouped.reduce((sum, b) => sum + b.items.length * b.rounds, 0),
+    [grouped],
+  );
+  const doneSets = done.size;
+  const allDone = totalSets > 0 && doneSets >= totalSets;
+  const current = grouped[index];
+
+  // Open on the first block that still has work in it.
   const landed = useRef(false);
   useEffect(() => {
-    if (landed.current || items.length === 0) return;
+    if (landed.current || grouped.length === 0) return;
     landed.current = true;
-    const firstOpen = items.findIndex((i) => !i.completed_at);
-    const target = firstOpen === -1 ? items.length - 1 : firstOpen;
+    const firstOpen = grouped.findIndex((b) =>
+      b.items.some((i) => Array.from({ length: b.rounds }, (_, r) => r + 1).some(
+        (round) => !done.has(setKey(i.id, round)),
+      )),
+    );
+    const target = firstOpen === -1 ? grouped.length - 1 : firstOpen;
     setIndex(target);
     requestAnimationFrame(() => {
       const node = strip.current;
       if (node) node.scrollLeft = target * node.clientWidth;
     });
-  }, [items]);
+  }, [grouped, done]);
 
   useEffect(() => {
-    if (session && items.length > 0) saveSnapshot(sessionId, { session, items });
-  }, [session, items, sessionId]);
-
-  const done = useMemo(() => items.filter((i) => i.completed_at).length, [items]);
-  const allDone = items.length > 0 && done === items.length;
-  const current = items[index];
+    if (session && blocks.length > 0) {
+      saveSnapshot(sessionId, { session, blocks, items, done: Array.from(done) });
+    }
+  }, [session, blocks, items, done, sessionId]);
 
   /* --- Interactions --------------------------------------------------- */
 
@@ -118,61 +152,108 @@ export default function SessionPage() {
     const node = strip.current;
     if (!node || node.clientWidth === 0) return;
     const next = Math.round(node.scrollLeft / node.clientWidth);
-    if (next !== index && next >= 0 && next < items.length) setIndex(next);
+    if (next !== index && next >= 0 && next < grouped.length) setIndex(next);
   }
 
-  function toggleDone(item: SessionItem) {
-    const nowDone = !item.completed_at;
+  const toggleSet = useCallback(
+    (item: SessionItem, round: number) => {
+      const key = setKey(item.id, round);
+      const wasDone = done.has(key);
+
+      setDone((prev) => {
+        const next = new Set(prev);
+        if (wasDone) next.delete(key);
+        else next.add(key);
+        return next;
+      });
+
+      enqueue(
+        wasDone
+          ? { kind: "set_reopen", itemId: item.id, round }
+          : {
+              kind: "set_complete",
+              sessionId,
+              itemId: item.id,
+              round,
+              completedAt: new Date().toISOString(),
+            },
+      );
+      void flush();
+    },
+    [done, sessionId],
+  );
+
+  /**
+   * The fast path: finish every exercise in the round you are on. One tap for
+   * a straight set, one tap for a whole superset round.
+   */
+  function completeRound() {
+    if (!current) return;
+    const rounds = Array.from({ length: current.rounds }, (_, i) => i + 1);
+    const round =
+      rounds.find((r) => current.items.some((i) => !done.has(setKey(i.id, r)))) ?? null;
+    if (round === null) return;
+
     const completedAt = new Date().toISOString();
+    const added: SetKey[] = [];
 
-    setItems((list) =>
-      list.map((i) =>
-        i.id === item.id ? { ...i, completed_at: nowDone ? completedAt : null } : i,
-      ),
-    );
+    current.items.forEach((item) => {
+      const key = setKey(item.id, round);
+      if (done.has(key)) return;
+      added.push(key);
+      enqueue({ kind: "set_complete", sessionId, itemId: item.id, round, completedAt });
+    });
 
-    enqueue(
-      nowDone
-        ? { kind: "item_complete", itemId: item.id, completedAt }
-        : { kind: "item_reopen", itemId: item.id },
-    );
+    if (added.length === 0) return;
+    setDone((prev) => new Set([...prev, ...added]));
     void flush();
 
-    if (nowDone) {
-      // Move to the next station that is still open, so the common case is a
-      // single tap per station with no navigation in between.
-      const after = items.findIndex((i, n) => n > index && !i.completed_at && i.id !== item.id);
-      const before = items.findIndex((i) => !i.completed_at && i.id !== item.id);
-      const next = after !== -1 ? after : before;
-      if (next !== -1) setTimeout(() => goTo(next), 180);
+    // If that finished the block, slide to the next one with work left.
+    const blockFinished = round === current.rounds;
+    if (blockFinished) {
+      const next = grouped.findIndex(
+        (b, n) =>
+          n !== index &&
+          b.items.some((i) =>
+            Array.from({ length: b.rounds }, (_, r) => r + 1).some(
+              (r) => !done.has(setKey(i.id, r)) && !added.includes(setKey(i.id, r)),
+            ),
+          ),
+      );
+      if (next !== -1) setTimeout(() => goTo(next), 220);
     }
   }
 
-  function swapStation(workout: Workout) {
-    if (!current) return;
+  function swapExercise(item: SessionItem, workout: Workout) {
     const patch = {
       workout_id: workout.id,
       workout_name: workout.name,
       description: workout.description,
       category: workout.category,
-      target_sets: workout.target_sets,
       target_reps: workout.target_reps,
       target_duration_seconds: workout.target_duration_seconds,
       image_path: workout.image_path,
-      swapped_from: current.workout_name,
-      completed_at: null,
+      image_paths: workout.image_path ? [workout.image_path] : [],
+      muscles: workout.muscles ?? [],
+      target_area: workout.target_area,
+      swapped_from: item.workout_name,
     };
 
-    setItems((list) => list.map((i) => (i.id === current.id ? { ...i, ...patch } : i)));
+    setItems((list) => list.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
+    // Sets already logged against this slot no longer describe what was done.
+    setDone((prev) => {
+      const next = new Set(prev);
+      for (let r = 1; r <= 50; r++) next.delete(setKey(item.id, r));
+      return next;
+    });
     setSwapping(false);
-    enqueue({ kind: "item_swap", itemId: current.id, patch });
+    enqueue({ kind: "item_swap", itemId: item.id, patch });
     void flush();
   }
 
   async function finish() {
     setFinishing(true);
-    const completedAt = new Date().toISOString();
-    enqueue({ kind: "session_finish", sessionId, completedAt });
+    enqueue({ kind: "session_finish", sessionId, completedAt: new Date().toISOString() });
     await flush();
     clearSnapshot(sessionId);
     router.replace(`/history?just=${sessionId}`);
@@ -201,9 +282,14 @@ export default function SessionPage() {
     );
   }
 
+  const nextRound = current
+    ? Array.from({ length: current.rounds }, (_, i) => i + 1).find((r) =>
+        current.items.some((i) => !done.has(setKey(i.id, r))),
+      )
+    : undefined;
+
   return (
     <div className="fixed inset-0 flex flex-col bg-base">
-      {/* Header: progress is the only chrome ----------------------------- */}
       <header className="pad-safe-t shrink-0 px-4 pt-3">
         <div className="mx-auto w-full max-w-lg">
           <div className="flex items-center justify-between gap-3">
@@ -227,52 +313,69 @@ export default function SessionPage() {
             </button>
           </div>
 
-          {/* One tick per station — the same mark as the app icon. */}
-          <div className="mt-2.5 flex gap-1" role="group" aria-label="Stations">
-            {items.map((item, i) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => goTo(i)}
-                aria-label={`Station ${i + 1}, ${item.workout_name}${
-                  item.completed_at ? ", done" : ""
-                }`}
-                aria-current={i === index ? "true" : undefined}
-                className="group h-6 flex-1 pt-2"
-              >
-                <span
-                  className={`block h-1.5 rounded-full transition-colors ${
-                    item.completed_at
-                      ? "tick-done bg-lime"
-                      : i === index
-                        ? "bg-chalk"
-                        : "bg-line"
-                  }`}
-                />
-              </button>
-            ))}
+          {/* One tick per block, filling as its sets complete. */}
+          <div className="mt-2.5 flex gap-1" role="group" aria-label="Blocks">
+            {grouped.map((block, i) => {
+              const blockTotal = block.items.length * block.rounds;
+              const blockDone = block.items.reduce(
+                (sum, item) =>
+                  sum +
+                  Array.from({ length: block.rounds }, (_, r) => r + 1).filter((r) =>
+                    done.has(setKey(item.id, r)),
+                  ).length,
+                0,
+              );
+              const ratio = blockTotal === 0 ? 0 : blockDone / blockTotal;
+
+              return (
+                <button
+                  key={block.id}
+                  type="button"
+                  onClick={() => goTo(i)}
+                  aria-label={`Block ${i + 1}, ${blockDone} of ${blockTotal} sets done`}
+                  aria-current={i === index ? "true" : undefined}
+                  className="group h-6 flex-1 pt-2"
+                >
+                  <span
+                    className={`relative block h-1.5 overflow-hidden rounded-full ${
+                      i === index && ratio < 1 ? "bg-chalk/35" : "bg-line"
+                    }`}
+                  >
+                    <span
+                      className="absolute inset-y-0 left-0 rounded-full bg-lime transition-[width] duration-200"
+                      style={{ width: `${ratio * 100}%` }}
+                    />
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </header>
 
-      {/* The placards ---------------------------------------------------- */}
       <div
         ref={strip}
         onScroll={onScroll}
         className="snap-x-strip flex min-h-0 flex-1 overflow-x-auto overflow-y-hidden"
       >
-        {items.map((item, i) => (
-          <StationCard key={item.id} item={item} number={i + 1} total={items.length} />
+        {grouped.map((block, i) => (
+          <BlockCard
+            key={block.id}
+            block={block}
+            number={i + 1}
+            total={grouped.length}
+            done={done}
+            onToggleSet={toggleSet}
+          />
         ))}
       </div>
 
-      {/* Action bar ------------------------------------------------------- */}
       <footer className="shrink-0 border-t border-line-soft bg-base px-4 pt-3 pb-[max(env(safe-area-inset-bottom),12px)]">
         <div className="mx-auto w-full max-w-lg">
           {allDone ? (
             <div className="space-y-3">
               <p className="text-center text-sm text-muted">
-                All {items.length} stations done. Nice work.
+                All {totalSets} sets done. Nice work.
               </p>
               <Button size="lg" onClick={finish} disabled={finishing}>
                 {finishing && <Spinner />}
@@ -282,19 +385,11 @@ export default function SessionPage() {
           ) : (
             current && (
               <>
-                <Button
-                  size="lg"
-                  variant={current.completed_at ? "outline" : "primary"}
-                  onClick={() => toggleDone(current)}
-                >
-                  {current.completed_at ? (
-                    "Mark as not done"
-                  ) : (
-                    <>
-                      <CheckIcon />
-                      Done
-                    </>
-                  )}
+                <Button size="lg" onClick={completeRound} disabled={nextRound === undefined}>
+                  <CheckIcon />
+                  {current.items.length === 1
+                    ? `Done, set ${nextRound} of ${current.rounds}`
+                    : `Done, round ${nextRound} of ${current.rounds}`}
                 </Button>
 
                 <div className="mt-2 flex items-center justify-between">
@@ -303,10 +398,10 @@ export default function SessionPage() {
                     onClick={() => setSwapping(true)}
                     className="min-h-11 px-1 text-sm font-medium text-muted"
                   >
-                    Swap station
+                    Swap
                   </button>
                   <span className="tnum text-sm text-muted">
-                    {done} of {items.length} done
+                    {doneSets} of {totalSets} sets
                   </span>
                   <button
                     type="button"
@@ -322,19 +417,17 @@ export default function SessionPage() {
         </div>
       </footer>
 
-      {/* Swap ------------------------------------------------------------- */}
       <SwapSheet
         open={swapping}
+        block={current}
         library={library}
-        currentName={current?.workout_name ?? ""}
         onClose={() => setSwapping(false)}
-        onPick={swapStation}
+        onPick={swapExercise}
       />
 
-      {/* Leaving ---------------------------------------------------------- */}
       <Sheet open={confirmQuit} onClose={() => setConfirmQuit(false)} title="Leave this session?">
         <p className="text-sm leading-relaxed text-muted">
-          Everything you have ticked off stays saved. You can pick this session back up from
+          Every set you have ticked off stays saved. You can pick this session back up from
           Today, or finish it now and log it.
         </p>
         <div className="mt-6 space-y-2.5">
@@ -364,73 +457,113 @@ export default function SessionPage() {
 
 function SwapSheet({
   open,
+  block,
   library,
-  currentName,
   onClose,
   onPick,
 }: {
   open: boolean;
+  block: SessionBlockWithItems | undefined;
   library: Workout[];
-  currentName: string;
   onClose: () => void;
-  onPick: (workout: Workout) => void;
+  onPick: (item: SessionItem, workout: Workout) => void;
 }) {
   const [query, setQuery] = useState("");
+  const [target, setTarget] = useState<SessionItem | null>(null);
 
   useEffect(() => {
-    if (open) setQuery("");
-  }, [open]);
+    if (open) {
+      setQuery("");
+      // With one exercise there is nothing to choose between.
+      setTarget(block && block.items.length === 1 ? block.items[0] : null);
+    }
+  }, [open, block]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return library.filter((w) => w.name.toLowerCase() !== currentName.toLowerCase() &&
-      (!q || w.name.toLowerCase().includes(q)));
-  }, [library, query, currentName]);
+    return library.filter(
+      (w) =>
+        w.name.toLowerCase() !== (target?.workout_name ?? "").toLowerCase() &&
+        (!q || w.name.toLowerCase().includes(q)),
+    );
+  }, [library, query, target]);
+
+  if (!block) return null;
 
   return (
-    <Sheet open={open} onClose={onClose} title="Swap this station">
-      <p className="mb-4 text-sm leading-relaxed text-muted">
-        Replaces {currentName} for this session only. Your routine stays as it is.
-      </p>
-
-      <input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search workouts"
-        aria-label="Search workouts"
-        className="min-h-12 w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-chalk placeholder:text-faint focus:border-lime focus:outline-none"
-      />
-
-      {visible.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">
-          Nothing else in the library to swap in.
-        </p>
+    <Sheet open={open} onClose={onClose} title="Swap an exercise">
+      {!target ? (
+        <>
+          <p className="mb-4 text-sm leading-relaxed text-muted">
+            Which one are you replacing?
+          </p>
+          <ul>
+            {block.items.map((item, i) => (
+              <li key={item.id} className="border-b border-line-soft last:border-0">
+                <button
+                  type="button"
+                  onClick={() => setTarget(item)}
+                  className="flex w-full items-center gap-3 py-3 text-left active:bg-surface"
+                >
+                  <span className="ex grid h-6 w-6 shrink-0 place-items-center rounded bg-raise text-xs font-bold text-muted">
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <Thumb path={item.image_path} alt="" className="h-11 w-11 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate font-medium">
+                    {item.workout_name}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
       ) : (
-        <ul className="mt-3">
-          {visible.map((workout) => (
-            <li key={workout.id} className="border-b border-line-soft last:border-0">
-              <button
-                type="button"
-                onClick={() => onPick(workout)}
-                className="flex w-full items-center gap-3 py-2.5 text-left active:bg-surface"
-              >
-                <Thumb path={workout.image_path} alt="" className="h-11 w-11 shrink-0" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{workout.name}</span>
-                  {(() => {
-                    const t = formatTarget({
-                      sets: workout.target_sets,
-                      reps: workout.target_reps,
-                      durationSeconds: workout.target_duration_seconds,
-                    });
-                    return t ? <span className="tnum text-sm text-muted">{t}</span> : null;
-                  })()}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className="mb-4 text-sm leading-relaxed text-muted">
+            Replaces {target.workout_name} for this session only. Your routine stays as it is,
+            and any sets already logged against it are cleared.
+          </p>
+
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search workouts"
+            aria-label="Search workouts"
+            className="min-h-12 w-full rounded-xl border border-line bg-surface px-3.5 py-3 text-chalk placeholder:text-faint focus:border-lime focus:outline-none"
+          />
+
+          {visible.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted">
+              Nothing else in the library to swap in.
+            </p>
+          ) : (
+            <ul className="mt-3">
+              {visible.map((workout) => (
+                <li key={workout.id} className="border-b border-line-soft last:border-0">
+                  <button
+                    type="button"
+                    onClick={() => onPick(target, workout)}
+                    className="flex w-full items-center gap-3 py-2.5 text-left active:bg-surface"
+                  >
+                    <Thumb path={workout.image_path} alt="" className="h-11 w-11 shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{workout.name}</span>
+                      {(() => {
+                        const t = formatTarget({
+                          sets: workout.target_sets,
+                          reps: workout.target_reps,
+                          durationSeconds: workout.target_duration_seconds,
+                        });
+                        return t ? <span className="tnum text-sm text-muted">{t}</span> : null;
+                      })()}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </Sheet>
   );

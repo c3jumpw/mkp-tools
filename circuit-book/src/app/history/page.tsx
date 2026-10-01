@@ -38,7 +38,7 @@ function History() {
       const supabase = supabaseBrowser();
       const { data, error } = await supabase
         .from("cb_sessions")
-        .select("id, routine_name, started_at, completed_at, cb_session_items(completed_at)")
+        .select("id, routine_name, started_at, completed_at, cb_session_blocks(rounds, cb_session_items(id)), cb_session_sets(id)")
         .order("started_at", { ascending: false })
         .limit(60);
 
@@ -53,15 +53,19 @@ function History() {
               routine_name: string;
               started_at: string;
               completed_at: string | null;
-              cb_session_items: { completed_at: string | null }[];
+              cb_session_blocks: { rounds: number; cb_session_items: { id: string }[] }[];
+              cb_session_sets: { id: string }[];
             };
             return {
               id: r.id,
               routine_name: r.routine_name,
               started_at: r.started_at,
               completed_at: r.completed_at,
-              total: r.cb_session_items.length,
-              done: r.cb_session_items.filter((i) => i.completed_at).length,
+              total: r.cb_session_blocks.reduce(
+                (sum, b) => sum + b.cb_session_items.length * b.rounds,
+                0,
+              ),
+              done: r.cb_session_sets.length,
             };
           }),
         );
@@ -103,18 +107,20 @@ function History() {
                   </div>
 
                   <div className="mt-2.5 flex gap-0.5" aria-hidden="true">
-                    {Array.from({ length: row.total }).map((_, i) => (
+                    {Array.from({ length: Math.min(row.total, 40) }).map((_, i) => (
                       <span
                         key={i}
                         className={`h-1.5 flex-1 rounded-full ${
-                          i < row.done ? "bg-lime" : "bg-line"
+                          i < Math.round((row.done / Math.max(row.total, 1)) * Math.min(row.total, 40))
+                            ? "bg-lime"
+                            : "bg-line"
                         }`}
                       />
                     ))}
                   </div>
 
                   <p className="tnum mt-2 text-sm text-muted">
-                    {row.done} of {row.total} stations
+                    {row.done} of {row.total} sets
                     {row.completed_at && `, ${formatElapsed(row.started_at, row.completed_at)}`}
                     {!row.completed_at && ", still open"}
                   </p>

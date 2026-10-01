@@ -13,7 +13,8 @@ type RoutineRow = {
   name: string;
   description: string | null;
   days: number[];
-  stations: number;
+  blocks: number;
+  sets: number;
 };
 
 export default function RoutinesPage() {
@@ -33,7 +34,7 @@ export default function RoutinesPage() {
       const supabase = supabaseBrowser();
       const { data, error } = await supabase
         .from("cb_routines")
-        .select("id, name, description, cb_routine_days(day_of_week), cb_routine_items(id)")
+        .select("id, name, description, cb_routine_days(day_of_week), cb_routine_blocks(id, rounds, cb_routine_items(id))")
         .order("name", { ascending: true });
 
       if (!active) return;
@@ -47,14 +48,18 @@ export default function RoutinesPage() {
               name: string;
               description: string | null;
               cb_routine_days: { day_of_week: number }[];
-              cb_routine_items: { id: string }[];
+              cb_routine_blocks: { id: string; rounds: number; cb_routine_items: { id: string }[] }[];
             };
             return {
               id: r.id,
               name: r.name,
               description: r.description,
               days: r.cb_routine_days.map((d) => d.day_of_week).sort(),
-              stations: r.cb_routine_items.length,
+              blocks: r.cb_routine_blocks.length,
+              sets: r.cb_routine_blocks.reduce(
+                (sum, b) => sum + b.cb_routine_items.length * b.rounds,
+                0,
+              ),
             };
           }),
         );
@@ -142,7 +147,7 @@ export default function RoutinesPage() {
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="ex truncate text-[1.05rem] font-semibold">{routine.name}</h2>
                   <span className="tnum shrink-0 text-sm text-muted">
-                    {routine.stations} {routine.stations === 1 ? "station" : "stations"}
+                    {routine.blocks} {routine.blocks === 1 ? "block" : "blocks"}
                   </span>
                 </div>
                 <div className="mt-2.5">

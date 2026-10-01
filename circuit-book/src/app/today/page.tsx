@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { DAY_FULL, estimateMinutes, todayIndex } from "@/lib/format";
+import { startSession } from "@/lib/session";
 import AppFrame from "@/components/AppFrame";
 import { Button, EmptyState, LoadingPanel, Notice, Spinner } from "@/components/ui";
 
@@ -45,12 +46,12 @@ export default function TodayPage() {
         supabase
           .from("cb_routines")
           .select(
-            "id, name, cb_routine_days(day_of_week), cb_routine_items(sets_override, workout:cb_workouts(target_sets, target_duration_seconds))",
+            "id, name, cb_routine_days(day_of_week), cb_routine_blocks(rounds, cb_routine_items(id, workout:cb_workouts(target_duration_seconds)))",
           )
           .order("name"),
         supabase
           .from("cb_sessions")
-          .select("id, routine_name, cb_session_items(completed_at)")
+          .select("id, routine_name, cb_session_blocks(rounds, cb_session_items(id)), cb_session_sets(id)")
           .is("completed_at", null)
           .order("started_at", { ascending: false })
           .limit(1),
@@ -65,9 +66,12 @@ export default function TodayPage() {
           id: string;
           name: string;
           cb_routine_days: { day_of_week: number }[];
-          cb_routine_items: {
-            sets_override: number | null;
-            workout: { target_sets: number | null; target_duration_seconds: number | null } | null;
+          cb_routine_blocks: {
+            rounds: number;
+            cb_routine_items: {
+              id: string;
+              workout: { target_duration_seconds: number | null } | null;
+            }[];
           }[];
         }[];
 
@@ -75,10 +79,14 @@ export default function TodayPage() {
         const rest: { id: string; name: string }[] = [];
 
         for (const row of rows) {
-          const stations = row.cb_routine_items.map((item) => ({
-            sets: item.sets_override ?? item.workout?.target_sets ?? null,
-            durationSeconds: item.workout?.target_duration_seconds ?? null,
-          }));
+          // One entry per exercise per block, carrying that block's round count,
+          // so the estimate reflects supersets rather than counting them once.
+          const stations = row.cb_routine_blocks.flatMap((block) =>
+            block.cb_routine_items.map((item) => ({
+              sets: block.rounds,
+              durationSeconds: item.workout?.target_duration_seconds ?? null,
+            })),
+          );
           if (row.cb_routine_days.some((d) => d.day_of_week === day)) {
             forToday.push({ id: row.id, name: row.name, stations });
           } else {
@@ -91,14 +99,22 @@ export default function TodayPage() {
       }
 
       const session = sessionRes.data?.[0] as
-        | { id: string; routine_name: string; cb_session_items: { completed_at: string | null }[] }
+        | {
+            id: string;
+            routine_name: string;
+            cb_session_blocks: { rounds: number; cb_session_items: { id: string }[] }[];
+            cb_session_sets: { id: string }[];
+          }
         | undefined;
       if (session) {
         setOpen({
           id: session.id,
           routine_name: session.routine_name,
-          total: session.cb_session_items.length,
-          done: session.cb_session_items.filter((i) => i.completed_at).length,
+          total: session.cb_session_blocks.reduce(
+            (sum, b) => sum + b.cb_session_items.length * b.rounds,
+            0,
+          ),
+          done: session.cb_session_sets.length,
         });
       }
 
@@ -111,56 +127,21 @@ export default function TodayPage() {
 
   async function start(routineId: string, routineName: string) {
     setStarting(routineId);
-    const supabase = supabaseBrowser();
-
     try {
+      const supabase = supabaseBrowser();
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("no user");
+      if (!user) throw new Error("no-user");
 
-      const { data: items, error: itemsError } = await supabase
-        .from("cb_routine_items")
-        .select("*, workout:cb_workouts(*)")
-        .eq("routine_id", routineId)
-        .order("position");
-      if (itemsError) throw itemsError;
-      if (!items || items.length === 0) {
-        setError("That routine has no stations yet.");
-        setStarting(null);
-        return;
-      }
-
-      const { data: session, error } = await supabase
-        .from("cb_sessions")
-        .insert({ routine_id: routineId, routine_name: routineName, user_id: user.id })
-        .select()
-        .single();
-      if (error) throw error;
-
-      const rows = items.map((item, i) => {
-        const w = (item as { workout: Record<string, unknown> | null }).workout;
-        return {
-          session_id: session.id,
-          user_id: user.id,
-          workout_id: item.workout_id,
-          workout_name: (w?.name as string) ?? "Workout",
-          description: item.notes ?? ((w?.description as string | null) ?? null),
-          category: (w?.category as string | null) ?? null,
-          target_sets: item.sets_override ?? ((w?.target_sets as number | null) ?? null),
-          target_reps: item.reps_override ?? ((w?.target_reps as string | null) ?? null),
-          target_duration_seconds: (w?.target_duration_seconds as number | null) ?? null,
-          image_path: (w?.image_path as string | null) ?? null,
-          position: i,
-        };
-      });
-
-      const { error: insertError } = await supabase.from("cb_session_items").insert(rows);
-      if (insertError) throw insertError;
-
-      router.push(`/session/${session.id}`);
-    } catch {
-      setError("Could not start that session. Check your connection and try again.");
+      const id = await startSession(routineId, routineName, user.id);
+      router.push(`/session/${id}`);
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message === "empty-routine"
+          ? "That routine has no exercises yet."
+          : "Could not start that session. Check your connection and try again.",
+      );
       setStarting(null);
     }
   }
@@ -195,7 +176,7 @@ export default function TodayPage() {
                   <div className="min-w-0">
                     <p className="ex truncate text-lg font-bold">{open.routine_name}</p>
                     <p className="tnum mt-1 text-sm text-muted">
-                      {open.done} of {open.total} done
+                      {open.done} of {open.total} sets
                     </p>
                   </div>
                   <span className="shrink-0 rounded-lg bg-lime px-4 py-2.5 text-sm font-semibold text-base">
@@ -248,7 +229,7 @@ export default function TodayPage() {
                           <p className="ex truncate text-lg font-bold">{routine.name}</p>
                           <p className="tnum mt-1 text-sm text-muted">
                             {routine.stations.length}{" "}
-                            {routine.stations.length === 1 ? "station" : "stations"}
+                            {routine.stations.length === 1 ? "set" : "sets"}
                             {routine.stations.length > 0 &&
                               `, about ${estimateMinutes(routine.stations)} min`}
                           </p>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import type { Workout } from "@/lib/database.types";
 import { formatTarget } from "@/lib/format";
+import { MUSCLES, muscleLabel, muscleSentence } from "@/lib/muscles";
 import AppFrame from "@/components/AppFrame";
 import Thumb from "@/components/Thumb";
 import WorkoutEditor from "@/components/WorkoutEditor";
@@ -15,6 +16,7 @@ export default function LibraryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("All");
+  const [muscleFilter, setMuscleFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<Workout | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -50,10 +52,19 @@ export default function LibraryPage() {
     return ["All", ...Array.from(found).sort()];
   }, [workouts]);
 
+  // Only muscles actually used in the library, in vocabulary order, so the
+  // filter rail never offers something with nothing behind it.
+  const muscleFilters = useMemo(() => {
+    const found = new Set<string>();
+    workouts.forEach((w) => w.muscles?.forEach((m) => found.add(m)));
+    return MUSCLES.filter((m) => found.has(m.id)).map((m) => m.id);
+  }, [workouts]);
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return workouts.filter((w) => {
       if (filter !== "All" && w.category !== filter) return false;
+      if (muscleFilter && !(w.muscles ?? []).includes(muscleFilter)) return false;
       if (!q) return true;
       return (
         w.name.toLowerCase().includes(q) ||
@@ -61,7 +72,7 @@ export default function LibraryPage() {
         (w.category ?? "").toLowerCase().includes(q)
       );
     });
-  }, [workouts, filter, query]);
+  }, [workouts, filter, query, muscleFilter]);
 
   function openNew() {
     setEditing(null);
@@ -133,10 +144,24 @@ export default function LibraryPage() {
             </div>
           )}
 
+          {muscleFilters.length > 0 && (
+            <div className="rail flex gap-2 overflow-x-auto px-4 pb-3">
+              {muscleFilters.map((id) => (
+                <Chip
+                  key={id}
+                  active={muscleFilter === id}
+                  onClick={() => setMuscleFilter(muscleFilter === id ? null : id)}
+                >
+                  {muscleLabel(id)}
+                </Chip>
+              ))}
+            </div>
+          )}
+
           {visible.length === 0 ? (
             <EmptyState
               title="No matches"
-              body="Nothing in the library fits that search. Try a different word, or clear the filter."
+              body="Nothing in the library fits that. Try a different word, or clear the filters."
             />
           ) : (
             <ul className="mt-1">
@@ -167,6 +192,11 @@ export default function LibraryPage() {
                           ) : null;
                         })()}
                         {workout.category && <Tag>{workout.category}</Tag>}
+                        {workout.muscles?.length > 0 && (
+                          <span className="truncate text-xs text-faint">
+                            {muscleSentence(workout.muscles)}
+                          </span>
+                        )}
                       </span>
                     </span>
                     <ChevronIcon />
