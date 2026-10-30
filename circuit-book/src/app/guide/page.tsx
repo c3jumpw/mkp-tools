@@ -62,16 +62,16 @@ export default function GuidePage() {
 
       <Section id="today" title="Today">
         <P>
-          The home screen. It shows what is due this weekday, with anything left unfinished pinned
-          above it.
+          The home screen. It shows what is due this weekday, with your most recent unfinished
+          session pinned above it.
         </P>
         <Fig name="today" />
       </Section>
 
       <Section id="library" title="Library">
         <P>
-          Each exercise is entered once and reused by every routine. Sessions already logged keep
-          what was done, even if you edit or delete the exercise later.
+          Each exercise is entered once and reused by every routine. Edits show up the next time a
+          routine using it starts; sessions already logged keep what was done.
         </P>
         <Fig name="library" />
         <P>Tapping an exercise, or New, opens the editor.</P>
@@ -108,6 +108,10 @@ export default function GuidePage() {
         <Fig name="swap" />
         <Fig name="leave" />
         <Fig name="finished" />
+        <P>
+          The Edit in library link at the bottom of each card leaves the session open; Resume on
+          Today brings you back to it.
+        </P>
       </Section>
 
       <Section id="history" title="History and your account">
@@ -120,18 +124,20 @@ export default function GuidePage() {
 
       <Section id="offline" title="Working offline">
         <P>
-          A running session keeps working with no signal. Changes wait on the phone and send
-          themselves when the connection is back, stamped with the time you tapped.
+          An open session keeps working with no signal. Changes wait on the phone and send
+          themselves when the connection is back, stamped with the time you tapped. Keep the app
+          open: once it is closed, you need a signal to get back in.
         </P>
         <Fig name="offline" />
         <div className="mt-5 grid gap-3">
           <Card title="Works with no signal">
-            <li>The session you&rsquo;re in: ticking sets, swapping, finishing</li>
-            <li>Reopening that session after closing the app</li>
-            <li>Photos and pages you&rsquo;ve already viewed on this phone</li>
+            <li>The session you have open: ticking sets and finishing</li>
+            <li>Swapping, if the session was opened with a signal</li>
+            <li>Photos you&rsquo;ve already seen, while the app stays open</li>
           </Card>
           <Card title="Needs a signal">
-            <li>Starting a new session</li>
+            <li>Starting a session</li>
+            <li>Getting back in after closing the app, including Resume</li>
             <li>Loading Today, Library, Routines and History</li>
             <li>Adding or editing exercises and routines</li>
           </Card>
@@ -141,12 +147,12 @@ export default function GuidePage() {
       <Section id="faq" title="Questions">
         <div className="mt-2 divide-y divide-line-soft border-y border-line-soft">
           <Faq q="I forgot my password">
-            There is no reset link in the app. Whoever runs Circuit Book can send a reset from the
-            Supabase dashboard, under Authentication, Users.
+            The app can&rsquo;t reset passwords yet: there is no screen to choose a new one. Ask
+            whoever runs Circuit Book to set a new password for your account.
           </Faq>
           <Faq q="An exercise shows grey bars instead of a photo">
-            The photo has not loaded yet. Photos need a signal the first time; after that they are
-            kept on the phone.
+            Either it has no photo yet, or the photo hasn&rsquo;t loaded. Photos need a signal to
+            load each time the app is reopened.
           </Faq>
           <Faq q="I deleted an exercise. Is my history gone?">
             No. Each logged session keeps its own copy of what was done, including names and
@@ -248,7 +254,7 @@ function Flow() {
     ["Routines", "Blocks, set to days"],
   ];
   const daily: [string, string][] = [
-    ["Today", "What's due, plus anything unfinished"],
+    ["Today", "What's due, plus your latest unfinished session"],
     ["Session", "One card per block"],
     ["History", "Every session; Resume if open"],
   ];

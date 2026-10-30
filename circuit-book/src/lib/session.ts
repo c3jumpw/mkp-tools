@@ -32,8 +32,12 @@ export async function startSession(
   if (blocksRes.error) throw blocksRes.error;
   if (itemsRes.error) throw itemsRes.error;
 
-  const blocks = (blocksRes.data ?? []) as RoutineBlock[];
   const items = (itemsRes.data ?? []) as ItemWithWorkout[];
+  // A block whose exercises were all deleted has nothing to do; carrying it
+  // into the session would leave an empty card with nothing to tick.
+  const blocks = ((blocksRes.data ?? []) as RoutineBlock[]).filter((b) =>
+    items.some((i) => i.block_id === b.id),
+  );
 
   if (blocks.length === 0 || items.length === 0) {
     throw new Error("empty-routine");

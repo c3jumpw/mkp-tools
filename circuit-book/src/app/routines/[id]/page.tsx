@@ -433,8 +433,9 @@ export default function RoutineBuilderPage() {
         <div className="mx-auto w-full max-w-lg px-4">
           <div className="rounded-xl border border-dashed border-line px-5 py-10 text-center">
             <p className="text-sm leading-relaxed text-muted">
-              A block is one exercise done for a few rounds, or two or three alternated as a
-              superset. Add the first one and put the exercises in the order you run them.
+              A block is one exercise done for a few rounds, or two or more alternated each round
+              as a superset or circuit. Add the first one and put the exercises in the order you
+              run them.
             </p>
             <div className="mt-5 flex justify-center">
               <Button onClick={() => setPicking({ blockId: null })}>Add a block</Button>
@@ -859,7 +860,7 @@ function WorkoutPicker({
         <>
           {!intoBlock && (
             <p className="mb-3 text-sm leading-relaxed text-muted">
-              Pick one for straight sets, or two or three to alternate between as a superset.
+              Pick one for straight sets, two for a superset, or three or more for a circuit.
             </p>
           )}
 

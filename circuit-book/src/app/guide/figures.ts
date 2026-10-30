@@ -13,27 +13,109 @@ export type Figure = {
 };
 
 export const FIGURES = {
-  "block-settings": {
-    src: "/guide/v2/block-settings.webp",
-    width: 390,
-    height: 507,
-    title: "Block settings",
-    legend: [
-      ["Sets / Rounds", "How many times the block repeats, from 1 to 50."],
-      ["Exercise", "The bin takes it out of the block. Removing the last one removes the block."],
-      ["Pair with another exercise", "Adds a second exercise and turns straight sets into a superset; a third makes a circuit."],
-      ["Remove this block", "Takes the whole block out of the routine."],
-    ],
-  },
-  "builder-bottom": {
-    src: "/guide/v2/builder-bottom.webp",
+  "login": {
+    src: "/guide/v2/login.webp",
     width: 390,
     height: 844,
-    title: "Routine builder, further down",
+    title: "Sign in",
     legend: [
-      ["Add another block", "Opens the exercise picker for a new block at the end."],
-      ["What this covers", "Every muscle tagged on the routine's exercises, on one body map. Gaps show what it misses."],
-      ["Delete this routine", "Asks first. Your exercises stay in the library and finished sessions keep their record."],
+      ["Email and password", "The same pair signs you in on any phone or computer."],
+      ["Sign in", "Opens Today."],
+      ["Create an account", "Switches the form to sign-up. Passwords need at least 6 characters."],
+    ],
+  },
+  "today": {
+    src: "/guide/v2/today.webp",
+    width: 390,
+    height: 844,
+    title: "Today",
+    legend: [
+      ["In progress", "Your most recent unfinished session. Resume opens it on the set you reached; older ones wait in History."],
+      ["Scheduled today", "Routines set for this weekday, with total sets and a rough time. Start opens session mode."],
+      ["Other routines", "Everything not scheduled today. Start runs one anyway; tap the name to edit it."],
+      ["Guide", "Opens this guide. On Library, Routines and History it sits at the top right of the header."],
+      ["Tabs", "Today, Library, Routines and History, on every main screen."],
+    ],
+  },
+  "offline": {
+    src: "/guide/v2/offline.webp",
+    width: 390,
+    height: 324,
+    title: "Changes waiting to sync",
+    legend: [
+      ["Sync pill", "Shows on the four main tabs while changes are queued on the phone, and disappears once they reach the server."],
+    ],
+  },
+  "library": {
+    src: "/guide/v2/library.webp",
+    width: 390,
+    height: 844,
+    title: "Library",
+    legend: [
+      ["New", "Opens a blank editor. The exercise is added when you tap Add to library."],
+      ["Search", "Matches names, notes and categories as you type."],
+      ["Category chips", "Show one category at a time; All clears the filter."],
+      ["Muscle chips", "Show only exercises tagged with that muscle. Tap again to clear."],
+      ["Exercise", "Cover photo, target, category and muscles worked. Tap to edit."],
+    ],
+  },
+  "editor-top": {
+    src: "/guide/v2/editor-top.webp",
+    width: 390,
+    height: 777,
+    title: "Workout editor: photos and target",
+    legend: [
+      ["Name", "The only field you have to fill in."],
+      ["Photos", "Up to six, shown in this order during a session. The arrows reorder, the bin removes, and the first is the cover."],
+      ["Add another photo", "Opens your photo library. Photos are shrunk on the phone before they upload."],
+      ["Sets \u00d7 reps", "Reps is the target on the session card and can be words, such as \"8 each side\". Sets is only the starting count when the exercise begins a new block; each block keeps its own."],
+      ["Time", "Minutes and seconds for holds and timed drills, instead of reps."],
+    ],
+  },
+  "editor-muscles": {
+    src: "/guide/v2/editor-muscles.webp",
+    width: 390,
+    height: 777,
+    title: "Workout editor: target area",
+    legend: [
+      ["Body map", "Tap a muscle on the front or back figure to tag it. Tagged muscles light up here and on the session card."],
+      ["Muscle chips", "The same fifteen muscles as a list, grouped by upper body, core and lower body. Either way works."],
+      ["Clear all", "Removes every tag."],
+    ],
+  },
+  "editor-bottom": {
+    src: "/guide/v2/editor-bottom.webp",
+    width: 390,
+    height: 777,
+    title: "Workout editor: category, notes and saving",
+    legend: [
+      ["Target area note", "Anything more specific about what the move works. It shows on the session card."],
+      ["Category", "Tap a suggestion or type your own. Categories become the filter chips in the Library."],
+      ["Notes", "Cues or working weight. They show under the set squares during a session."],
+      ["Delete this workout", "Asks first. Removes it from the library and every routine, deletes its photos, and drops any block it was alone in. Logged sessions keep their record."],
+      ["Save changes", "Nothing changes until you tap this. Close the sheet to discard edits."],
+    ],
+  },
+  "routines": {
+    src: "/guide/v2/routines.webp",
+    width: 390,
+    height: 844,
+    title: "Routines",
+    legend: [
+      ["New", "Name a routine and choose its days."],
+      ["Days", "Lime squares are the days it runs, Sunday first. Tap the routine to open the builder."],
+      ["Not scheduled", "A routine with no days. It still appears on Today under Other routines."],
+    ],
+  },
+  "new-routine": {
+    src: "/guide/v2/new-routine.webp",
+    width: 390,
+    height: 376,
+    title: "New routine",
+    legend: [
+      ["Name", "What you'll see on Today and in History."],
+      ["Days", "Tap any number of days. A day can hold more than one routine, and you can change them later."],
+      ["Create routine", "Opens the routine builder so you can add blocks."],
     ],
   },
   "builder-top": {
@@ -50,115 +132,27 @@ export const FIGURES = {
       ["Start this routine", "Runs it now, whatever day it is."],
     ],
   },
-  "editor-bottom": {
-    src: "/guide/v2/editor-bottom.webp",
-    width: 390,
-    height: 777,
-    title: "Workout editor: category, notes and saving",
-    legend: [
-      ["Target area note", "Anything more specific about what the move works. It shows on the session card."],
-      ["Category", "Tap a suggestion or type your own. Categories become the filter chips in the Library."],
-      ["Notes", "Cues or working weight. They show under the set squares during a session."],
-      ["Delete this workout", "Asks first. It leaves the library and every routine; finished sessions keep their record."],
-      ["Save changes", "Nothing changes until you tap this. Close the sheet to discard edits."],
-    ],
-  },
-  "editor-muscles": {
-    src: "/guide/v2/editor-muscles.webp",
-    width: 390,
-    height: 777,
-    title: "Workout editor: target area",
-    legend: [
-      ["Body map", "Tap a muscle on the front or back figure to tag it. Tagged muscles light up here and on the session card."],
-      ["Muscle chips", "The same fifteen muscles as a list, grouped by upper body, core and lower body. Either way works."],
-      ["Clear all", "Removes every tag."],
-    ],
-  },
-  "editor-top": {
-    src: "/guide/v2/editor-top.webp",
-    width: 390,
-    height: 777,
-    title: "Workout editor: photos and target",
-    legend: [
-      ["Name", "The only field you have to fill in."],
-      ["Photos", "Up to six, shown in this order during a session. The arrows reorder, the bin removes, and the first is the cover."],
-      ["Add another photo", "Opens your photo library. Photos are shrunk on the phone before they upload."],
-      ["Sets \u00d7 reps", "The target on the session card. Reps can be words, such as \"8 each side\"."],
-      ["Time", "Minutes and seconds for holds and timed drills, instead of reps."],
-    ],
-  },
-  "finished": {
-    src: "/guide/v2/finished.webp",
-    width: 390,
-    height: 210,
-    title: "Every set done",
-    legend: [
-      ["Finish session", "Appears once every set is ticked. Logs the session and opens History."],
-    ],
-  },
-  "history": {
-    src: "/guide/v2/history.webp",
+  "builder-bottom": {
+    src: "/guide/v2/builder-bottom.webp",
     width: 390,
     height: 844,
-    title: "History",
+    title: "Routine builder, further down",
     legend: [
-      ["Unfinished session", "Still open. Resume picks it up where you left it."],
-      ["Finished session", "Date, a bar of sets done, the total, and how long it took."],
-      ["Sign out", "The only account control in the app."],
+      ["Add another block", "Opens the exercise picker for a new block at the end."],
+      ["What this covers", "Every muscle tagged on the routine's exercises, on one body map. Gaps show what it misses."],
+      ["Delete this routine", "Asks first. Your exercises stay in the library and finished sessions keep their record."],
     ],
   },
-  "leave": {
-    src: "/guide/v2/leave.webp",
+  "block-settings": {
+    src: "/guide/v2/block-settings.webp",
     width: 390,
-    height: 294,
-    title: "Leaving a session",
+    height: 507,
+    title: "Block settings",
     legend: [
-      ["Leave it running", "Back to Today. Every ticked set is kept; Resume on Today or History picks it up."],
-      ["Finish and log it", "Ends the session with the sets you've ticked and opens History."],
-    ],
-  },
-  "library": {
-    src: "/guide/v2/library.webp",
-    width: 390,
-    height: 844,
-    title: "Library",
-    legend: [
-      ["New", "Adds an exercise and opens the editor."],
-      ["Search", "Matches names, notes and categories as you type."],
-      ["Category chips", "Show one category at a time; All clears the filter."],
-      ["Muscle chips", "Show only exercises tagged with that muscle. Tap again to clear."],
-      ["Exercise", "Cover photo, target, category and muscles worked. Tap to edit."],
-    ],
-  },
-  "login": {
-    src: "/guide/v2/login.webp",
-    width: 390,
-    height: 844,
-    title: "Sign in",
-    legend: [
-      ["Email and password", "The same pair signs you in on any phone or computer."],
-      ["Sign in", "Opens Today."],
-      ["Create an account", "Switches the form to sign-up. Passwords need at least 6 characters."],
-    ],
-  },
-  "new-routine": {
-    src: "/guide/v2/new-routine.webp",
-    width: 390,
-    height: 376,
-    title: "New routine",
-    legend: [
-      ["Name", "What you'll see on Today and in History."],
-      ["Days", "Tap any number of days. A day can hold more than one routine, and you can change them later."],
-      ["Create routine", "Opens the routine builder so you can add blocks."],
-    ],
-  },
-  "offline": {
-    src: "/guide/v2/offline.webp",
-    width: 390,
-    height: 324,
-    title: "Changes waiting to sync",
-    legend: [
-      ["Sync pill", "Only shows while changes are queued on the phone. It disappears once they reach the server."],
+      ["Sets / Rounds", "How many times the block repeats, from 1 to 50."],
+      ["Exercise", "The bin takes it out of the block. Removing the last one removes the block."],
+      ["Pair with another exercise", "Adds a second exercise and turns straight sets into a superset; a third makes a circuit."],
+      ["Remove this block", "Takes the whole block out of the routine."],
     ],
   },
   "picker": {
@@ -169,18 +163,7 @@ export const FIGURES = {
     legend: [
       ["Search and filter", "Narrow the list by name or category."],
       ["Ticked exercises", "Tick as many as the block needs, in the order you'll do them."],
-      ["Add button", "Names what you'll get: one exercise is straight sets, two a superset, three or more a circuit."],
-    ],
-  },
-  "routines": {
-    src: "/guide/v2/routines.webp",
-    width: 390,
-    height: 844,
-    title: "Routines",
-    legend: [
-      ["New", "Name a routine and choose its days."],
-      ["Routine", "Block count, and its days: lime squares are the days it runs, Sunday first. Tap to open the builder."],
-      ["Not scheduled", "A routine with no days. It still appears on Today under Other routines."],
+      ["Add button", "Names what a new block becomes: one exercise is straight sets, two a superset, three or more a circuit. Opened from Pair, it adds to that block instead."],
     ],
   },
   "session-straight": {
@@ -194,8 +177,18 @@ export const FIGURES = {
       ["Set squares", "One per set. Tap any square to tick or untick it, in any order."],
       ["Done", "Ticks the next set. When the block is finished it slides on to the next one."],
       ["Swap", "Use a different exercise for this session only. The routine is unchanged."],
-      ["End early", "Finishes now and logs what you've ticked."],
+      ["End early", "Finishes now and logs what you've ticked. It doesn't ask first, and a finished session can't be reopened."],
       ["Leave", "Leave it running for later, or finish and log it."],
+    ],
+  },
+  "leave": {
+    src: "/guide/v2/leave.webp",
+    width: 390,
+    height: 294,
+    title: "Leaving a session",
+    legend: [
+      ["Leave it running", "Back to Today. Every ticked set is kept; Resume on Today or History picks it up."],
+      ["Finish and log it", "Ends the session with the sets you've ticked and opens History."],
     ],
   },
   "session-superset": {
@@ -227,17 +220,24 @@ export const FIGURES = {
       ["Replacement", "Any exercise in your library. Tap one to swap it in for this session; sets already ticked for the old one are cleared."],
     ],
   },
-  "today": {
-    src: "/guide/v2/today.webp",
+  "finished": {
+    src: "/guide/v2/finished.webp",
+    width: 390,
+    height: 210,
+    title: "Every set done",
+    legend: [
+      ["Finish session", "Appears once every set is ticked. Logs the session and opens History."],
+    ],
+  },
+  "history": {
+    src: "/guide/v2/history.webp",
     width: 390,
     height: 844,
-    title: "Today",
+    title: "History",
     legend: [
-      ["In progress", "A session you left running. Resume opens it on the set you reached."],
-      ["Scheduled today", "Routines set for this weekday, with total sets and a rough time. Start opens session mode."],
-      ["Other routines", "Everything not scheduled today. Start runs one anyway; tap the name to edit it."],
-      ["Guide", "Opens this guide. On the other tabs it sits next to the page title."],
-      ["Tabs", "Today, Library, Routines and History, on every main screen."],
+      ["Unfinished session", "Still open. Resume picks it up where you left it."],
+      ["Finished session", "Date, a bar of sets done, the total, and how long it took."],
+      ["Sign out", "The only account control in the app."],
     ],
   },
 } satisfies Record<string, Figure>;

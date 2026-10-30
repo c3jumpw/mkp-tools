@@ -239,8 +239,14 @@ export default function SessionPage() {
       swapped_from: item.workout_name,
     };
 
+    // Sets already logged against this slot no longer describe what was done,
+    // so they are cleared on the server too — otherwise they would come back
+    // on Resume and still count in History.
+    const logged = Array.from({ length: 50 }, (_, r) => r + 1).filter((r) =>
+      done.has(setKey(item.id, r)),
+    );
+
     setItems((list) => list.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
-    // Sets already logged against this slot no longer describe what was done.
     setDone((prev) => {
       const next = new Set(prev);
       for (let r = 1; r <= 50; r++) next.delete(setKey(item.id, r));
@@ -248,6 +254,7 @@ export default function SessionPage() {
     });
     setSwapping(false);
     enqueue({ kind: "item_swap", itemId: item.id, patch });
+    logged.forEach((round) => enqueue({ kind: "set_reopen", itemId: item.id, round }));
     void flush();
   }
 

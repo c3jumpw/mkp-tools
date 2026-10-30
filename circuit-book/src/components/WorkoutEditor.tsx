@@ -6,6 +6,7 @@ import { uploadWorkoutImage, deleteWorkoutImage, forgetSignedUrl } from "@/lib/i
 import {
   MAX_IMAGES_PER_WORKOUT,
   SUGGESTED_CATEGORIES,
+  modeForCount,
   type Workout,
   type WorkoutImage,
 } from "@/lib/database.types";
@@ -73,6 +74,9 @@ export default function WorkoutEditor({
     if (!open) return;
     setError(null);
     setConfirmDelete(false);
+    // The sheet stays mounted between uses, so a finished delete must not
+    // leave the next workout's buttons disabled.
+    setBusy(false);
 
     if (!workout) {
       setDraft(toDraft(null, []));
@@ -254,6 +258,7 @@ export default function WorkoutEditor({
     setBusy(true);
     try {
       const supabase = supabaseBrowser();
+      await tidyBlocks(workout.id);
       const { error } = await supabase.from("cb_workouts").delete().eq("id", workout.id);
       if (error) throw error;
       draft.frames.forEach((f) => void deleteWorkoutImage(f.path));
@@ -263,6 +268,45 @@ export default function WorkoutEditor({
       setError(err instanceof Error ? err.message : "Could not delete that. Try again.");
       setBusy(false);
     }
+  }
+
+  /**
+   * Deleting a workout cascades its routine items away, which would leave a
+   * block it was alone in empty, and a superset it shared labelled for two.
+   * Remove the first and relabel the second before the delete lands.
+   */
+  async function tidyBlocks(workoutId: string) {
+    const supabase = supabaseBrowser();
+    const { data: uses } = await supabase
+      .from("cb_routine_items")
+      .select("block_id")
+      .eq("workout_id", workoutId);
+    const blockIds = Array.from(new Set((uses ?? []).map((u) => u.block_id)));
+    if (blockIds.length === 0) return;
+
+    const { data: rows } = await supabase
+      .from("cb_routine_items")
+      .select("block_id, workout_id")
+      .in("block_id", blockIds);
+    const remaining = new Map(blockIds.map((id) => [id, 0]));
+    (rows ?? []).forEach((r) => {
+      if (r.workout_id !== workoutId) remaining.set(r.block_id, (remaining.get(r.block_id) ?? 0) + 1);
+    });
+
+    const emptied = blockIds.filter((id) => remaining.get(id) === 0);
+    if (emptied.length > 0) {
+      await supabase.from("cb_routine_blocks").delete().in("id", emptied);
+    }
+    await Promise.all(
+      blockIds
+        .filter((id) => (remaining.get(id) ?? 0) > 0)
+        .map((id) =>
+          supabase
+            .from("cb_routine_blocks")
+            .update({ mode: modeForCount(remaining.get(id) ?? 1) })
+            .eq("id", id),
+        ),
+    );
   }
 
   const atLimit = draft.frames.length >= MAX_IMAGES_PER_WORKOUT;
