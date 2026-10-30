@@ -29,13 +29,18 @@ export default function AppFrame({
 
   return (
     <div className="flex min-h-dvh flex-col">
-      {title && (
+      {title ? (
         <header className="pad-safe-t sticky top-0 z-30 border-b border-line-soft bg-base/92 backdrop-blur-sm">
           <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-4 py-3">
             <h1 className="ex-tight text-[1.6rem] leading-none font-bold">{title}</h1>
-            {action}
+            <div className="flex items-center gap-2">
+              <GuideLink />
+              {action}
+            </div>
           </div>
         </header>
+      ) : (
+        <GuideLink corner />
       )}
 
       <main className="mx-auto w-full max-w-lg flex-1 pb-28">{children}</main>
@@ -67,6 +72,37 @@ export default function AppFrame({
 
       <SyncBadge />
     </div>
+  );
+}
+
+/**
+ * A quiet way into the in-app guide from any main screen. Inline next to the
+ * title when there is a header (Library, Routines, History); a small fixed
+ * corner button on Today, which draws its own header with no room for one.
+ */
+function GuideLink({ corner = false }: { corner?: boolean }) {
+  return (
+    <Link
+      href="/guide"
+      aria-label="Guide"
+      className={
+        corner
+          ? "pad-safe-t fixed top-3 right-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-base/80 text-muted backdrop-blur-sm active:bg-raise"
+          : "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted active:bg-raise"
+      }
+    >
+      <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.6" />
+        <path
+          d="M7.8 7.7a2.2 2.2 0 1 1 3.3 2.1c-.7.4-1.1.8-1.1 1.6v.3"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="10" cy="14.4" r="0.9" fill="currentColor" />
+      </svg>
+    </Link>
   );
 }
 
