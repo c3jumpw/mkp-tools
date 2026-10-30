@@ -26,6 +26,8 @@ export default function AppFrame({
   action?: React.ReactNode;
 }) {
   const pathname = usePathname();
+  // No point offering the guide from inside the guide.
+  const showGuide = !pathname.startsWith("/guide");
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -34,13 +36,13 @@ export default function AppFrame({
           <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3 px-4 py-3">
             <h1 className="ex-tight text-[1.6rem] leading-none font-bold">{title}</h1>
             <div className="flex items-center gap-2">
-              <GuideLink />
+              {showGuide && <GuideLink />}
               {action}
             </div>
           </div>
         </header>
       ) : (
-        <GuideLink corner />
+        showGuide && <GuideLink corner />
       )}
 
       <main className="mx-auto w-full max-w-lg flex-1 pb-28">{children}</main>

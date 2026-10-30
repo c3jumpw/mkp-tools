@@ -202,7 +202,12 @@ export default function TodayPage() {
                   title="Nothing scheduled yet"
                   body="Build a routine, put it on the days you train, and it will be waiting here when that day comes around."
                   action={
-                    <Button onClick={() => router.push("/routines")}>Create a routine</Button>
+                    <div className="flex flex-col items-center gap-4">
+                      <Button onClick={() => router.push("/routines")}>Create a routine</Button>
+                      <Link href="/guide" className="text-sm text-muted underline underline-offset-4">
+                        How Circuit Book works
+                      </Link>
+                    </div>
                   }
                 />
               ) : (
@@ -219,7 +224,12 @@ export default function TodayPage() {
                   {open ? "Also scheduled" : "Scheduled"}
                 </h2>
                 <ul className="space-y-2.5">
-                  {scheduled.map((routine) => (
+                  {scheduled.map((routine) => {
+                    // Each station is one exercise in one block, carrying that
+                    // block's round count, so the total is the sum of rounds —
+                    // the same figure the routine builder and session show.
+                    const sets = routine.stations.reduce((n, s) => n + (s.sets ?? 0), 0);
+                    return (
                     <li
                       key={routine.id}
                       className="overflow-hidden rounded-xl border border-line bg-surface"
@@ -228,10 +238,9 @@ export default function TodayPage() {
                         <div className="min-w-0">
                           <p className="ex truncate text-lg font-bold">{routine.name}</p>
                           <p className="tnum mt-1 text-sm text-muted">
-                            {routine.stations.length}{" "}
-                            {routine.stations.length === 1 ? "set" : "sets"}
-                            {routine.stations.length > 0 &&
-                              `, about ${estimateMinutes(routine.stations)} min`}
+                            {routine.stations.length === 0
+                              ? "No exercises yet"
+                              : `${sets} ${sets === 1 ? "set" : "sets"}, about ${estimateMinutes(routine.stations)} min`}
                           </p>
                         </div>
                         <Button
@@ -244,7 +253,8 @@ export default function TodayPage() {
                         </Button>
                       </div>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               </>
             )}

@@ -92,6 +92,34 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Guide screenshots: shown from the cache once seen, so the guide reads with no
+  // signal, and refreshed in the background after a deploy changes them.
+  if (
+    url.origin === self.location.origin &&
+    url.pathname.startsWith("/guide/") &&
+    request.mode !== "navigate"
+  ) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(IMAGE_CACHE);
+        const cached = await cache.match(request);
+        const fetching = fetch(request)
+          .then((response) => {
+            if (response.ok) cache.put(request, response.clone());
+            return response;
+          })
+          .catch(() => null);
+        if (cached) {
+          event.waitUntil(fetching);
+          return cached;
+        }
+        const fresh = await fetching;
+        return fresh || new Response("", { status: 504, statusText: "Offline" });
+      })(),
+    );
+    return;
+  }
+
   // Build output is content-hashed, so it can be served from cache forever.
   if (url.origin === self.location.origin && url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
