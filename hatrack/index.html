@@ -6,6 +6,12 @@
 <title>HatRack</title>
 <meta name="description" content="HatRack — a lightweight visual sorter for entrepreneurs who wear many hats. Paste long to-do lists, sort them onto your businesses, projects and personal life, and export them to your task app.">
 <meta name="theme-color" content="#1E6B52">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HatRack">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='4' width='28' height='3' rx='1.5' fill='%2364748B'/%3E%3Cpath d='M16 7v4' stroke='%2364748B' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M8 22c0-6 3.6-9.5 8-9.5s8 3.5 8 9.5z' fill='%231E6B52'/%3E%3Cellipse cx='16' cy='23' rx='12.5' ry='3.4' fill='%231E6B52'/%3E%3Cpath d='M8.4 19.4h15.2' stroke='%23D9961A' stroke-width='2.2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +30,8 @@
   --font-ui:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --font-display:"Bricolage Grotesque",var(--font-ui);
   --colw:292px;
+  --tint-red:#FCE3E0; --tint-orange:#FDE7D2; --tint-yellow:#FAF0C2; --tint-green:#DCF0E2; --tint-teal:#D3EEEE;
+  --tint-blue:#DCE8F8; --tint-purple:#E9E1F7; --tint-pink:#F8E0EB; --tint-gray:#E5E8EC;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
@@ -36,6 +44,8 @@
     --danger:#F0705F; --danger-soft:#3D1F1B;
     --shadow:0 1px 0 rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.35);
     --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+    --tint-red:#3B2321; --tint-orange:#3B2918; --tint-yellow:#373018; --tint-green:#1B3226; --tint-teal:#163233;
+    --tint-blue:#1A2B40; --tint-purple:#2A2240; --tint-pink:#38202D; --tint-gray:#29313B;
     color-scheme:dark;
   }
 }
@@ -48,6 +58,8 @@
   --danger:#F0705F; --danger-soft:#3D1F1B;
   --shadow:0 1px 0 rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.35);
   --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+  --tint-red:#3B2321; --tint-orange:#3B2918; --tint-yellow:#373018; --tint-green:#1B3226; --tint-teal:#163233;
+  --tint-blue:#1A2B40; --tint-purple:#2A2240; --tint-pink:#38202D; --tint-gray:#29313B;
   color-scheme:dark;
 }
 
@@ -150,7 +162,7 @@ button.col-name.drill:hover{text-decoration:underline;text-decoration-color:var(
 .col-add .btn:hover{color:var(--ink);background:var(--surface)}
 
 /* coat-check tag card */
-.card{position:relative;background:var(--surface);border-radius:8px;padding:8px 9px 8px 22px;box-shadow:var(--shadow);cursor:grab;border:1px solid transparent;user-select:none;-webkit-user-select:none}
+.card{position:relative;background:var(--cbg,var(--surface));border-radius:8px;padding:8px 9px 8px 22px;box-shadow:var(--shadow);cursor:grab;border:1px solid transparent;user-select:none;-webkit-user-select:none}
 .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:8px 0 0 8px;background:var(--tag,var(--line))}
 .card::after{content:"";position:absolute;left:10px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line)}
 .card:hover{border-color:var(--line)}
@@ -211,7 +223,7 @@ button.col-name.drill:hover{text-decoration:underline;text-decoration-color:var(
 .sect h4{margin:0 0 6px;font:700 14px/1.2 var(--font-display);display:flex;align-items:center;gap:8px}
 .sect h4 .muted{font:400 13px var(--font-ui)}
 .subs{display:flex;flex-direction:column;gap:4px}
-.sub{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:4px;align-items:center}
+.sub{display:grid;grid-template-columns:auto 1fr auto auto auto auto;gap:4px;align-items:center}
 .sub .inp{padding:4px 7px}
 .sub.done .inp{text-decoration:line-through;color:var(--muted)}
 .sub-note{grid-column:2 / -1}
@@ -221,14 +233,14 @@ button.col-name.drill:hover{text-decoration:underline;text-decoration-color:var(
 .meta-line{font-size:12.5px;color:var(--muted)}
 
 /* ---------- modal ---------- */
-.modal-back{position:fixed;inset:0;background:rgba(10,14,20,.48);z-index:60;display:grid;place-items:center;padding:14px}
+.modal-back{position:fixed;inset:0;background:rgba(10,14,20,.48);z-index:60;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:14px}
 .modal{background:var(--surface);border-radius:14px;width:min(720px,100%);max-height:calc(100vh - 28px);display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
 .modal.wide{width:min(1180px,100%)}
 .modal.tri-modal{width:min(900px,100%)}
 .modal:focus{outline:none}
 .modal-head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
 .modal-head h3{margin:0;font:700 21px/1.2 var(--font-display);letter-spacing:-.01em;flex:1}
-.modal-body{padding:4px 16px 16px;overflow:auto;flex:1;min-height:0}
+.modal-body{padding:4px 16px 16px;overflow:auto;flex:1;min-height:0;min-width:0}
 .modal-foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--line2)}
 .modal-foot .left{margin-right:auto}
 
@@ -274,7 +286,21 @@ button.col-name.drill:hover{text-decoration:underline;text-decoration-color:var(
 .ol-h.l3,.ol-h.l4,.ol-h.l5{font-size:15.5px}
 .ol-notes{white-space:pre-wrap;color:var(--ink2);font-size:14px;margin:0 0 8px}
 .ol-list{list-style:none;padding:0;margin:0 0 6px}
-.ol-item{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line2)}
+.ol-item{list-style:none}
+.ol-row{display:grid;grid-template-columns:auto auto 1fr;gap:6px 8px;align-items:start;padding:5px 6px 5px 2px;border-bottom:1px dashed var(--line2);border-radius:6px;background:var(--cbg,transparent);position:relative}
+.ol-row[data-bg]{border-bottom-color:transparent;margin-bottom:2px}
+.ol-grip{cursor:grab;color:var(--muted);opacity:.35;font-size:14px;line-height:22px;padding:0 2px;user-select:none}
+.ol-row:hover .ol-grip{opacity:1}
+.ol-row input[type=checkbox]{margin-top:3px}
+.ol-body{min-width:0}
+.ol-children{padding-left:26px;margin:2px 0 4px;border-left:2px solid var(--line2);margin-left:13px}
+.ol-item.is-sel>.ol-row{box-shadow:inset 0 0 0 2px var(--hl)}
+.ol-item.is-dragging>.ol-row,.ol-sub.is-dragging{opacity:.35}
+.ol-sub{cursor:grab}
+.ol-more{border:0;background:none;padding:2px 0;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer}
+.drop-before{box-shadow:0 -3px 0 0 var(--accent)}
+.drop-after{box-shadow:0 3px 0 0 var(--accent)}
+.ol-h.is-over{background:var(--accent-soft);border-radius:6px;outline:2px dashed var(--accent);outline-offset:2px}
 .ol-item .t{border:0;background:none;padding:0;text-align:left;font:inherit;color:var(--ink);cursor:pointer}
 .ol-item .t:hover{text-decoration:underline}
 .ol-item .m{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
@@ -396,6 +422,8 @@ button.col-name.drill:hover{text-decoration:underline;text-decoration-color:var(
   .tb-search{width:100%}
   .grid2{grid-template-columns:1fr}
   .board{padding:0 10px 140px}
+  .selbar{left:8px;right:8px;transform:none;max-width:none;flex-wrap:nowrap;overflow-x:auto;bottom:10px;-webkit-overflow-scrolling:touch}
+  .selbar .n{white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -411,6 +439,74 @@ button.col-name.drill:hover{text-decoration:underline;text-decoration-color:var(
 .cheat summary{cursor:pointer;font-weight:700;color:var(--ink)}
 body.has-sel .col-key{display:inline-block}
 .col-key[hidden]{display:none}
+
+/* ---------- previews, subtasks, colors (v1.1) ---------- */
+.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.density-compact .card .card-title.clamp{-webkit-line-clamp:2;line-clamp:2}
+.is-open>.card-title.clamp,.is-open>.ol-row .clamp,.ol-item.is-open>.ol-row .clamp{display:block;-webkit-line-clamp:unset;line-clamp:none;overflow:visible}
+.ol-item .t.clamp{text-align:left}
+.ol-item .n.clamp{margin-top:4px}
+.card-more{display:flex;align-items:center;gap:6px;margin:7px 0 -2px;border:0;background:none;padding:2px 0;color:var(--ink2);font-size:12.5px;font-weight:700;text-align:left;cursor:pointer;max-width:100%}
+.card-more:hover{color:var(--accent)}
+.card-more .chev{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:4px;background:var(--chip);font-size:10px;color:var(--ink2);flex:none}
+.card[data-bg] .card-more .chev,.card[data-bg] .pill{background:rgba(255,255,255,.6)}
+:root[data-theme="dark"] .card[data-bg] .pill,:root[data-theme="dark"] .card[data-bg] .card-more .chev{background:rgba(0,0,0,.28)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .card[data-bg] .pill,:root:not([data-theme="light"]) .card[data-bg] .card-more .chev{background:rgba(0,0,0,.28)}}
+.density-compact .card:not(.is-open) .card-more{display:none}
+.card-body{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:8px;cursor:default}
+.cb-notes{white-space:pre-wrap;font-size:13.5px;color:var(--ink2);overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
+.cb-subs{display:flex;flex-direction:column;gap:3px}
+.cb-sub{display:flex;gap:7px;align-items:flex-start;font-size:13.5px;cursor:pointer}
+.cb-sub input{margin-top:2px;flex:none}
+.cb-sub.done span{text-decoration:line-through;color:var(--muted)}
+.subtree{display:flex;flex-direction:column;gap:5px}
+.subcard{position:relative;display:grid;grid-template-columns:auto 1fr;gap:7px;align-items:start;margin-left:calc(var(--d,0) * 16px);background:var(--scbg,var(--panel));border-radius:7px;padding:6px 8px;cursor:grab;border:1px solid transparent}
+.card[data-bg] .subcard:not([data-bg]){--scbg:rgba(255,255,255,.6)}
+:root[data-theme="dark"] .card[data-bg] .subcard:not([data-bg]){--scbg:rgba(0,0,0,.24)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .card[data-bg] .subcard:not([data-bg]){--scbg:rgba(0,0,0,.24)}}
+.subcard:hover{border-color:var(--line)}
+.subcard.is-sel{border-color:var(--hl)}
+.subcard.is-dragging{opacity:.35}
+.subcard.is-done .sc-title{text-decoration:line-through;color:var(--muted)}
+.sc-done{margin-top:2px}
+.sc-title{font-size:13.5px;line-height:1.35;overflow-wrap:anywhere}
+.subcard .card-meta{margin-top:4px}
+.subtree .drop-ph{margin:0}
+.add-sub{align-self:flex-start;border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:7px;padding:3px 9px;font-size:13px}
+.add-sub:hover{color:var(--ink);border-color:var(--muted)}
+.add-sub-inp{width:100%;font-size:13.5px}
+.nest-target{outline:2px solid var(--accent)!important;outline-offset:1px;position:relative}
+.nest-target::after,.card.nest-target::after{content:attr(data-nest-label);position:absolute;left:auto;top:auto;width:auto;height:auto;box-shadow:none;line-height:1.4;right:6px;top:-11px;bottom:auto;z-index:3;background:var(--accent);color:var(--accent-ink);font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;pointer-events:none}
+.card.nest-target{background:var(--accent-soft)}
+.linkish{border:0;background:none;padding:0;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.drawer-head .path .sep{color:var(--muted)}
+.swatches,.sw-row{display:flex;flex-wrap:wrap;gap:6px}
+.sw-row{padding:4px 8px 6px}
+.swb{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);background:var(--sw,var(--surface));padding:0;cursor:pointer;position:relative}
+.swb[data-swv=""],.swb[data-color=""]{background:linear-gradient(135deg,transparent 44%,var(--muted) 44% 56%,transparent 56%),var(--surface)}
+.swb:hover{transform:scale(1.08)}
+.swb.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.menu .sw-row .swb{display:inline-block;width:24px;height:24px;padding:0;border-radius:50%;border:1.5px solid var(--line);background:var(--sw,var(--surface))}
+.menu .sw-row .swb[data-swv=""]{background:linear-gradient(135deg,transparent 44%,var(--muted) 44% 56%,transparent 56%),var(--surface)}
+.menu .sw-row .swb:hover{transform:scale(1.1);border-color:var(--ink2)}
+.menu .sw-row .swb.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.st-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto auto;gap:4px;align-items:center;padding:3px 4px;border-radius:7px;background:var(--cbg,transparent)}
+.st-row:hover{background:var(--cbg,var(--panel))}
+.st-title{border:0;background:none;padding:2px 0;text-align:left;font:inherit;color:var(--ink);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-title:hover{text-decoration:underline}
+.st-row.done .st-title{text-decoration:line-through;color:var(--muted)}
+.st-meta{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.cdot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--sw);border:1px solid var(--line);margin-right:6px;vertical-align:0}
+.clamp-inline{display:-webkit-inline-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:100%}
+/* in-app guide */
+.guide-frame{width:100%;height:min(78vh,900px);border:0;border-radius:10px;background:var(--bg);display:block}
+.modal.guide-modal{width:min(1240px,100%)}
+.modal.guide-modal .modal-body{padding:0 12px 12px}
+.help-link{font-size:13px;font-weight:700;color:var(--accent);border:0;background:none;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.pane-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.modal-head .help-link{margin-right:4px}
+
+.parent-line{font-size:13.5px;color:var(--muted);margin-bottom:-8px;overflow-wrap:anywhere}
 
 </style>
 </head>
@@ -435,7 +531,7 @@ body.has-sel .col-key{display:inline-block}
     <button class="btn" id="btn-triage">Triage</button>
     <button class="btn" id="btn-export" title="Export to Todoist, Asana, CSV, Markdown, calendar… (E)">Export</button>
     <button class="btn ghost" id="btn-settings" title="Groups, types, priorities, fields and backups">Configure</button>
-    <button class="icon-btn" id="btn-help" aria-label="Help and shortcuts" title="Help and shortcuts (?)">?</button>
+    <button class="icon-btn" id="btn-help" aria-label="Help, visual guide and shortcuts" aria-haspopup="menu" title="Help, visual guide and shortcuts">?</button>
     <button class="icon-btn" id="btn-theme" aria-label="Switch theme"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5a7.5 7.5 0 0 1 0 15z" fill="currentColor"/></svg></button>
   </div>
 </header>
@@ -600,11 +696,16 @@ function defaultData() {
 const UI_DEFAULT = {
   view: 'board', group: 'area', lanes: 'none', sort: 'manual', cursor: null, density: 'cozy', theme: 'auto', copyDrop: false,
   f: { q: '', type: '', pri: '', status: 'open', due: '', rep: '' },
-  listSort: { key: 'order', dir: 1 }, settingsTab: 'hierarchy', triageAuto: true, started: false,
+  listSort: { key: 'order', dir: 1 }, settingsTab: 'hierarchy', triageAuto: true, started: false, exp: {},
 };
 
 let D = null, U = null;
-let A = {}, KIDS = {}, T = {}, PR = {}, ST = {}, TASK = {}, PRANK = {};
+let A = {}, KIDS = {}, T = {}, PR = {}, ST = {}, TASK = {}, PRANK = {}, CH = {};
+
+/* card background tints (names map to CSS variables, so they work in light and dark) */
+const CARD_COLORS = [['', 'No color'], ['red', 'Red'], ['orange', 'Orange'], ['yellow', 'Yellow'], ['green', 'Green'], ['teal', 'Teal'], ['blue', 'Blue'], ['purple', 'Purple'], ['pink', 'Pink'], ['gray', 'Gray']];
+const COLOR_NAME = Object.fromEntries(CARD_COLORS);
+const tintVar = c => (c && COLOR_NAME[c] ? `var(--tint-${c})` : '');
 
 function loadData() {
   try { const raw = localStorage.getItem(LS_KEY); if (raw) return migrate(JSON.parse(raw)); } catch (e) { console.warn('HatRack: could not read saved data', e); }
@@ -630,7 +731,15 @@ function fixTask(t, i) {
   if (!t.statusId || !ST[t.statusId]) t.statusId = defaultStatus();
   if (t.typeId && !T[t.typeId]) t.typeId = null;
   if (t.priorityId && !PR[t.priorityId]) t.priorityId = null;
+  if (!t.parentId) t.parentId = null;
+  if (t.color && !COLOR_NAME[t.color]) t.color = '';
+  t.color ||= '';
   return t;
+}
+/** tidy freshly loaded or restored data */
+function normalizeData() {
+  reindex(); D.tasks.forEach(fixTask); reindex(); fixHierarchy(); reindex();
+  if (U && U.exp) for (const id of Object.keys(U.exp)) if (!TASK[id]) delete U.exp[id];
 }
 function loadUI() {
   let u = {};
@@ -649,6 +758,9 @@ function reindex() {
   PRANK = Object.fromEntries(D.priorities.map((x, i) => [x.id, i]));
   ST = Object.fromEntries(D.statuses.map(x => [x.id, x]));
   TASK = Object.fromEntries(D.tasks.map(t => [t.id, t]));
+  CH = {};
+  for (const t of D.tasks) if (t.parentId && TASK[t.parentId] && t.parentId !== t.id) (CH[t.parentId] ||= []).push(t);
+  for (const k in CH) CH[k].sort((x, y) => x.order - y.order);
   if (U && U.cursor && !A[U.cursor]) U.cursor = null;
 }
 const kids = id => KIDS[id || ''] || [];
@@ -671,12 +783,53 @@ function nextColor(extra = []) {
   return PALETTE.find(c => !used.has(c)) || PALETTE[(D.areas.length + extra.length) % PALETTE.length];
 }
 
+/* ---------- subtask hierarchy ---------- */
+const MAX_NEST = 3; // a top-level task plus three levels of subtasks (Todoist supports four levels)
+const childrenOf = id => CH[id] || [];
+const parentOf = t => (t && t.parentId && TASK[t.parentId] && t.parentId !== t.id ? TASK[t.parentId] : null);
+function taskAncestors(t) { const out = []; const seen = new Set([t.id]); let p = parentOf(t); while (p && !seen.has(p.id)) { seen.add(p.id); out.unshift(p); p = parentOf(p); } return out; }
+const rootOf = t => taskAncestors(t)[0] || t;
+const taskDepth = t => taskAncestors(t).length;
+const isRootTask = t => !parentOf(t);
+function taskDescendants(t) { const out = []; const seen = new Set([t.id]); const walk = x => childrenOf(x.id).forEach(c => { if (seen.has(c.id)) return; seen.add(c.id); out.push(c); walk(c); }); walk(t); return out; }
+function subtreeHeight(t, g = 0) { let h = 0; if (g > 8) return h; childrenOf(t.id).forEach(c => { h = Math.max(h, 1 + subtreeHeight(c, g + 1)); }); return h; }
+function canNest(child, parent) {
+  if (!child || !parent || child.id === parent.id) return false;
+  if (taskAncestors(parent).some(a => a.id === child.id)) return false;
+  return taskDepth(parent) + 1 + subtreeHeight(child) <= MAX_NEST;
+}
+/** set a task's group and carry its subtasks along */
+function setAreaDeep(t, areaId) { t.areaId = areaId || null; taskDescendants(t).forEach(c => { c.areaId = t.areaId; }); }
+/** keep only the top-most tasks of a set (children travel with their parents) */
+function topmost(list) { const ids = new Set(list.map(t => t.id)); return list.filter(t => !taskAncestors(t).some(a => ids.has(a.id))); }
+/** a set of tasks plus all their subtasks */
+function withDescendants(list) { const out = new Map(); list.forEach(t => { out.set(t.id, t); taskDescendants(t).forEach(c => out.set(c.id, c)); }); return [...out.values()]; }
+/** make child a subtask of parent (inside mutate). Returns false if it can't nest there. */
+function nestTask(child, parent) {
+  if (!canNest(child, parent)) return false;
+  child.parentId = parent.id; setAreaDeep(child, parent.areaId);
+  child.order = maxOrder() + 1; child.updated = now();
+  CH[parent.id] = [...childrenOf(parent.id).filter(c => c.id !== child.id), child];
+  return true;
+}
+/** repair parent links after loading data: drop missing parents and loops; subtasks share their top task's group */
+function fixHierarchy() {
+  const byId = Object.fromEntries(D.tasks.map(t => [t.id, t]));
+  for (const t of D.tasks) {
+    if (t.parentId && !byId[t.parentId]) t.parentId = null;
+    const seen = new Set([t.id]); let p = byId[t.parentId], g = 0;
+    while (p && g++ < 32) { if (seen.has(p.id)) { t.parentId = null; break; } seen.add(p.id); p = byId[p.parentId]; }
+  }
+  reindex();
+  for (const t of D.tasks) if (t.parentId) { const r = rootOf(t); if (t.areaId !== r.areaId) t.areaId = r.areaId; }
+}
+
 /* ---------- tasks ---------- */
 function maxOrder() { let m = 0; for (const t of D.tasks) if (t.order > m) m = t.order; return m; }
 function newTask(p = {}) {
   const t = {
     id: uid('t'), title: '', notes: '', subnotes: [], attachments: [], areaId: null, typeId: null, priorityId: null,
-    statusId: defaultStatus(), duration: null, due: null, repeat: '', tags: [], source: '', seen: 1, custom: {},
+    statusId: defaultStatus(), duration: null, due: null, repeat: '', tags: [], source: '', seen: 1, custom: {}, parentId: null, color: '',
     order: maxOrder() + 1, created: now(), updated: now(), ...p,
   };
   return t;
@@ -686,6 +839,14 @@ function dupTask(t) {
   c.subnotes = (c.subnotes || []).map(s => ({ ...s, id: uid('s') }));
   c.attachments = (c.attachments || []).map(a => ({ ...a, id: uid('at') })); // file blobs are shared, never deleted while referenced
   c.order = t.order + 0.5; return c;
+}
+/** copy a task with all its subtasks; returns [copy, ...subtask copies] (call inside mutate, then push) */
+function dupDeep(t) {
+  const map = new Map(); const out = [];
+  [t, ...taskDescendants(t)].forEach(x => { const c = dupTask(x); map.set(x.id, c.id); out.push(c); });
+  out.forEach((c, i) => { if (i > 0) c.parentId = map.get(c.parentId) || out[0].id; });
+  let ord = maxOrder(); out.forEach((c, i) => { if (i > 0) c.order = ++ord; });
+  return out;
 }
 function renumber() { D.tasks.sort((a, b) => a.order - b.order).forEach((t, i) => t.order = i + 1); }
 
@@ -697,6 +858,7 @@ function setStatus(t, sid) {
     while (nd < td && g++ < 1000) nd = nextDue(nd, t.repeat);
     t.due = nd; t.doneCount = (t.doneCount || 0) + 1; t.lastDone = td; t.statusId = defaultStatus();
     t.subnotes.forEach(s => s.done = false);
+    taskDescendants(t).forEach(c => { c.statusId = defaultStatus(); c.subnotes.forEach(s => s.done = false); });
     return `“${t.title}” repeats — next due ${fmtDate(nd)}`;
   }
   t.statusId = sid || defaultStatus();
@@ -973,7 +1135,7 @@ function parseLinesInto(rows, st) {
     const next = nextRow(rows, i);
     const li = st.last;
     if (li && (r.indent > li.indent || (li.absorb && r.bullet && r.indent === li.indent)) && !/^#{1,6}\s/.test(r.text)) {
-      li.item.subnotes.push({ text: r.text, done: r.done }); continue;
+      li.item.subnotes.push({ text: r.text, done: r.done, indent: r.indent - li.indent }); continue;
     }
     st.last = null;
     st.endScopes(r, i > 0 && rows[i - 1] === null);
@@ -993,7 +1155,7 @@ function parseBlocksInto(text, st) {
     if (h) { st.pushHeading(h); if (rows.length > 1) parseLinesInto(rows.slice(1), st); continue; }
     st.noteKid(rows[0]);
     const it = st.newItem(rows[0].text, rows[0].done); const notes = [];
-    for (const r of rows.slice(1)) { if (r.bullet) it.subnotes.push({ text: r.text, done: r.done }); else notes.push(r.text); }
+    for (const r of rows.slice(1)) { if (r.bullet) it.subnotes.push({ text: r.text, done: r.done, indent: r.indent + 1 }); else notes.push(r.text); }
     it.notes = notes.join('\n');
   }
 }
@@ -1014,6 +1176,9 @@ const HDR = {
   source: ['source', 'from', 'origin'],
   subnotes: ['subnotes', 'subtasks', 'checklist', 'checklistitems'],
   seen: ['timesnoted', 'seen', 'count'],
+  extid: ['id', 'taskid'],
+  extparent: ['parentid'],
+  color: ['color', 'cardcolor'],
 };
 const LEVEL_ALIASES = [['parent', 'business', 'company', 'organization', 'organisation', 'org', 'client', 'hat'], ['entity', 'subgroup', 'subproject', 'department'], ['subbranch', 'branch']];
 
@@ -1067,6 +1232,9 @@ function parseSheetInto(text, st) {
     if (g('tags')) it.tags.push(...g('tags').split(/[,;]/).map(s => s.trim().replace(/^[#@]/, '')).filter(Boolean));
     if (g('source')) it.source = g('source');
     if (g('seen')) it.seen = Math.max(1, parseInt(g('seen'), 10) || 1);
+    if (g('extid')) it.extId = g('extid');
+    if (g('extparent')) it.extParent = g('extparent');
+    if (g('color') && COLOR_NAME[g('color').toLowerCase()]) it.color = g('color').toLowerCase();
     if (g('subnotes')) g('subnotes').split(/\s*;\s*|\n/).filter(Boolean).forEach(s => { const b = stripBullet(s.trim()); it.subnotes.push({ text: b.text, done: b.done }); });
     for (const [f, i] of cfCols) { const v = String(r[i] ?? '').trim(); if (v) it.custom[f.id] = f.kind === 'checkbox' ? /^(1|true|yes|x)$/i.test(v) : v; }
   }
@@ -1081,7 +1249,7 @@ function parseTodoistInto(rows, raw, st) {
     if (type === 'note' && last) { last.notes = (last.notes ? last.notes + '\n' : '') + content; continue; }
     if (type !== 'task' || !content) continue;
     const indent = parseInt(r[I.indent], 10) || 1;
-    if (indent > 1 && last) { last.subnotes.push({ text: content, done: false }); continue; }
+    if (indent > 1 && last) { last.subnotes.push({ text: content, done: false, indent: indent - 1, notes: I.desc >= 0 ? String(r[I.desc] || '') : '' }); continue; }
     const it = st.newItem(content, false);
     it.notes = I.desc >= 0 ? String(r[I.desc] || '') : '';
     const p = parseInt(r[I.pri], 10); if (p >= 1 && p <= 3 && D.priorities.length) it.priorityId = D.priorities[Math.min(p - 1, D.priorities.length - 1)].id; // Todoist p4 = no priority
@@ -1155,7 +1323,7 @@ function autoSort(it, st) {
 
 /* ---------- main entry ---------- */
 function defaultImportOpts() {
-  return { mode: 'auto', group: 'smart', tokens: true, keywords: true, create: true, base: cur(), defaultType: '', source: '', dup: 'merge' };
+  return { mode: 'auto', group: 'smart', tokens: true, keywords: true, create: true, base: cur(), defaultType: '', source: '', dup: 'merge', nest: 'subnotes' };
 }
 function parseImport(text, opt) {
   text = String(text || '').replace(/\r\n?/g, '\n');
@@ -1202,21 +1370,46 @@ function mergeInto(target, it) {
 function commitParsed(res, opt, presetKeys = []) {
   res.ctx.commit(); reindex();
   const out = { created: [], merged: 0, skipped: 0 };
-  const byIdx = {}; let ord = maxOrder();
+  const byIdx = {}, ext = new Map(), links = []; let ord = maxOrder();
   res.items.forEach((it, i) => {
     if (it.exclude) return;
     const dup = it.dupOf || it.dupIdx != null;
     if (dup && opt.dup === 'skip') { out.skipped++; return; }
-    if (dup && opt.dup === 'merge') { const tgt = it.dupOf ? TASK[it.dupOf] : byIdx[it.dupIdx]; if (tgt) { mergeInto(tgt, it); out.merged++; return; } }
+    if (dup && opt.dup === 'merge') { const tgt = it.dupOf ? TASK[it.dupOf] : byIdx[it.dupIdx]; if (tgt) { mergeInto(tgt, it); out.merged++; if (it.extId) ext.set(it.extId, tgt); return; } }
+    const asKids = opt.nest === 'subtasks' && it.subnotes.length;
     const t = newTask({
-      title: it.title, notes: it.notes || '', subnotes: it.subnotes.map(s => ({ id: uid('s'), text: s.text, done: !!s.done, note: '' })),
+      title: it.title, notes: it.notes || '', subnotes: asKids ? [] : it.subnotes.map(s => ({ id: uid('s'), text: s.text, done: !!s.done, note: s.notes || '' })), color: it.color || '',
       areaId: it.areaId || null, typeId: it.typeId || null, priorityId: it.priorityId || null, duration: it.duration || null, due: it.due || null,
       repeat: it.repeat || '', tags: [...new Set(it.tags)], source: opt.source || it.source || '', custom: it.custom || {}, seen: it.seen || 1, order: ++ord,
     });
     if (it.statusId && ST[it.statusId]) t.statusId = it.statusId; else if (it.done) t.statusId = doneStatus();
     presetKeys.forEach(k => k && applyKey(t, k));
     D.tasks.push(t); byIdx[i] = t; out.created.push(t);
+    if (it.extId) ext.set(it.extId, t);
+    if (it.extParent) links.push([t, it.extParent]);
+    if (asKids) {
+      // indented lines → a tree of subtasks (deeper than the limit stays as subnotes)
+      const stack = [{ indent: -1, task: t, depth: 0 }];
+      for (const s of it.subnotes) {
+        const ind = s.indent ?? 1;
+        while (stack.length > 1 && stack[stack.length - 1].indent >= ind) stack.pop();
+        const host = stack[stack.length - 1];
+        if (host.depth >= MAX_NEST) { host.task.subnotes.push({ id: uid('s'), text: s.text, done: !!s.done, note: '' }); continue; }
+        const ci = { title: s.text, notes: s.notes || '', subnotes: [], tags: [], custom: {} };
+        if (opt.tokens) applyTokens(ci, { ctx: res.ctx, opt });
+        cleanTitle(ci);
+        const c = newTask({ title: ci.title || 'Untitled', notes: ci.notes, parentId: host.task.id, areaId: t.areaId, typeId: ci.typeId || null, priorityId: ci.priorityId || null, due: ci.due || null, duration: ci.duration || null, repeat: ci.repeat || '', tags: [...new Set(ci.tags)], source: t.source, order: ++ord, statusId: s.done ? doneStatus() : defaultStatus() });
+        D.tasks.push(c); out.kids = (out.kids || 0) + 1;
+        stack.push({ indent: ind, task: c, depth: host.depth + 1 });
+      }
+    }
   });
+  // spreadsheet rows that name a parent by ID
+  if (links.length) {
+    reindex();
+    for (const [t, pid] of links) { const p = ext.get(pid) || TASK[pid]; if (p && p !== t && canNest(t, p)) { t.parentId = p.id; reindex(); } }
+    D.tasks.forEach(t => { if (t.parentId) setAreaDeep(t, rootOf(t).areaId); });
+  }
   return out;
 }
 /** one-step add from the quick bar, inline column inputs and text dropped on the board */
@@ -1274,11 +1467,21 @@ function sectionRanker(by) {
   }
   return () => 0;
 }
+/** subtasks stay right under their parent; depth counts parents that are part of the same export */
+function hier(list) {
+  const inList = new Set(list.map(t => t.id));
+  const depthIn = t => taskAncestors(t).filter(a => inList.has(a.id)).length;
+  return { depthIn, roots: list.filter(t => depthIn(t) === 0), below: r => taskDescendants(r).filter(c => inList.has(c.id)) };
+}
 function groupTasks(list, by) {
-  const rk = sectionRanker(by);
-  const sorted = list.slice().sort((a, b) => rk(a) - rk(b) || (by === 'due' ? (a.due || '').localeCompare(b.due || '') : 0) || a.order - b.order);
+  const H = hier(list); const rk = sectionRanker(by);
+  const sorted = H.roots.slice().sort((a, b) => rk(a) - rk(b) || (by === 'due' ? (a.due || '').localeCompare(b.due || '') : 0) || a.order - b.order);
   const groups = []; let g = null;
-  for (const t of sorted) { const s = sectionOf(t, by); if (!g || g.name !== s) { g = { name: s, tasks: [] }; groups.push(g); } g.tasks.push(t); }
+  for (const t of sorted) {
+    const s = sectionOf(t, by); if (!g || g.name !== s) { g = { name: s, tasks: [], depth: new Map() }; groups.push(g); }
+    g.tasks.push(t); g.depth.set(t.id, 0);
+    H.below(t).forEach(c => { g.tasks.push(c); g.depth.set(c.id, H.depthIn(c)); });
+  }
   return groups;
 }
 
@@ -1291,10 +1494,10 @@ const isoDay = ms => (ms ? ymd(new Date(ms)) : '');
 const attText = t => t.attachments.map(a => a.kind === 'link' ? `${a.name ? a.name + ' ' : ''}<${a.url}>` : `${a.name} (file kept in HatRack)`).join('; ');
 const subText = (t, sep = '\n') => t.subnotes.map(s => `[${s.done ? 'x' : ' '}] ${s.text}${s.note ? ' — ' + s.note : ''}`).join(sep);
 function tokenName(n) { return /[\s"]/.test(n) ? `"${n.replace(/"/g, '')}"` : n; }
-function taskLine(t, withTokens = true) {
+function taskLine(t, withTokens = true, noArea = false) {
   if (!withTokens) return t.title;
   const p = [t.title];
-  if (t.areaId && A[t.areaId]) p.push('@' + tokenName(pathStr(t.areaId, '/')));
+  if (!noArea && t.areaId && A[t.areaId]) p.push('@' + tokenName(pathStr(t.areaId, '/')));
   if (T[t.typeId]) p.push('#' + T[t.typeId].name.replace(/\s+/g, '-'));
   if (PR[t.priorityId]) p.push('!' + PR[t.priorityId].name.replace(/\s+/g, '-'));
   if (t.duration) p.push('~' + fmtDur(t.duration).replace(' ', ''));
@@ -1303,8 +1506,17 @@ function taskLine(t, withTokens = true) {
   (t.tags || []).forEach(g => p.push('#' + String(g).replace(/\s+/g, '-')));
   return p.join(' ');
 }
+/** plain text with shortcuts; subnotes and subtasks are indented under their task */
 function tasksAsText(list, withTokens = true) {
-  return list.map(t => [taskLine(t, withTokens), ...t.subnotes.map(s => `    - [${s.done ? 'x' : ' '}] ${s.text}`)].join('\n')).join('\n');
+  const out = [];
+  const emit = (t, d) => {
+    const pad = '    '.repeat(d);
+    out.push(pad + (d ? '- ' : '') + taskLine(t, withTokens, d > 0));
+    t.subnotes.forEach(s => out.push(`${pad}    - [${s.done ? 'x' : ' '}] ${s.text}`));
+    childrenOf(t.id).forEach(c => emit(c, d + 1));
+  };
+  topmost(list).forEach(t => emit(t, 0));
+  return out.join('\n');
 }
 function metaBits(t, skip = {}) {
   const b = [];
@@ -1324,13 +1536,14 @@ function metaBits(t, skip = {}) {
 function buildGenericCSV(groups, opts) {
   const maxDepth = Math.max(3, ...D.areas.map(a => depthOf(a.id)), 0);
   const levels = Array.from({ length: maxDepth }, (_, i) => levelName(i + 1));
-  const head = ['Title', 'Notes', 'Subnotes', ...levels, 'Path', 'Section', 'Type', 'Priority', 'Status', 'Duration (min)', 'Due', 'Repeat', 'Tags', 'Source', 'Times noted', 'Attachments', 'Created', 'Updated', ...D.fields.map(f => f.name), 'ID'];
+  const head = ['Title', 'Notes', 'Subnotes', 'Parent task', ...levels, 'Path', 'Section', 'Type', 'Priority', 'Status', 'Duration (min)', 'Due', 'Repeat', 'Tags', 'Source', 'Times noted', 'Color', 'Attachments', 'Created', 'Updated', ...D.fields.map(f => f.name), 'ID', 'Parent ID'];
   const rows = [head];
   for (const g of groups) for (const t of g.tasks) {
     const anc = ancestors(t.areaId);
-    rows.push([t.title, t.notes, subText(t), ...levels.map((_, i) => anc[i]?.name || ''), pathStr(t.areaId), g.name, T[t.typeId]?.name || '', PR[t.priorityId]?.name || '', ST[t.statusId]?.name || '',
-      t.duration || '', t.due || '', t.repeat || '', (t.tags || []).join(', '), t.source || '', t.seen || 1, attText(t), isoDay(t.created), isoDay(t.updated),
-      ...D.fields.map(f => { const v = t.custom?.[f.id]; return v === true ? 'yes' : v === false ? '' : (v ?? ''); }), t.id]);
+    const par = parentOf(t);
+    rows.push([t.title, t.notes, subText(t), par ? par.title : '', ...levels.map((_, i) => anc[i]?.name || ''), pathStr(t.areaId), g.name, T[t.typeId]?.name || '', PR[t.priorityId]?.name || '', ST[t.statusId]?.name || '',
+      t.duration || '', t.due || '', t.repeat || '', (t.tags || []).join(', '), t.source || '', t.seen || 1, t.color || '', attText(t), isoDay(t.created), isoDay(t.updated),
+      ...D.fields.map(f => { const v = t.custom?.[f.id]; return v === true ? 'yes' : v === false ? '' : (v ?? ''); }), t.id, par ? par.id : '']);
   }
   return (opts.bom ? '\uFEFF' : '') + toCSV(rows);
 }
@@ -1354,9 +1567,10 @@ function buildTodoist(groups, opts) {
     for (const t of g.tasks) {
       const labels = [...(opts.typeLabel && T[t.typeId] ? [T[t.typeId].name] : []), ...(t.tags || [])].map(l => '@' + String(l).replace(/[\s@]+/g, '_'));
       const desc = [t.notes, t.areaId ? `Filed under: ${pathStr(t.areaId)}` : '', t.source ? `Source: ${t.source}` : '', t.attachments.length ? `Attachments: ${attText(t)}` : ''].filter(Boolean).join('\n\n');
-      rows.push(['task', [t.title, ...labels].join(' '), desc, todoistPriority(t), 1, '', '', todoistDate(t), 'en', tz, t.duration || '', t.duration ? 'minute' : 'None']);
+      const d = Math.min(3, g.depth?.get(t.id) || 0);
+      rows.push(['task', [t.title, ...labels].join(' '), desc, todoistPriority(t), d + 1, '', '', todoistDate(t), 'en', tz, t.duration || '', t.duration ? 'minute' : 'None']);
       count++;
-      for (const s of t.subnotes) if (!s.done) { rows.push(['task', s.text, s.note || '', 4, 2, '', '', '', 'en', tz, '', 'None']); count++; }
+      for (const s of t.subnotes) if (!s.done) { rows.push(['task', s.text, s.note || '', 4, Math.min(4, d + 2), '', '', '', 'en', tz, '', 'None']); count++; }
     }
   }
   return { text: toCSV(rows), count };
@@ -1364,7 +1578,8 @@ function buildTodoist(groups, opts) {
 function buildAsana(groups) {
   const rows = [['Task Name', 'Description', 'Section', 'Assignee', 'Start Date', 'Due Date', 'Priority', 'Task Type', 'Status', 'Estimated Minutes', 'Tags', 'Area']];
   for (const g of groups) for (const t of g.tasks) {
-    const desc = [t.notes, t.subnotes.length ? 'Checklist:\n' + t.subnotes.map(s => `${s.done ? '☑' : '☐'} ${s.text}`).join('\n') : '', t.repeat ? `Repeats: ${REPEAT_LABEL[t.repeat]}` : '', t.source ? `Source: ${t.source}` : '', t.attachments.length ? `Attachments: ${attText(t)}` : ''].filter(Boolean).join('\n\n');
+    const par = parentOf(t);
+    const desc = [par ? `Subtask of: ${par.title}` : '', t.notes, t.subnotes.length ? 'Checklist:\n' + t.subnotes.map(s => `${s.done ? '☑' : '☐'} ${s.text}`).join('\n') : '', t.repeat ? `Repeats: ${REPEAT_LABEL[t.repeat]}` : '', t.source ? `Source: ${t.source}` : '', t.attachments.length ? `Attachments: ${attText(t)}` : ''].filter(Boolean).join('\n\n');
     rows.push([t.title, desc, g.name, '', '', usDate(t.due), PR[t.priorityId]?.name || '', T[t.typeId]?.name || '', ST[t.statusId]?.name || '', t.duration || '', (t.tags || []).join(', '), pathStr(t.areaId)]);
   }
   return toCSV(rows);
@@ -1381,22 +1596,24 @@ function buildMarkdown(groups, by, title) {
   const out = [`# ${title}`, `_Exported from HatRack on ${todayStr()}_`, ''];
   if (by === 'path') { out.push(outlineMarkdown(groups.flatMap(g => g.tasks), null, 2)); return out.join('\n'); }
   const skip = { type: by === 'type', priority: by === 'priority', status: by === 'status' };
-  for (const g of groups) { if (g.name) out.push(`## ${g.name}`, ''); g.tasks.forEach(t => out.push(mdTask(t, skip))); out.push(''); }
+  for (const g of groups) { if (g.name) out.push(`## ${g.name}`, ''); g.tasks.forEach(t => out.push(mdTask(t, skip, '    '.repeat(g.depth?.get(t.id) || 0)))); out.push(''); }
   return out.join('\n');
 }
-/** hierarchical markdown: headings follow the Parent → Entity → Sub-branch tree */
+/** hierarchical markdown: headings follow the Parent → Entity → Sub-branch tree; subtasks indent under their task */
 function outlineMarkdown(list, rootId = null, startLevel = 1) {
-  const byArea = new Map(); list.forEach(t => { const k = t.areaId && A[t.areaId] ? t.areaId : ''; (byArea.get(k) || byArea.set(k, []).get(k)).push(t); });
+  const H = hier(list);
+  const emit = (out, t) => { out.push(mdTask(t)); H.below(t).forEach(c => out.push(mdTask(c, {}, '    '.repeat(H.depthIn(c))))); };
+  const byArea = new Map(); H.roots.forEach(t => { const k = t.areaId && A[t.areaId] ? t.areaId : ''; (byArea.get(k) || byArea.set(k, []).get(k)).push(t); });
   const has = id => (byArea.get(id) || []).length || descendants(id).some(d => (byArea.get(d.id) || []).length);
   const out = [];
   const rootTasks = byArea.get(rootId || '') || [];
-  if (rootTasks.length) { out.push(`${'#'.repeat(startLevel)} ${rootId ? A[rootId].name + ' — not yet sorted' : 'Unsorted'}`, ''); rootTasks.sort((a, b) => a.order - b.order).forEach(t => out.push(mdTask(t))); out.push(''); }
+  if (rootTasks.length) { out.push(`${'#'.repeat(startLevel)} ${rootId ? A[rootId].name + ' — not yet sorted' : 'Unsorted'}`, ''); rootTasks.sort((a, b) => a.order - b.order).forEach(t => emit(out, t)); out.push(''); }
   const walk = (pid, lvl) => kids(pid).forEach(a => {
     if (!has(a.id)) return;
     out.push(`${'#'.repeat(Math.min(lvl, 6))} ${a.name}`, '');
     if (a.notes) out.push(a.notes.split('\n').map(l => '> ' + l).join('\n'), '');
     const ts = (byArea.get(a.id) || []).sort((x, y) => x.order - y.order);
-    ts.forEach(t => out.push(mdTask(t))); if (ts.length) out.push('');
+    ts.forEach(t => emit(out, t)); if (ts.length) out.push('');
     walk(a.id, lvl + 1);
   });
   walk(rootId, startLevel);
@@ -1404,7 +1621,7 @@ function outlineMarkdown(list, rootId = null, startLevel = 1) {
 }
 function buildText(groups, withTokens) {
   const out = [];
-  for (const g of groups) { if (g.name) out.push(g.name); g.tasks.forEach(t => out.push(taskLine(t, withTokens))); out.push(''); }
+  for (const g of groups) { if (g.name) out.push(g.name); g.tasks.forEach(t => { const d = g.depth?.get(t.id) || 0; out.push('    '.repeat(d) + (d ? '- ' : '') + taskLine(t, withTokens, d > 0)); }); out.push(''); }
   return out.join('\n').trim() + '\n';
 }
 function icsEsc(s) { return String(s ?? '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
@@ -1569,8 +1786,8 @@ function applyKey(t, key) {
   const f = key.slice(0, i), v = key.slice(i + 1);
   let msg = null;
   switch (f) {
-    case 'area': if (!v) t.areaId = null; else if (!inSubtree(t.areaId, v)) t.areaId = v; break;
-    case 'areaself': t.areaId = v || null; break;
+    case 'area': if (!v) setAreaDeep(t, null); else if (!inSubtree(t.areaId, v)) setAreaDeep(t, v); break;
+    case 'areaself': setAreaDeep(t, v || null); break;
     case 'type': t.typeId = v || null; break;
     case 'priority': t.priorityId = v || null; break;
     case 'status': msg = setStatus(t, v || defaultStatus()); break;
@@ -1654,6 +1871,8 @@ function onToolbarClick(e) {
   if (b.id === 'tb-opts') popMenu(b, [
     { hd: 'Cards' },
     { label: `${U.density === 'compact' ? '✓ ' : '\u2003'}Compact — titles only`, onPick: () => { U.density = U.density === 'compact' ? 'cozy' : 'compact'; saveUI(); renderAll(); } },
+    { label: '\u2003Expand every card', onPick: () => { boardRoots().forEach(t => { if (extrasLabel(t)) U.exp[t.id] = true; }); saveUI(); renderView(); } },
+    { label: '\u2003Collapse every card', onPick: () => { U.exp = {}; saveUI(); renderView(); } },
     { hd: 'Dragging' },
     { label: `${!U.copyDrop ? '✓ ' : '\u2003'}Dropping moves the card`, onPick: () => { U.copyDrop = false; saveUI(); renderToolbar(); } },
     { label: `${U.copyDrop ? '✓ ' : '\u2003'}Dropping copies the card`, onPick: () => { U.copyDrop = true; saveUI(); renderToolbar(); toast('Dropping now copies cards. Tip: hold Alt/Option while dropping to copy just once.'); } },
@@ -1663,10 +1882,18 @@ function drill(id) { U.cursor = id && A[id] ? id : null; saveUI(); sel.clear(); 
 
 /* ---------- board render ---------- */
 function emptyStateHTML() {
+  const standalone = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone;
   return `<div class="empty"><h2>Hang up your first hat</h2>
     <p>HatRack takes the long to-do lists you collect everywhere — notes apps, emails, voice memos, sticky notes — and sorts them into the businesses, projects and parts of life they belong to. Then it exports each sector to the task app you actually use.</p>
     <div class="acts"><button class="btn primary" data-act="import">Paste your notes</button><button class="btn" data-act="setup">Set up your groups</button><button class="btn" data-act="sample">Explore with sample data</button></div>
-    <p class="muted sm" style="margin:16px 0 0">Everything stays in this browser. Nothing is uploaded anywhere.</p></div>`;
+    <p class="muted sm" style="margin:16px 0 0">New here? <button class="linkish" data-act="guide">Take the visual guide</button>. Everything stays in this browser — nothing is uploaded anywhere.</p>
+    ${standalone ? '<p class="note-line">Opened from your home screen? This app keeps its own copy of your data. Move tasks in with Configure → Data → Restore.</p>' : ''}</div>`;
+}
+/** top-level cards to show: visible tasks, plus the parents of any visible subtask */
+function boardRoots() {
+  const roots = new Map();
+  visibleTasks().forEach(t => { const r = rootOf(t); roots.set(r.id, r); });
+  return sortTasks([...roots.values()]);
 }
 function renderBoard() {
   const view = $('#view');
@@ -1675,11 +1902,12 @@ function renderBoard() {
   const laneField = U.lanes !== 'none' && U.lanes !== U.group ? U.lanes : null;
   const lanes = laneField ? fieldCols(laneField) : [{ key: '', label: '' }];
   const cells = new Map(), tot = {};
-  for (const t of sortTasks(visibleTasks())) {
+  for (const t of boardRoots()) {
     const ck = keyOf(t, U.group); if (ck == null) continue;
     const lk = laneField ? keyOf(t, laneField) : ''; if (lk == null) continue;
     const k = lk + '::' + ck; (cells.get(k) || cells.set(k, []).get(k)).push(t);
-    const x = tot[ck] ||= { n: 0, min: 0 }; x.n++; x.min += +t.duration || 0;
+    const x = tot[ck] ||= { n: 0, min: 0 }; x.n++;
+    x.min += [t, ...taskDescendants(t)].reduce((m, c) => m + (isDone(c) ? 0 : +c.duration || 0), 0);
   }
   const addCol = canAddCol();
   let kIdx = 0;
@@ -1698,6 +1926,15 @@ function renderBoard() {
     if (laneField) body += '</section>';
   }
   view.innerHTML = `<div class="board density-${U.density}" id="board" style="--ncols:${cols.length + (addCol ? 1 : 0)}"><div class="board-head board-row">${head}</div>${body}</div>`;
+  markClamps(view);
+}
+/** reveal "Show all" on cards whose title is cut off at three lines */
+function markClamps(root) {
+  requestAnimationFrame(() => $$('.clamp', root).forEach(el => {
+    const host = el.closest('[data-clamphost]'); if (!host) return;
+    const btn = host.querySelector(':scope [data-more]'); if (!btn || !btn.hidden) return;
+    if (el.scrollHeight > el.clientHeight + 2) { btn.hidden = false; }
+  }));
 }
 function colHeadHTML(c, tot, k) {
   const name = c.drill
@@ -1712,6 +1949,19 @@ function colHeadHTML(c, tot, k) {
     <div class="col-tools">${k ? `<kbd class="col-key" title="Press ${k} to move selected tasks here">${k}</kbd>` : ''}<button class="icon-btn sm" data-colmenu="${esc(c.key)}" aria-label="${esc(c.label)} actions">⋯</button></div></div>`;
 }
 const SHORT_REPEAT = { daily: 'daily', weekdays: 'weekdays', weekly: 'weekly', biweekly: '2 wks', monthly: 'monthly', quarterly: 'quarterly', yearly: 'yearly' };
+const linkify = html => html.replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+function duePill(t) {
+  if (!t.due) return '';
+  const b = dueBucket(t); const over = b === 'overdue' && !isDone(t);
+  return `<span class="pill${over ? ' over' : b === 'today' ? ' today' : ''}" title="Due ${esc(t.due)}">${over ? 'Overdue: ' : ''}${esc(fmtDate(t.due))}</span>`;
+}
+function extrasLabel(t) {
+  const desc = taskDescendants(t), x = [];
+  if (desc.length) { const d = desc.filter(isDone).length; x.push(`${plural(desc.length, 'subtask')}${d ? ` (${d} done)` : ''}`); }
+  if (t.subnotes.length) x.push(plural(t.subnotes.length, 'subnote'));
+  if (t.notes) x.push('notes');
+  return x.join(' · ');
+}
 function cardHTML(t, col) {
   const ty = T[t.typeId], pr = PR[t.priorityId], st = ST[t.statusId];
   const base = U.group === 'area' ? (col.areaId || cur()) : cur();
@@ -1720,31 +1970,58 @@ function cardHTML(t, col) {
   const p = [];
   if (pr && U.group !== 'priority') p.push(`<span class="pill" style="--c:${pr.color}"><span class="d"></span>${esc(pr.name)}</span>`);
   if (st && U.group !== 'status' && t.statusId !== defaultStatus()) p.push(`<span class="pill" style="--c:${st.color}"><span class="d"></span>${esc(st.name)}</span>`);
-  if (t.due) { const b = dueBucket(t); p.push(`<span class="pill${b === 'overdue' && !isDone(t) ? ' over' : b === 'today' ? ' today' : ''}" title="Due ${esc(t.due)}">${b === 'overdue' && !isDone(t) ? 'Overdue: ' : ''}${esc(fmtDate(t.due))}</span>`); }
+  if (t.due) p.push(duePill(t));
   if (t.repeat) p.push(`<span class="pill" title="${esc(REPEAT_LABEL[t.repeat])}">↻ ${SHORT_REPEAT[t.repeat]}</span>`);
   if (t.duration && U.group !== 'duration') p.push(`<span class="pill" title="Estimated time">◷ ${fmtDur(t.duration)}</span>`);
-  if (t.subnotes.length) p.push(`<span class="pill" title="Subnotes done">☑ ${t.subnotes.filter(s => s.done).length}/${t.subnotes.length}</span>`);
   if (t.attachments.length) p.push(`<span class="pill" title="Attachments">📎 ${t.attachments.length}</span>`);
-  if (t.notes) p.push('<span class="pill" title="Has notes">✎ notes</span>');
   if ((t.seen || 1) > 1) p.push(`<span class="pill seen" title="You noted this ${t.seen} times">×${t.seen}</span>`);
   D.fields.filter(f => f.kind === 'select' && U.group !== 'cf:' + f.id && t.custom?.[f.id]).forEach(f => p.push(`<span class="pill">${esc(t.custom[f.id])}</span>`));
   t.tags.slice(0, 3).forEach(g => p.push(`<span class="pill">#${esc(g)}</span>`));
-  const on = sel.has(t.id);
-  return `<article class="card${on ? ' is-sel' : ''}${isDone(t) ? ' is-done' : ''}" draggable="true" data-id="${t.id}" style="--tag:${areaColor(t.areaId) || 'var(--line)'}" tabindex="0">
+  const on = sel.has(t.id), open = !!U.exp[t.id], extras = extrasLabel(t);
+  const desc = open ? taskDescendants(t) : [];
+  const more = `<button class="card-more" data-more aria-expanded="${open}"${extras || open ? '' : ' hidden'}><span class="chev" aria-hidden="true">${open ? '▾' : '▸'}</span>${open ? 'Show less' : esc(extras || 'Show all')}</button>`;
+  const body = open ? `<div class="card-body">
+      ${t.notes ? `<div class="cb-notes">${linkify(esc(t.notes))}</div>` : ''}
+      ${t.subnotes.length ? `<div class="cb-subs">${t.subnotes.map(s => `<label class="cb-sub${s.done ? ' done' : ''}"><input type="checkbox" data-subtoggle="${s.id}" ${s.done ? 'checked' : ''}><span>${esc(s.text)}</span></label>`).join('')}</div>` : ''}
+      ${desc.length ? `<div class="subtree" role="list">${desc.map(c => subcardHTML(c, taskDepth(c) - taskDepth(t))).join('')}</div>` : ''}
+      <button class="add-sub" data-addsub>+ Subtask</button></div>` : '';
+  return `<article class="card${on ? ' is-sel' : ''}${isDone(t) ? ' is-done' : ''}${open ? ' is-open' : ''}" draggable="true" data-id="${t.id}" data-clamphost style="--tag:${areaColor(t.areaId) || 'var(--line)'};${t.color ? `--cbg:${tintVar(t.color)}` : ''}" ${t.color ? `data-bg="${t.color}"` : ''} tabindex="0">
     <button class="card-check" data-check aria-label="Select" tabindex="-1">${on ? '✓' : ''}</button>
-    <div class="card-title">${ty && ty.icon ? `<span class="ty" title="${esc(ty.name)}">${esc(ty.icon)}</span>` : ''}${esc(t.title)}</div>
-    ${rel ? `<div class="card-path">${esc(rel)}</div>` : ''}${p.length ? `<div class="card-meta">${p.join('')}</div>` : ''}</article>`;
+    <div class="card-title clamp">${ty && ty.icon ? `<span class="ty" title="${esc(ty.name)}">${esc(ty.icon)}</span>` : ''}${esc(t.title)}</div>
+    ${rel ? `<div class="card-path">${esc(rel)}</div>` : ''}${p.length ? `<div class="card-meta">${p.join('')}</div>` : ''}${more}${body}</article>`;
+}
+function subcardHTML(c, d) {
+  const ty = T[c.typeId], pr = PR[c.priorityId], n = childrenOf(c.id).length;
+  const bits = [];
+  if (pr) bits.push(`<span class="pill" style="--c:${pr.color}"><span class="d"></span>${esc(pr.name)}</span>`);
+  if (c.due) bits.push(duePill(c));
+  if (c.duration) bits.push(`<span class="pill">◷ ${fmtDur(c.duration)}</span>`);
+  if (c.repeat) bits.push(`<span class="pill">↻ ${SHORT_REPEAT[c.repeat]}</span>`);
+  if (c.notes || c.subnotes.length) bits.push(`<span class="pill" title="Has notes or subnotes">✎</span>`);
+  return `<div class="subcard${isDone(c) ? ' is-done' : ''}${sel.has(c.id) ? ' is-sel' : ''}" role="listitem" draggable="true" data-id="${c.id}" style="--d:${Math.max(0, d - 1)};${c.color ? `--scbg:${tintVar(c.color)}` : ''}" ${c.color ? `data-bg="${c.color}"` : ''}>
+    <input type="checkbox" class="sc-done" data-scdone ${isDone(c) ? 'checked' : ''} aria-label="Mark “${esc(c.title)}” done">
+    <div class="sc-main"><div class="sc-title clamp">${ty && ty.icon ? esc(ty.icon) + ' ' : ''}${esc(c.title)}${n ? ` <span class="muted">· ${plural(taskDescendants(c).length, 'subtask')}</span>` : ''}</div>${bits.length ? `<div class="card-meta">${bits.join('')}</div>` : ''}</div></div>`;
 }
 
 /* ---------- board interactions ---------- */
 function onViewClick(e) {
   const t = e.target;
   const act = t.closest('[data-act]');
-  if (act) { const a = act.dataset.act; if (a === 'import') openImport(); else if (a === 'setup') { U.settingsTab = 'hierarchy'; setView('settings'); } else if (a === 'sample') loadSample(); return; }
+  if (act) { const a = act.dataset.act; if (a === 'import') openImport(); else if (a === 'setup') { U.settingsTab = 'hierarchy'; setView('settings'); } else if (a === 'sample') loadSample(); else if (a === 'guide') openGuide(); return; }
+  if (U.view !== 'board') return;
   const dr = t.closest('[data-drill]'); if (dr && $('#board')?.contains(dr)) return drill(dr.dataset.drill);
   const cm = t.closest('[data-colmenu]'); if (cm) return colMenu(cm, cm.dataset.colmenu);
   if (t.closest('[data-addcol]')) return addColumn();
   const ai = t.closest('[data-addin]'); if (ai) return startInlineAdd(ai);
+  if (t.closest('a, .cb-sub, [data-scdone], .add-sub-inp')) return;
+  const mo = t.closest('[data-more]'); if (mo) return toggleExp(mo.closest('[data-id]').dataset.id);
+  const as = t.closest('[data-addsub]'); if (as) return startSubAdd(as.closest('.card').dataset.id);
+  const sc = t.closest('.subcard');
+  if (sc) {
+    const id = sc.dataset.id;
+    if (e.metaKey || e.ctrlKey) { toggleSel(id); return; }
+    lastClicked = id; openEditor(id); return;
+  }
   const card = t.closest('.card');
   if (card) {
     const id = card.dataset.id;
@@ -1753,10 +2030,29 @@ function onViewClick(e) {
     lastClicked = id; openEditor(id);
   }
 }
+function onBoardChange(e) {
+  if (U.view !== 'board') return;
+  const el = e.target;
+  if (el.matches('[data-subtoggle]')) {
+    const t = TASK[el.closest('.card').dataset.id]; const s = t?.subnotes.find(x => x.id === el.dataset.subtoggle);
+    if (s) mutate('Subnote', () => { s.done = el.checked; t.updated = now(); });
+  } else if (el.matches('[data-scdone]')) {
+    const c = TASK[el.closest('.subcard').dataset.id]; if (!c) return; let msg;
+    mutate(el.checked ? 'Mark done' : 'Reopen', () => { msg = setStatus(c, el.checked ? doneStatus() : defaultStatus()); c.updated = now(); });
+    if (msg) toast(msg, { undo: true });
+  }
+}
 function onViewKey(e) {
   const card = e.target.closest?.('.card'); if (!card || e.target !== card) return;
   if (e.key === 'Enter') { e.preventDefault(); openEditor(card.dataset.id); }
   else if (e.key === ' ') { e.preventDefault(); toggleSel(card.dataset.id); }
+  else if (e.key === 'ArrowRight' && !U.exp[card.dataset.id]) { e.preventDefault(); toggleExp(card.dataset.id, true); }
+  else if (e.key === 'ArrowLeft' && U.exp[card.dataset.id]) { e.preventDefault(); toggleExp(card.dataset.id, true); }
+}
+function toggleExp(id, refocus = false) {
+  if (U.exp[id]) delete U.exp[id]; else U.exp[id] = true;
+  saveUI(); renderView();
+  if (refocus) $(`.card[data-id="${CSS.escape(id)}"]`)?.focus();
 }
 function startInlineAdd(btn) {
   const cell = btn.closest('.cell'); const col = cell.dataset.col, lane = cell.dataset.lane;
@@ -1772,6 +2068,106 @@ function startInlineAdd(btn) {
     } else if (e.key === 'Escape') { e.stopPropagation(); renderView(); }
   });
   inp.addEventListener('blur', () => setTimeout(() => { if (inp.isConnected && !inp.value.trim() && document.activeElement !== inp) renderView(); }, 120));
+}
+/** inline "+ Subtask" inside an expanded card */
+function startSubAdd(parentId) {
+  if (!U.exp[parentId]) { U.exp[parentId] = true; saveUI(); renderView(); }
+  const btn = $(`.card[data-id="${CSS.escape(parentId)}"] [data-addsub]`); if (!btn) return;
+  const inp = document.createElement('input');
+  inp.className = 'inp add-sub-inp'; inp.placeholder = 'Subtask — Enter to add, Esc to stop';
+  btn.replaceWith(inp); inp.focus();
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && inp.value.trim()) { const c = addSubtaskFromText(TASK[parentId], inp.value); if (c) startSubAdd(parentId); }
+    else if (e.key === 'Escape') { e.stopPropagation(); renderView(); }
+  });
+  inp.addEventListener('blur', () => setTimeout(() => { if (inp.isConnected && !inp.value.trim() && document.activeElement !== inp) renderView(); }, 120));
+}
+/** create a subtask from a line of text (shortcuts work, the group always follows the parent) */
+function addSubtaskFromText(parent, text) {
+  if (!parent || !String(text).trim()) return null;
+  if (taskDepth(parent) + 1 > MAX_NEST) { toast(`Subtasks can go ${MAX_NEST} levels deep.`); return null; }
+  const res = parseImport(text, { ...defaultImportOpts(), keywords: false, create: false, mode: 'lines', base: parent.areaId });
+  const it = res.items[0]; if (!it) return null;
+  let c;
+  mutate('Add subtask', () => {
+    c = newTask({ title: it.title, notes: it.notes || '', subnotes: it.subnotes.map(s => ({ id: uid('s'), text: s.text, done: !!s.done, note: '' })), typeId: it.typeId || null, priorityId: it.priorityId || null, due: it.due || null, duration: it.duration || null, repeat: it.repeat || '', tags: it.tags || [], parentId: parent.id, areaId: parent.areaId });
+    D.tasks.push(c); U.exp[parent.id] = true;
+  });
+  saveUI(); return c;
+}
+
+/* ---------- card menu (right-click) ---------- */
+function pointAnchor(x, y) { return { getBoundingClientRect: () => ({ left: x, right: x, top: y, bottom: y, width: 0, height: 0 }) }; }
+function onContextMenu(e) {
+  if (U.view !== 'board' && U.view !== 'outline' && U.view !== 'list') return;
+  const el = e.target.closest?.('.card, .subcard, .ol-item, tr[data-id]'); if (!el || e.target.closest('input, textarea, select, a')) return;
+  e.preventDefault();
+  taskMenu(pointAnchor(e.clientX, e.clientY), el.dataset.id);
+}
+function taskMenu(anchor, id) {
+  const t = TASK[id]; if (!t) return;
+  const ids = sel.has(id) && sel.size > 1 ? [...sel] : [id];
+  const many = ids.length > 1, label = many ? `${ids.length} tasks` : `“${t.title.length > 34 ? t.title.slice(0, 32) + '…' : t.title}”`;
+  const items = [{ hd: label }];
+  if (!many) items.push({ label: 'Open', onPick: () => openEditor(id) });
+  if (!many && U.view === 'board' && isRootTask(t)) items.push({ label: U.exp[id] ? 'Collapse card' : 'Expand card', onPick: () => toggleExp(id) });
+  items.push({ hd: 'Card color' }, { swatches: true, value: many ? null : t.color, onPick: c => colorTasks(ids, c) });
+  items.push({ sep: true });
+  if (!many) items.push({ label: 'Add a subtask', onPick: () => { if (U.view === 'board' && isRootTask(t)) startSubAdd(id); else openEditor(id, { focus: 'subtask' }); } });
+  items.push({ label: 'Nest under another task…', onPick: () => pickParent(anchor, ids) });
+  if (ids.some(i => parentOf(TASK[i]))) items.push({ label: 'Make top-level', onPick: () => unnestTasks(ids) });
+  if (!many && parentOf(t) && !childrenOf(id).length) items.push({ label: 'Turn into a subnote of its parent', onPick: () => toSubnote(t) });
+  items.push({ label: 'Move to…', onPick: () => popMenu(anchor, areaMenuItems(aid => moveToArea(ids, aid)), { filter: true }) });
+  items.push({ sep: true });
+  items.push({ label: 'Duplicate', onPick: () => { sel = new Set(ids); duplicateSel(); } });
+  items.push({ label: 'Copy as text', onPick: async () => { await copyText(tasksAsText(ids.map(i => TASK[i]))); toast('Copied as text'); } });
+  items.push({ label: 'Delete', onPick: () => deleteTasks(ids.map(i => TASK[i])) });
+  popMenu(anchor, items);
+}
+function pickParent(anchor, ids) {
+  const moving = ids.map(i => TASK[i]).filter(Boolean);
+  const blocked = new Set(withDescendants(moving).map(t => t.id));
+  const pool = scopeTasks().filter(p => !blocked.has(p.id) && !isDone(p) && moving.every(m => canNest(m, p)));
+  const pos = areaPositions();
+  pool.sort((a, b) => (pos[rootOf(a).areaId] || 0) - (pos[rootOf(b).areaId] || 0) || rootOf(a).order - rootOf(b).order || taskDepth(a) - taskDepth(b) || a.order - b.order);
+  if (!pool.length) { toast('No task here can take these as subtasks.'); return; }
+  popMenu(anchor, pool.slice(0, 400).map(p => ({ label: p.title, indent: taskDepth(p), color: areaColor(p.areaId) || '', hint: taskDepth(p) ? '' : (A[p.areaId]?.name || 'Unsorted'), onPick: () => nestTasks(ids, p.id, false) })), { filter: true });
+}
+function colorTasks(ids, c) {
+  const list = ids.map(i => TASK[i]).filter(Boolean);
+  mutate(c ? `Color ${COLOR_NAME[c].toLowerCase()}` : 'Remove color', () => list.forEach(t => { t.color = c || ''; t.updated = now(); }));
+}
+function moveToArea(ids, aid) {
+  const list = topmost(ids.map(i => TASK[i]).filter(Boolean));
+  mutate(`Moved to ${aid ? A[aid].name : 'Unsorted'}`, () => list.forEach(t => { t.parentId = null; setAreaDeep(t, aid); t.updated = now(); }), { toast: `Moved ${plural(list.length, 'task')} to ${aid ? pathStr(aid) : 'Unsorted'}` });
+}
+function nestTasks(ids, parentId, copy) {
+  const parent = TASK[parentId]; if (!parent) return;
+  const list = topmost(ids.map(i => TASK[i]).filter(Boolean)); let n = 0, skipped = 0;
+  mutate(`${copy ? 'Copy' : 'Nest'} ${plural(list.length, 'task')}`, () => {
+    for (let t of list) {
+      if (copy) { const cs = dupDeep(t); D.tasks.push(...cs); reindex(); t = cs[0]; }
+      if (nestTask(t, parent)) n++; else { skipped++; if (copy) { const gone = new Set(withDescendants([t]).map(x => x.id)); D.tasks = D.tasks.filter(x => !gone.has(x.id)); reindex(); } }
+    }
+    U.exp[parentId] = true;
+  });
+  saveUI();
+  if (n) toast(`${copy ? 'Copied' : 'Nested'} ${n > 1 ? plural(n, 'task') : `“${list[0].title}”`} under “${parent.title}”${skipped ? ` (${skipped} couldn’t nest that deep)` : ''}`, { undo: true });
+  else toast(`Can’t nest there — subtasks go ${MAX_NEST} levels deep, and a task can’t go inside itself.`);
+}
+function unnestTasks(ids) {
+  const list = ids.map(i => TASK[i]).filter(t => t && parentOf(t));
+  mutate('Make top-level', () => list.forEach((t, i) => { t.order = rootOf(t).order + 0.001 * (i + 1); t.parentId = null; t.updated = now(); }), { toast: `${plural(list.length, 'task')} moved out to the top level` });
+}
+function toSubnote(t) {
+  const p = parentOf(t); if (!p || childrenOf(t.id).length) return;
+  mutate('Turn into subnote', () => { p.subnotes.push({ id: uid('s'), text: t.title, done: isDone(t), note: t.notes || '' }); D.tasks = D.tasks.filter(x => x.id !== t.id); p.updated = now(); }, { toast: `“${t.title}” is now a subnote of “${p.title}”` });
+}
+function deleteTasks(list) {
+  const all = withDescendants(list.filter(Boolean)); if (!all.length) return;
+  const ids = new Set(all.map(t => t.id)); const extra = all.length - list.length;
+  if (editingId && ids.has(editingId)) closeDrawer(true);
+  mutate(`Delete ${plural(all.length, 'task')}`, () => { D.tasks = D.tasks.filter(t => !ids.has(t.id)); ids.forEach(i => sel.delete(i)); }, { toast: `Deleted ${list.length === 1 ? `“${list[0].title}”` : plural(list.length, 'task')}${extra > 0 ? ` and ${plural(extra, 'subtask')}` : ''}` });
 }
 
 /* ---------- selection ---------- */
@@ -1789,6 +2185,7 @@ function selectAllVisible() {
 function refreshSel() {
   for (const id of [...sel]) if (!TASK[id]) sel.delete(id);
   $$('.card').forEach(c => { const on = sel.has(c.dataset.id); c.classList.toggle('is-sel', on); const b = c.querySelector('.card-check'); if (b) b.textContent = on ? '✓' : ''; });
+  $$('.subcard, .ol-item').forEach(c => c.classList.toggle('is-sel', sel.has(c.dataset.id)));
   $$('tr[data-id]').forEach(r => { const on = sel.has(r.dataset.id); r.classList.toggle('is-sel', on); const cb = r.querySelector('[data-rowsel]'); if (cb) cb.checked = on; });
   renderSelBar();
 }
@@ -1801,6 +2198,7 @@ function renderSelBar() {
   bar.innerHTML = `<span class="n">${sel.size} selected</span>
     <button class="btn" data-sb="move">Move to…</button><button class="btn" data-sb="type">Type</button><button class="btn" data-sb="priority">Priority</button>
     <button class="btn" data-sb="status">Status</button><button class="btn" data-sb="due">Due</button><button class="btn" data-sb="duration">Time</button>
+    <button class="btn" data-sb="color">Color</button><button class="btn" data-sb="nest">Nest under…</button>
     <button class="btn" data-sb="copy">Copy</button><button class="btn" data-sb="dup">Duplicate</button><button class="btn" data-sb="export">Export</button>
     <button class="btn" data-sb="delete">Delete</button><button class="btn" data-sb="clear" aria-label="Clear selection" title="Clear selection (Esc)">✕</button>`;
 }
@@ -1828,7 +2226,9 @@ function onSelBarClick(e) {
   const b = e.target.closest('[data-sb]'); if (!b) return;
   const a = b.dataset.sb;
   if (a === 'clear') return clearSel();
-  if (a === 'move') return popMenu(b, areaMenuItems(id => bulk(`Moved to ${id ? A[id].name : 'Unsorted'}`, t => { t.areaId = id; })), { filter: true });
+  if (a === 'move') return popMenu(b, areaMenuItems(id => moveToArea([...sel], id)), { filter: true });
+  if (a === 'color') return popMenu(b, [{ hd: 'Card color' }, { swatches: true, value: null, onPick: c => colorTasks([...sel], c) }]);
+  if (a === 'nest') return pickParent(b, [...sel]);
   if (a === 'type') return popMenu(b, fieldMenuItems('type', id => bulk('Type set', t => { t.typeId = id; })));
   if (a === 'priority') return popMenu(b, fieldMenuItems('priority', id => bulk('Priority set', t => { t.priorityId = id; })));
   if (a === 'status') return popMenu(b, fieldMenuItems('status', id => bulk('Status set', t => setStatus(t, id))));
@@ -1840,21 +2240,17 @@ function onSelBarClick(e) {
   if (a === 'delete') return deleteSel();
 }
 function duplicateSel() {
-  const list = selTasks(); if (!list.length) return;
-  mutate(`Duplicate ${plural(list.length, 'task')}`, () => { const made = list.map(t => { const c = dupTask(t); D.tasks.push(c); return c; }); sel = new Set(made.map(t => t.id)); }, { toast: `Duplicated ${plural(list.length, 'task')}` });
+  const list = topmost(selTasks()); if (!list.length) return;
+  mutate(`Duplicate ${plural(list.length, 'task')}`, () => { const made = list.map(t => { const cs = dupDeep(t); D.tasks.push(...cs); return cs[0]; }); sel = new Set(made.map(t => t.id)); }, { toast: `Duplicated ${plural(list.length, 'task')}` });
 }
-function deleteSel() {
-  const list = selTasks(); if (!list.length) return;
-  const ids = new Set(list.map(t => t.id));
-  mutate(`Delete ${plural(list.length, 'task')}`, () => { D.tasks = D.tasks.filter(t => !ids.has(t.id)); sel.clear(); }, { toast: `Deleted ${plural(list.length, 'task')}` });
-}
+function deleteSel() { deleteTasks(topmost(selTasks())); sel.clear(); renderSelBar(); }
 function moveSelToCol(n) {
   const cols = fieldCols(U.group).filter(c => !c.nodrop); const c = cols[n]; if (!c) return;
   moveTasks([...sel], [c.key], null, false, null);
 }
 
 /* ---------- column menu & add column ---------- */
-function colTasks(key) { return sortTasks(visibleTasks().filter(t => keyOf(t, U.group) === key)); }
+function colTasks(key) { return boardRoots().filter(t => keyOf(t, U.group) === key); }
 function colMenu(anchor, key) {
   const c = fieldCols(U.group).find(x => x.key === key); if (!c) return;
   const list = colTasks(key);
@@ -1863,9 +2259,9 @@ function colMenu(anchor, key) {
   if (U.group === 'area' && c.inbox && list.length) items.push({ label: 'Triage these one by one', onPick: () => openTriage() });
   items.push({ label: `Select all ${list.length}`, onPick: () => { list.forEach(t => sel.add(t.id)); refreshSel(); } });
   items.push({ sep: true });
-  items.push({ label: 'Copy as a plain list', onPick: async () => { await copyText(list.map(t => t.title).join('\n')); toast(`Copied ${plural(list.length, 'title')}`); } });
-  items.push({ label: 'Copy as Markdown checklist', onPick: async () => { await copyText(`## ${c.label}\n\n` + list.map(t => mdTask(t)).join('\n')); toast('Copied as Markdown'); } });
-  items.push({ label: 'Export this column…', onPick: () => openExport({ ids: list.map(t => t.id), label: c.label }) });
+  items.push({ label: 'Copy as a plain list', onPick: async () => { await copyText(tasksAsText(list, false)); toast(`Copied ${plural(list.length, 'task')}`); } });
+  items.push({ label: 'Copy as Markdown checklist', onPick: async () => { await copyText(`## ${c.label}\n\n` + list.map(t => [mdTask(t), ...taskDescendants(t).map(x => mdTask(x, {}, '    '.repeat(taskDepth(x) - taskDepth(t))))].join('\n')).join('\n')); toast('Copied as Markdown'); } });
+  items.push({ label: 'Export this column…', onPick: () => openExport({ ids: withDescendants(list).map(t => t.id), label: c.label }) });
   const [f, v] = [key.slice(0, key.indexOf('|')), key.slice(key.indexOf('|') + 1)];
   if (v && ['area', 'type', 'priority', 'status'].includes(f)) {
     items.push({ sep: true });
@@ -1903,33 +2299,86 @@ async function addColumn() {
 }
 
 /* ---------- drag & drop ---------- */
-function cleanupDrag() { $$('.is-dragging').forEach(c => c.classList.remove('is-dragging')); $$('.cell.is-over').forEach(c => c.classList.remove('is-over')); if (ph) ph.remove(); }
+let dropAt = null; // { mode: 'nest' | 'before' | 'after' | 'cell', id, cell }
+function cleanupDrag() {
+  $$('.is-dragging').forEach(c => c.classList.remove('is-dragging'));
+  $$('.cell.is-over').forEach(c => c.classList.remove('is-over'));
+  $$('.nest-target').forEach(c => c.classList.remove('nest-target'));
+  if (ph) ph.remove(); dropAt = null;
+}
 function onDragStart(e) {
-  const card = e.target.closest?.('.card'); if (!card) return;
-  const id = card.dataset.id; const ids = sel.has(id) ? [...sel].filter(i => TASK[i]) : [id];
-  drag = { ids };
+  if (U.view !== 'board') return;
+  const el = e.target.closest?.('.subcard, .card'); if (!el) return;
+  const id = el.dataset.id; const ids = sel.has(id) ? [...sel].filter(i => TASK[i]) : [id];
+  const top = topmost(ids.map(i => TASK[i]));
+  drag = { ids: top.map(t => t.id), all: new Set(withDescendants(top).map(t => t.id)) };
   e.dataTransfer.effectAllowed = 'copyMove';
-  try { e.dataTransfer.setData('text/plain', tasksAsText(ids.map(i => TASK[i]))); } catch (_) { }
-  if (ids.length > 1) { const g = document.createElement('div'); g.className = 'drag-ghost'; g.textContent = `${ids.length} tasks`; document.body.appendChild(g); try { e.dataTransfer.setDragImage(g, 14, 14); } catch (_) { } setTimeout(() => g.remove(), 0); }
-  setTimeout(() => ids.forEach(i => $(`.card[data-id="${i}"]`)?.classList.add('is-dragging')), 0);
+  try { e.dataTransfer.setData('text/plain', tasksAsText(top)); } catch (_) { }
+  if (top.length > 1) { const g = document.createElement('div'); g.className = 'drag-ghost'; g.textContent = `${top.length} tasks`; document.body.appendChild(g); try { e.dataTransfer.setDragImage(g, 14, 14); } catch (_) { } setTimeout(() => g.remove(), 0); }
+  setTimeout(() => drag && drag.ids.forEach(i => $$(`[data-id="${CSS.escape(i)}"]`).forEach(x => x.classList.contains('card') || x.classList.contains('subcard') ? x.classList.add('is-dragging') : 0)), 0);
+}
+/** where would a drop land? Over the middle of a card = nest; card edges = reorder; elsewhere in a column = move */
+function dropTarget(e) {
+  const cell = e.target.closest?.('.cell');
+  if (drag) {
+    const over = e.target.closest?.('.subcard, .card');
+    if (over && !drag.all.has(over.dataset.id)) {
+      const tgt = TASK[over.dataset.id], r = over.getBoundingClientRect();
+      const isSub = over.classList.contains('subcard');
+      const head = isSub ? r : (over.querySelector('.card-body') ? { top: r.top, bottom: over.querySelector('.card-body').getBoundingClientRect().top } : r);
+      const edge = Math.min((head.bottom - head.top) * 0.28, 16);
+      const y = e.clientY; const inHead = y <= head.bottom;
+      let mode = !inHead ? 'nest' : y < head.top + edge ? 'before' : (y > head.bottom - edge && head === r) ? 'after' : 'nest';
+      const moving = drag.ids.map(i => TASK[i]);
+      if (mode === 'nest') {
+        if (moving.every(m => canNest(m, tgt))) return { mode, id: tgt.id, el: over };
+        mode = isSub ? 'none' : 'cell';
+      }
+      if (isSub && (mode === 'before' || mode === 'after')) {
+        const p = parentOf(tgt);
+        return p && moving.every(m => canNest(m, p)) ? { mode, id: tgt.id, el: over } : { mode: 'none' };
+      }
+      if (isSub) return { mode: 'none' };
+    }
+  }
+  if (!cell || cell.classList.contains('nodrop')) return { mode: 'none' };
+  return { mode: 'cell', cell };
 }
 function onDragOver(e) {
+  if (U.view !== 'board') return;
   autoScroll(e);
-  const cell = e.target.closest?.('.cell');
-  if (!cell || cell.classList.contains('nodrop')) { $$('.cell.is-over').forEach(c => c.classList.remove('is-over')); if (ph) ph.remove(); return; }
+  const d = dropTarget(e);
+  $$('.nest-target').forEach(c => c !== d.el && c.classList.remove('nest-target'));
+  if (d.mode === 'none') { $$('.cell.is-over').forEach(c => c.classList.remove('is-over')); if (ph) ph.remove(); dropAt = null; return; }
   e.preventDefault();
   const copy = U.copyDrop || e.altKey || e.ctrlKey || e.metaKey;
   try { e.dataTransfer.dropEffect = drag ? (copy ? 'copy' : 'move') : 'copy'; } catch (_) { }
+  dropAt = d;
+  if (d.mode === 'nest') { $$('.cell.is-over').forEach(c => c.classList.remove('is-over')); if (ph) ph.remove(); d.el.classList.add('nest-target'); d.el.dataset.nestLabel = copy ? 'Copy here as a subtask' : 'Make it a subtask'; return; }
+  if (d.mode === 'before' || d.mode === 'after') {
+    $$('.cell.is-over').forEach(c => c.classList.remove('is-over'));
+    if (!ph) { ph = document.createElement('div'); ph.className = 'drop-ph'; }
+    const ref = d.mode === 'before' ? d.el : d.el.nextSibling;
+    if (ph.nextSibling !== ref || ph.parentNode !== d.el.parentNode) d.el.parentNode.insertBefore(ph, ref);
+    ph.style.marginLeft = getComputedStyle(d.el).marginLeft;
+    return;
+  }
+  const cell = d.cell; if (ph) ph.style.marginLeft = '';
   if (!cell.classList.contains('is-over')) { $$('.cell.is-over').forEach(c => c.classList.remove('is-over')); cell.classList.add('is-over'); }
   placePh(cell, e.clientY);
 }
 function onDragLeave(e) { const cell = e.target.closest?.('.cell'); if (cell && !cell.contains(e.relatedTarget)) cell.classList.remove('is-over'); }
 function onDrop(e) {
-  const cell = e.target.closest?.('.cell'); if (!cell || cell.classList.contains('nodrop')) { cleanupDrag(); return; }
+  if (U.view !== 'board') return;
+  const d = dropTarget(e);
+  if (d.mode === 'none') { drag = null; cleanupDrag(); return; }
   e.preventDefault();
+  const copy = U.copyDrop || e.altKey || e.ctrlKey || e.metaKey;
+  if (drag && d.mode === 'nest') { const ids = drag.ids; drag = null; cleanupDrag(); nestTasks(ids, d.id, copy); return; }
+  if (drag && (d.mode === 'before' || d.mode === 'after')) { const ids = drag.ids; drag = null; cleanupDrag(); placeSiblings(ids, d.id, d.mode === 'after', copy); return; }
+  const cell = d.cell;
   const before = ph && ph.parentNode === cell ? (ph.dataset.before || null) : null;
   const keys = [cell.dataset.col, cell.dataset.lane].filter(Boolean);
-  const copy = U.copyDrop || e.altKey || e.ctrlKey || e.metaKey;
   if (drag) { const ids = drag.ids; drag = null; moveTasks(ids, keys, before, copy, cell); cleanupDrag(); return; }
   cleanupDrag();
   const files = Array.from(e.dataTransfer.files || []);
@@ -1940,9 +2389,9 @@ function onDrop(e) {
 function placePh(cell, y) {
   if (U.sort !== 'manual') { if (ph) ph.remove(); return; }
   if (!ph) { ph = document.createElement('div'); ph.className = 'drop-ph'; }
-  const cards = $$('.card:not(.is-dragging)', cell);
+  const cards = $$(':scope > .card:not(.is-dragging)', cell);
   const before = cards.find(c => { const r = c.getBoundingClientRect(); return y < r.top + r.height / 2; });
-  const anchor = before || cell.querySelector('.add-inline, .inline-inp');
+  const anchor = before || cell.querySelector(':scope > .add-inline, :scope > .inline-inp');
   if (anchor) { if (ph.nextSibling !== anchor) cell.insertBefore(ph, anchor); } else if (ph.parentNode !== cell || ph.nextSibling) cell.appendChild(ph);
   ph.dataset.before = before ? before.dataset.id : '';
 }
@@ -1951,22 +2400,47 @@ function autoScroll(e) {
   if (e.clientX > r.right - edge) v.scrollLeft += sp; else if (e.clientX < r.left + edge) v.scrollLeft -= sp;
   if (e.clientY > r.bottom - edge) v.scrollTop += sp; else if (e.clientY < r.top + edge + 60) v.scrollTop -= sp;
 }
+/** orders that slot `count` items between two neighbours */
+function ordersBetween(prev, next, count) {
+  const lo = prev ? prev.order : (next ? next.order - count - 1 : maxOrder() + 1);
+  const hi = next ? next.order : lo + count + 1;
+  const step = (hi - lo) / (count + 1);
+  return Array.from({ length: count }, (_, i) => lo + step * (i + 1));
+}
+/** drop beside a task: it becomes that task's sibling (same parent, same group), in that spot */
+function placeSiblings(ids, refId, after, copy) {
+  const ref = TASK[refId]; if (!ref) return; const parent = parentOf(ref);
+  const sibsOf = () => parent ? childrenOf(parent.id) : D.tasks.filter(x => isRootTask(x) && (x.areaId || null) === (ref.areaId || null)).sort((a, b) => a.order - b.order);
+  mutate(`${copy ? 'Copy' : 'Move'} ${plural(ids.length, 'task')}`, () => {
+    let list = topmost(ids.map(i => TASK[i]).filter(Boolean));
+    if (copy) { list = list.map(t => { const cs = dupDeep(t); D.tasks.push(...cs); return cs[0]; }); reindex(); }
+    list = list.filter(t => !parent || canNest(t, parent));
+    const moving = new Set(list.map(t => t.id));
+    const sibs = sibsOf().filter(s => !moving.has(s.id));
+    const i = sibs.indexOf(ref) + (after ? 1 : 0);
+    if (sibs[i] && sibs[i - 1] && Math.abs(sibs[i].order - sibs[i - 1].order) < 1e-6 * (list.length + 1)) renumber();
+    const ords = ordersBetween(sibs[i - 1], sibs[i], list.length);
+    list.forEach((t, k) => { t.parentId = parent ? parent.id : null; setAreaDeep(t, parent ? parent.areaId : ref.areaId); t.order = ords[k]; t.updated = now(); });
+  });
+}
 function moveTasks(ids, keys, beforeId, copy, cellEl) {
   const msgs = []; let made = [];
-  const n = ids.filter(i => TASK[i]).length; if (!n) return;
+  const top = topmost(ids.map(i => TASK[i]).filter(Boolean)); const n = top.length; if (!n) return;
+  const wasNested = top.filter(t => parentOf(t)).length;
   mutate(`${copy ? 'Copy' : 'Move'} ${plural(n, 'task')}`, () => {
-    let list = ids.map(i => TASK[i]).filter(Boolean);
-    if (copy) { list = list.map(t => { const c = dupTask(t); D.tasks.push(c); return c; }); made = list; }
-    for (const t of list) for (const k of keys) { const m = applyKey(t, k); if (m) msgs.push(m); }
+    let list = top;
+    if (copy) { list = list.map(t => { const cs = dupDeep(t); D.tasks.push(...cs); return cs[0]; }); made = list; reindex(); }
+    for (const t of list) { t.parentId = null; for (const k of keys) { const m = applyKey(t, k); if (m) msgs.push(m); } }
     if (U.sort === 'manual' && cellEl) placeOrder(list, cellEl, beforeId);
     if (copy) sel = new Set(made.map(t => t.id));
   });
   if (msgs.length) toast(msgs[0] + (msgs.length > 1 ? ` (+${msgs.length - 1} more)` : ''), { undo: true });
   else if (copy) toast(`Copied ${plural(n, 'task')} to ${keys.map(keyLabel).filter(Boolean).join(' · ')}`, { undo: true });
+  else if (wasNested) toast(`${wasNested === 1 ? 'Subtask' : plural(wasNested, 'subtask')} moved out to the top level`, { undo: true });
 }
 function placeOrder(list, cellEl, beforeId, depth = 0) {
   const moved = new Set(list.map(t => t.id));
-  const ids = $$('.card', cellEl).map(c => c.dataset.id).filter(id => !moved.has(id) && TASK[id]);
+  const ids = $$(':scope > .card', cellEl).map(c => c.dataset.id).filter(id => !moved.has(id) && TASK[id]);
   let idx = beforeId ? ids.indexOf(beforeId) : ids.length; if (idx < 0) idx = ids.length;
   const prev = idx > 0 ? TASK[ids[idx - 1]] : null, next = idx < ids.length ? TASK[ids[idx]] : null;
   const lo = prev ? prev.order : (next ? next.order - list.length - 1 : maxOrder() + 1);
@@ -1977,21 +2451,24 @@ function placeOrder(list, cellEl, beforeId, depth = 0) {
 }
 
 /* ---------- clipboard ---------- */
+function makeClip(list) { const top = topmost(list); return { text: tasksAsText(top), data: withDescendants(top).map(clone), n: top.length }; }
 async function copySelection(cut = false) {
   const list = selTasks(); if (!list.length) return;
-  const text = tasksAsText(list);
-  clip = { text, data: list.map(clone) };
-  await copyText(text);
-  if (cut) { const ids = new Set(list.map(t => t.id)); mutate(`Cut ${plural(list.length, 'task')}`, () => { D.tasks = D.tasks.filter(t => !ids.has(t.id)); sel.clear(); }); }
-  toast(`${cut ? 'Cut' : 'Copied'} ${plural(list.length, 'task')} — paste into any column, or into another app as text`, { undo: cut });
+  clip = makeClip(list);
+  await copyText(clip.text);
+  if (cut) { const all = new Set(clip.data.map(t => t.id)); mutate(`Cut ${plural(clip.n, 'task')}`, () => { D.tasks = D.tasks.filter(t => !all.has(t.id)); sel.clear(); }); }
+  toast(`${cut ? 'Cut' : 'Copied'} ${plural(clip.n, 'task')} — paste into any column, or into another app as text`, { undo: cut });
 }
 function pasteClip(keys) {
   if (!clip) return;
-  mutate(`Paste ${plural(clip.data.length, 'task')}`, () => {
-    let ord = maxOrder();
-    const made = clip.data.map(d => { const c = dupTask(d); c.order = ++ord; keys.forEach(k => applyKey(c, k)); D.tasks.push(c); return c; });
-    sel = new Set(made.map(t => t.id));
-  }, { toast: `Pasted ${plural(clip.data.length, 'task')}${keys.length ? ' into ' + keys.map(keyLabel).filter(Boolean).join(' · ') : ''}` });
+  mutate(`Paste ${plural(clip.n, 'task')}`, () => {
+    const map = new Map(clip.data.map(d => [d.id, uid('t')])); let ord = maxOrder(); const made = [];
+    for (const d of clip.data) { const c = dupTask(d); c.id = map.get(d.id); c.parentId = d.parentId && map.has(d.parentId) ? map.get(d.parentId) : null; c.order = ++ord; D.tasks.push(c); made.push(c); }
+    reindex();
+    const roots = made.filter(c => !c.parentId);
+    roots.forEach(c => { keys.forEach(k => applyKey(c, k)); setAreaDeep(c, c.areaId); });
+    sel = new Set(roots.map(t => t.id));
+  }, { toast: `Pasted ${plural(clip.n, 'task')}${keys.length ? ' into ' + keys.map(keyLabel).filter(Boolean).join(' · ') : ''}` });
 }
 function pasteTextInto(text, keys) {
   const lines = text.split('\n').filter(l => l.trim()).length;
@@ -2003,12 +2480,11 @@ function currentPasteKeys() { return U.view === 'board' && hoverCell && hoverCel
 function onCopy(e) {
   if (isTypingTarget(document.activeElement) || anyLayerOpen() || !sel.size) return;
   if (window.getSelection && String(window.getSelection()).trim()) return;
-  const list = selTasks(); const text = tasksAsText(list);
-  clip = { text, data: list.map(clone) };
-  e.clipboardData.setData('text/plain', text); e.preventDefault();
-  toast(`Copied ${plural(list.length, 'task')} — paste into any column, or into another app as text`);
+  clip = makeClip(selTasks());
+  e.clipboardData.setData('text/plain', clip.text); e.preventDefault();
+  toast(`Copied ${plural(clip.n, 'task')} — paste into any column, or into another app as text`);
 }
-function onCut(e) { if (isTypingTarget(document.activeElement) || anyLayerOpen() || !sel.size) return; onCopy(e); const ids = new Set(selTasks().map(t => t.id)); mutate('Cut', () => { D.tasks = D.tasks.filter(t => !ids.has(t.id)); sel.clear(); }, { toast: 'Cut — paste to place them' }); }
+function onCut(e) { if (isTypingTarget(document.activeElement) || anyLayerOpen() || !sel.size) return; onCopy(e); const all = new Set(clip.data.map(t => t.id)); mutate('Cut', () => { D.tasks = D.tasks.filter(t => !all.has(t.id)); sel.clear(); }, { toast: 'Cut — paste to place them' }); }
 function onPaste(e) {
   if (isTypingTarget(document.activeElement) || anyLayerOpen() || U.view === 'settings') return;
   const text = e.clipboardData?.getData('text/plain') || '';
@@ -2082,7 +2558,7 @@ function renderList() {
     const ty = T[t.typeId]; const b = dueBucket(t);
     return `<tr data-id="${t.id}" class="${sel.has(t.id) ? 'is-sel' : ''}">
       <td><input type="checkbox" data-rowsel ${sel.has(t.id) ? 'checked' : ''} aria-label="Select ${esc(t.title)}"></td>
-      <td class="t-title"><button data-open>${ty?.icon ? esc(ty.icon) + ' ' : ''}${isDone(t) ? `<s>${esc(t.title)}</s>` : esc(t.title)}</button>${t.subnotes.length ? `<span class="badge">${t.subnotes.filter(x => x.done).length}/${t.subnotes.length}</span>` : ''}${t.notes ? ' <span class="muted" title="Has notes">✎</span>' : ''}${t.attachments.length ? ' <span class="muted" title="Attachments">📎</span>' : ''}</td>
+      <td class="t-title">${t.color ? `<span class="cdot" style="--sw:${tintVar(t.color)}" title="${COLOR_NAME[t.color]}"></span>` : ''}${parentOf(t) ? '<span class="muted" title="Subtask">↳ </span>' : ''}<button data-open class="clamp-inline">${ty?.icon ? esc(ty.icon) + ' ' : ''}${isDone(t) ? `<s>${esc(t.title)}</s>` : esc(t.title)}</button>${parentOf(t) ? `<div class="muted sm">in ${esc(parentOf(t).title)}</div>` : ''}${t.subnotes.length ? `<span class="badge">${t.subnotes.filter(x => x.done).length}/${t.subnotes.length}</span>` : ''}${t.notes ? ' <span class="muted" title="Has notes">✎</span>' : ''}${t.attachments.length ? ' <span class="muted" title="Attachments">📎</span>' : ''}</td>
       <td><select class="inp" data-set="area" data-v="${t.areaId || ''}" title="${esc(pathStr(t.areaId) || 'Unsorted')}">${AREA}</select></td>
       <td><select class="inp" data-set="type" data-v="${t.typeId || ''}">${TYPE}</select></td>
       <td><select class="inp" data-set="priority" data-v="${t.priorityId || ''}">${PRI}</select></td>
@@ -2107,7 +2583,7 @@ function onListEvent(e) {
   if (e.type === 'change' && el.matches('select[data-set]')) {
     const t = TASK[el.closest('tr').dataset.id]; if (!t) return; const v = el.value || null; const f = el.dataset.set;
     let msg = null;
-    mutate('Edit task', () => { if (f === 'area') t.areaId = v; else if (f === 'type') t.typeId = v; else if (f === 'priority') t.priorityId = v; else if (f === 'status') msg = setStatus(t, v); t.updated = now(); });
+    mutate('Edit task', () => { if (f === 'area') { if (parentOf(t) && v !== t.areaId) t.parentId = null; setAreaDeep(t, v); } else if (f === 'type') t.typeId = v; else if (f === 'priority') t.priorityId = v; else if (f === 'status') msg = setStatus(t, v); t.updated = now(); });
     if (msg) toast(msg, { undo: true });
     return;
   }
@@ -2122,33 +2598,43 @@ function onListEvent(e) {
 
 /* ---------- outline ---------- */
 function outlineItem(t) {
-  const ty = T[t.typeId];
-  return `<li class="ol-item" data-id="${t.id}"><input type="checkbox" data-done ${isDone(t) ? 'checked' : ''} aria-label="Done">
-    <div><button class="t" data-open>${ty?.icon ? esc(ty.icon) + ' ' : ''}${isDone(t) ? `<s>${esc(t.title)}</s>` : esc(t.title)}</button>
-    <div class="m">${metaPills(t, { type: true })}</div>
-    ${t.notes ? `<div class="n">${esc(t.notes)}</div>` : ''}
-    ${t.subnotes.length ? `<ul class="ol-subs">${t.subnotes.map(s => `<li><label class="chk"><input type="checkbox" data-subdone="${s.id}" ${s.done ? 'checked' : ''}> ${s.done ? `<s>${esc(s.text)}</s>` : esc(s.text)}</label>${s.note ? ` <span class="muted">— ${esc(s.note)}</span>` : ''}</li>`).join('')}</ul>` : ''}
-    </div></li>`;
+  const ty = T[t.typeId], open = !!U.exp[t.id], kidsT = childrenOf(t.id);
+  return `<li class="ol-item${isDone(t) ? ' is-done' : ''}${sel.has(t.id) ? ' is-sel' : ''}${open ? ' is-open' : ''}" data-id="${t.id}" data-clamphost>
+    <div class="ol-row" draggable="true" style="${t.color ? `--cbg:${tintVar(t.color)}` : ''}" ${t.color ? `data-bg="${t.color}"` : ''}>
+      <span class="ol-grip" aria-hidden="true" title="Drag to move, or drop on a task to nest">⠿</span>
+      <input type="checkbox" data-done ${isDone(t) ? 'checked' : ''} aria-label="Done">
+      <div class="ol-body">
+        <button class="t clamp" data-open>${ty?.icon ? esc(ty.icon) + ' ' : ''}${esc(t.title)}</button>
+        <div class="m">${metaPills(t, { type: true })}</div>
+        ${t.notes ? `<div class="n clamp">${linkify(esc(t.notes))}</div>` : ''}
+        <button class="ol-more" data-more${open ? '' : ' hidden'}>${open ? 'Show less' : 'Show more'}</button>
+        ${t.subnotes.length ? `<ul class="ol-subs">${t.subnotes.map(s => `<li class="ol-sub" draggable="true" data-sid="${s.id}"><label class="chk"><input type="checkbox" data-subdone="${s.id}" ${s.done ? 'checked' : ''}> ${s.done ? `<s>${esc(s.text)}</s>` : esc(s.text)}</label>${s.note ? ` <span class="muted">— ${esc(s.note)}</span>` : ''}</li>`).join('')}</ul>` : ''}
+      </div></div>
+    ${kidsT.length ? `<ul class="ol-list ol-children">${kidsT.map(outlineItem).join('')}</ul>` : ''}</li>`;
 }
 function renderOutline() {
   const view = $('#view'); const c = cur();
-  const list = sortTasks(visibleTasks(), U.sort);
+  const vis = visibleTasks();
+  const roots = new Map(); vis.forEach(t => { const r = rootOf(t); roots.set(r.id, r); });
+  const list = sortTasks([...roots.values()], U.sort);
   const byArea = new Map(); list.forEach(t => { const k = t.areaId && A[t.areaId] ? t.areaId : ''; (byArea.get(k) || byArea.set(k, []).get(k)).push(t); });
   const hasAny = id => (byArea.get(id) || []).length || descendants(id).some(d => (byArea.get(d.id) || []).length);
+  const count = withDescendants(list).length;
   let h = `<div class="outline"><div class="outline-actions">
     <button class="btn" data-ol="copy">Copy as Markdown</button><button class="btn" data-ol="dl">Download .md</button><button class="btn" data-ol="print">Print or save as PDF</button>
-    <label class="chk sm"><input type="checkbox" data-ol="empty" ${U.olEmpty ? 'checked' : ''}> Show empty groups</label><span class="spacer"></span><span class="muted sm">${plural(list.length, 'task')}</span></div>`;
+    <label class="chk sm"><input type="checkbox" data-ol="empty" ${U.olEmpty ? 'checked' : ''}> Show empty groups</label><span class="spacer"></span><span class="muted sm">${plural(count, 'task')} · drag ⠿ to move or nest</span></div>`;
   const rootTasks = byArea.get(c || '') || [];
-  if (rootTasks.length) h += `<section class="ol-sec"><h2 class="ol-h l1" style="--c:var(--line)">${c ? esc(A[c].name) + ' — not yet sorted' : 'Unsorted'}</h2><ul class="ol-list">${rootTasks.map(outlineItem).join('')}</ul></section>`;
+  if (rootTasks.length || (U.olEmpty && D.areas.length)) h += `<section class="ol-sec"><h2 class="ol-h l1" data-area="${c || ''}" style="--c:var(--line)">${c ? esc(A[c].name) + ' — not yet sorted' : 'Unsorted'}</h2><ul class="ol-list">${rootTasks.map(outlineItem).join('')}</ul></section>`;
   const walk = (pid, lvl) => kids(pid).map(a => {
     if (!U.olEmpty && !hasAny(a.id)) return '';
     const ts = byArea.get(a.id) || [];
-    return `<section class="ol-sec${lvl > 1 ? ' ol-indent' : ''}"><h${Math.min(lvl + 1, 6)} class="ol-h l${lvl}" style="--c:${areaColor(a.id) || 'var(--line)'}"><span class="sw"></span>${esc(a.name)}<span class="muted sm" style="font-family:var(--font-ui);font-weight:400">${ts.length ? plural(ts.length, 'task') : ''}</span></h${Math.min(lvl + 1, 6)}>
-      ${a.notes ? `<p class="ol-notes">${esc(a.notes)}</p>` : ''}${ts.length ? `<ul class="ol-list">${ts.map(outlineItem).join('')}</ul>` : ''}${walk(a.id, lvl + 1)}</section>`;
+    return `<section class="ol-sec${lvl > 1 ? ' ol-indent' : ''}"><h${Math.min(lvl + 1, 6)} class="ol-h l${lvl}" data-area="${a.id}" style="--c:${areaColor(a.id) || 'var(--line)'}"><span class="sw"></span>${esc(a.name)}<span class="muted sm" style="font-family:var(--font-ui);font-weight:400">${ts.length ? plural(withDescendants(ts).length, 'task') : ''}</span></h${Math.min(lvl + 1, 6)}>
+      ${a.notes ? `<p class="ol-notes clamp-block">${esc(a.notes)}</p>` : ''}${ts.length ? `<ul class="ol-list">${ts.map(outlineItem).join('')}</ul>` : ''}${walk(a.id, lvl + 1)}</section>`;
   }).join('');
   h += walk(c, 1);
   if (!list.length) h += `<div class="empty"><h2>Nothing to outline</h2><p>${filtersActive() ? 'Nothing matches these filters.' : 'Once tasks are on the rack, this view lays them out as a document you can copy, print or save as PDF.'}</p></div>`;
   view.innerHTML = h + '</div>';
+  markClamps(view);
 }
 function outlineTitle() { return cur() ? `${pathStr(cur())} — tasks` : 'HatRack — all tasks'; }
 async function onOutlineEvent(e) {
@@ -2158,12 +2644,95 @@ async function onOutlineEvent(e) {
   if (e.type === 'change' && el.matches('[data-subdone]')) { const t = TASK[el.closest('[data-id]').dataset.id]; const s = t?.subnotes.find(x => x.id === el.dataset.subdone); if (s) mutate('Subnote', () => { s.done = el.checked; t.updated = now(); }); return; }
   if (e.type === 'change' && el.dataset.ol === 'empty') { U.olEmpty = el.checked; saveUI(); renderOutline(); return; }
   if (e.type !== 'click') return;
+  const row = el.closest('.ol-row');
+  if (row && (e.metaKey || e.ctrlKey) && !el.closest('input, a')) { e.preventDefault(); toggleSel(row.closest('[data-id]').dataset.id); return; }
   const b = el.closest('button'); if (!b) return;
+  if (b.hasAttribute('data-more')) return toggleExp(b.closest('[data-id]').dataset.id);
   if (b.hasAttribute('data-open')) return openEditor(b.closest('[data-id]').dataset.id);
-  const md = () => `# ${outlineTitle()}\n_Exported from HatRack on ${todayStr()}_\n\n` + outlineMarkdown(visibleTasks(), cur(), 2);
+  const md = () => `# ${outlineTitle()}\n_Exported from HatRack on ${todayStr()}_\n\n` + outlineMarkdown(withDescendants(visibleTasks().map(rootOf)), cur(), 2);
   if (b.dataset.ol === 'copy') { await copyText(md()); toast('Outline copied as Markdown'); }
   if (b.dataset.ol === 'dl') downloadText(`hatrack-outline-${slug(cur() ? A[cur()].name : 'all')}-${todayStr()}.md`, md(), 'text/markdown');
   if (b.dataset.ol === 'print') window.print();
+}
+
+/* ---------- outline drag & drop: nest tasks, reorder, move subnotes ---------- */
+let odrag = null;
+function olClear() { $$('.drop-before, .drop-after, .nest-target, .ol-h.is-over, .is-dragging').forEach(x => x.classList.remove('drop-before', 'drop-after', 'nest-target', 'is-over', 'is-dragging')); }
+function onOutlineDragStart(e) {
+  if (U.view !== 'outline') return;
+  const sub = e.target.closest?.('.ol-sub');
+  if (sub) {
+    const tid = sub.closest('.ol-item').dataset.id; const s = TASK[tid]?.subnotes.find(x => x.id === sub.dataset.sid); if (!s) return;
+    odrag = { kind: 'sub', taskId: tid, sid: s.id };
+    e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', s.text); } catch (_) { }
+    setTimeout(() => sub.classList.add('is-dragging'), 0); e.stopPropagation(); return;
+  }
+  const row = e.target.closest?.('.ol-row'); if (!row) return;
+  const id = row.closest('.ol-item').dataset.id;
+  const top = topmost((sel.has(id) ? [...sel] : [id]).map(i => TASK[i]).filter(Boolean));
+  odrag = { kind: 'task', ids: top.map(t => t.id), all: new Set(withDescendants(top).map(t => t.id)) };
+  e.dataTransfer.effectAllowed = 'copyMove'; try { e.dataTransfer.setData('text/plain', tasksAsText(top)); } catch (_) { }
+  setTimeout(() => top.forEach(t => $(`.ol-item[data-id="${CSS.escape(t.id)}"]`)?.classList.add('is-dragging')), 0);
+}
+function olTarget(e) {
+  if (!odrag) return { mode: 'none' };
+  const h = e.target.closest?.('.ol-h[data-area]');
+  if (h) return { mode: 'area', areaId: h.dataset.area || null, el: h };
+  const row = e.target.closest?.('.ol-row'); if (!row) return { mode: 'none' };
+  const id = row.closest('.ol-item').dataset.id; const tgt = TASK[id]; if (!tgt) return { mode: 'none' };
+  if (odrag.kind === 'sub') {
+    const se = e.target.closest('.ol-sub');
+    if (se && se.closest('.ol-row') === row) { const r = se.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; return { mode: 'subpos', taskId: id, refSid: se.dataset.sid, after, el: se }; }
+    return { mode: 'subinto', taskId: id, el: row };
+  }
+  if (odrag.all.has(id)) return { mode: 'none' };
+  const r = row.getBoundingClientRect(); const edge = Math.min(r.height * 0.3, 14);
+  let mode = e.clientY < r.top + edge ? 'before' : e.clientY > r.bottom - edge ? 'after' : 'nest';
+  const moving = odrag.ids.map(i => TASK[i]);
+  if (mode === 'nest' && !moving.every(m => canNest(m, tgt))) return { mode: 'none' };
+  if (mode !== 'nest') { const p = parentOf(tgt); if (p && !moving.every(m => canNest(m, p))) return { mode: 'none' }; }
+  return { mode, id, el: row };
+}
+function onOutlineDragOver(e) {
+  if (U.view !== 'outline' || !odrag) return;
+  autoScroll(e);
+  const d = olTarget(e);
+  $$('.drop-before, .drop-after, .nest-target, .ol-h.is-over').forEach(x => x !== d.el && x.classList.remove('drop-before', 'drop-after', 'nest-target', 'is-over'));
+  if (d.mode === 'none') return;
+  e.preventDefault();
+  const copy = odrag.kind === 'task' && (U.copyDrop || e.altKey || e.ctrlKey || e.metaKey);
+  try { e.dataTransfer.dropEffect = copy ? 'copy' : 'move'; } catch (_) { }
+  d.el.classList.remove('drop-before', 'drop-after', 'nest-target', 'is-over');
+  if (d.mode === 'area') d.el.classList.add('is-over');
+  else if (d.mode === 'nest' || d.mode === 'subinto') { d.el.classList.add('nest-target'); d.el.dataset.nestLabel = d.mode === 'subinto' ? 'Add as a subnote here' : copy ? 'Copy here as a subtask' : 'Make it a subtask'; }
+  else if (d.mode === 'before' || (d.mode === 'subpos' && !d.after)) d.el.classList.add('drop-before');
+  else d.el.classList.add('drop-after');
+}
+function onOutlineDrop(e) {
+  if (U.view !== 'outline' || !odrag) return;
+  const d = olTarget(e); const g = odrag; odrag = null; olClear();
+  if (d.mode === 'none') return;
+  e.preventDefault();
+  const copy = g.kind === 'task' && (U.copyDrop || e.altKey || e.ctrlKey || e.metaKey);
+  if (g.kind === 'task') {
+    if (d.mode === 'nest') return nestTasks(g.ids, d.id, copy);
+    if (d.mode === 'area') return moveToArea(g.ids, d.areaId);
+    return placeSiblings(g.ids, d.id, d.mode === 'after', copy);
+  }
+  // a subnote
+  const from = TASK[g.taskId]; const si = from?.subnotes.findIndex(x => x.id === g.sid); if (!from || si < 0) return;
+  const s = from.subnotes[si];
+  if (d.mode === 'area') {
+    mutate('Subnote → task', () => { from.subnotes.splice(si, 1); D.tasks.push(newTask({ title: s.text || 'Untitled', notes: s.note || '', areaId: d.areaId, statusId: s.done ? doneStatus() : defaultStatus() })); from.updated = now(); }, { toast: `“${s.text}” is now its own task in ${d.areaId ? A[d.areaId].name : 'Unsorted'}` });
+    return;
+  }
+  const to = TASK[d.taskId];
+  mutate('Move subnote', () => {
+    from.subnotes.splice(si, 1);
+    let at = to.subnotes.length;
+    if (d.mode === 'subpos') { const ri = to.subnotes.findIndex(x => x.id === d.refSid); if (ri >= 0) at = ri + (d.after ? 1 : 0); }
+    to.subnotes.splice(at, 0, s); from.updated = to.updated = now();
+  }, from !== to ? { toast: `Moved the subnote to “${to.title}”` } : {});
 }
 
 /* ---------- reports ---------- */
@@ -2179,7 +2748,7 @@ function rlist(list, fmt) {
 function reportData() {
   const c = cur(); const scope = scopeTasks(); const open = scope.filter(t => !isDone(t)); const td = todayStr(); const eow = endOfWeek(td);
   const sum = l => l.reduce((s, t) => s + (+t.duration || 0), 0);
-  const unsorted = open.filter(t => (c ? t.areaId === c : !t.areaId));
+  const unsorted = open.filter(t => isRootTask(t) && (c ? t.areaId === c : !t.areaId));
   const groups = [{ label: c ? 'Not yet sorted' : 'Unsorted', color: 'var(--muted)', list: unsorted }, ...kids(c).map(a => ({ label: a.name, color: areaColor(a.id), list: open.filter(t => inSubtree(t.areaId, a.id)), drill: a.id }))];
   return {
     c, scope, open, td, eow, unsorted,
@@ -2245,11 +2814,12 @@ async function onReportEvent(e) {
 
 let editingId = null, editDirty = false, openNoteSubs = new Set();
 
-function openEditor(id) {
+function openEditor(id, opts = {}) {
   if (!TASK[id]) return;
   if (editingId !== id) { editDirty = false; openNoteSubs = new Set(); }
   editingId = id; $('#drawer').hidden = false; renderDrawer();
-  if (TASK[id].title === 'Untitled') setTimeout(() => { const ti = $('#ed-title'); ti?.focus(); ti?.select(); }, 30);
+  if (opts.focus === 'subtask') setTimeout(() => { const el = $('#ed-subtaskadd'); el?.scrollIntoView({ block: 'center' }); el?.focus(); }, 30);
+  else if (TASK[id].title === 'Untitled') setTimeout(() => { const ti = $('#ed-title'); ti?.focus(); ti?.select(); }, 30);
 }
 function closeDrawer(silent) {
   const was = editingId; editingId = null; editDirty = false;
@@ -2284,10 +2854,20 @@ function renderDrawer() {
     else input = `<input class="inp" data-cf="${f.id}" type="${f.kind === 'number' ? 'number' : f.kind === 'date' ? 'date' : 'text'}" value="${esc(v ?? '')}">`;
     return `<label class="field"><span>${esc(f.name)}</span>${input}</label>`;
   }).join('');
+  const parent = parentOf(t), kidsT = childrenOf(t.id), canAddKid = taskDepth(t) < MAX_NEST;
+  const kidRows = kidsT.map(c => `
+        <div class="st-row${isDone(c) ? ' done' : ''}" data-cid="${c.id}" style="${c.color ? `--cbg:${tintVar(c.color)}` : ''}">
+          <input type="checkbox" data-st="done" ${isDone(c) ? 'checked' : ''} aria-label="Done">
+          <button class="st-title" data-st="open" title="Open this subtask">${T[c.typeId]?.icon ? esc(T[c.typeId].icon) + ' ' : ''}${esc(c.title)}${childrenOf(c.id).length ? ` <span class="muted">· ${plural(taskDescendants(c).length, 'subtask')}</span>` : ''}</button>
+          <span class="st-meta">${c.due ? esc(fmtDate(c.due)) : ''}${c.duration ? ' · ' + fmtDur(c.duration) : ''}</span>
+          <button class="icon-btn sm" data-st="out" title="Make it a top-level task" aria-label="Make top-level">⇱</button>
+          ${childrenOf(c.id).length ? '' : '<button class="icon-btn sm" data-st="tosub" title="Turn into a subnote" aria-label="Turn into a subnote">⇩</button>'}
+          <button class="icon-btn sm" data-st="del" title="Delete subtask" aria-label="Delete subtask">✕</button></div>`).join('');
   d.innerHTML = `
   <div class="drawer-head"><span class="path" title="${esc(pathStr(t.areaId))}">${esc(pathStr(t.areaId) || 'Unsorted')}</span>
     <button class="icon-btn" data-ed="close" aria-label="Close editor" title="Close (Esc)">✕</button></div>
   <div class="drawer-body">
+    ${parent ? `<div class="parent-line">Subtask of <button class="linkish" data-ed="openparent" title="Open the parent task">↰ ${esc(parent.title)}</button></div>` : ''}
     <textarea id="ed-title" class="title-inp" rows="1" aria-label="Task title">${esc(t.title)}</textarea>
     <label class="field"><span>Where it belongs</span>
       <select class="inp" id="ed-area">${opt('', 'Unsorted', t.areaId || '')}${areaTreeFlat().map(({ a, d }) => opt(a.id, ' '.repeat(d) + a.name, t.areaId)).join('')}</select></label>
@@ -2302,8 +2882,13 @@ function renderDrawer() {
       <label class="field"><span>Source</span><input class="inp" id="ed-src" value="${esc(t.source)}" placeholder="Where this came from" list="ed-src-list"></label>
       ${cf}
     </div>
+    <div class="field"><span>Card color</span><div class="swatches" role="radiogroup" aria-label="Card color">${CARD_COLORS.map(([k, l]) => `<button class="swb${(t.color || '') === k ? ' on' : ''}" role="radio" aria-checked="${(t.color || '') === k}" data-color="${k}" title="${l}" aria-label="${l}" style="--sw:${k ? tintVar(k) : 'var(--surface)'}"></button>`).join('')}</div></div>
     <datalist id="ed-src-list">${[...new Set(D.tasks.map(x => x.source).filter(Boolean))].slice(0, 40).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
     <div class="sect"><h4>Notes</h4><textarea class="inp" id="ed-notes" rows="5" placeholder="Details, context, links…">${esc(t.notes)}</textarea></div>
+    <div class="sect"><h4>Subtasks ${kidsT.length ? `<span class="muted">${kidsT.filter(isDone).length} of ${kidsT.length} done</span>` : ''}</h4>
+      <div class="subs">${kidRows}</div>
+      ${canAddKid ? '<input class="inp" id="ed-subtaskadd" placeholder="Add a subtask and press Enter — shortcuts work" style="width:100%;margin-top:6px">' : `<p class="meta-line">Subtasks go ${MAX_NEST} levels deep — this one is as deep as it goes.</p>`}
+      <p class="meta-line">Subtasks are full tasks with their own dates and status. Tip: drag a card onto another card to nest it.</p></div>
     <div class="sect"><h4>Subnotes ${t.subnotes.length ? `<span class="muted">${subDone} of ${t.subnotes.length} done</span>` : ''}</h4>
       <div class="subs" id="ed-subs">${t.subnotes.map((s, i) => `
         <div class="sub${s.done ? ' done' : ''}" data-sid="${s.id}">
@@ -2311,6 +2896,7 @@ function renderDrawer() {
           <input class="inp" data-sub="text" value="${esc(s.text)}" aria-label="Subnote">
           <button class="icon-btn sm" data-sub="note" title="${s.note ? 'Edit note' : 'Add a note'}" aria-label="Note">${s.note ? '✎•' : '✎'}</button>
           <button class="icon-btn sm" data-sub="up" title="Move up" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+          ${canAddKid ? '<button class="icon-btn sm" data-sub="promote" title="Make it a subtask" aria-label="Make it a subtask">⇪</button>' : ''}
           <button class="icon-btn sm" data-sub="del" title="Remove" aria-label="Remove">✕</button>
           ${s.note || openNoteSubs.has(s.id) ? `<textarea class="inp sub-note" data-sub="notetext" rows="2" placeholder="Note for this subnote">${esc(s.note || '')}</textarea>` : ''}
         </div>`).join('')}</div>
@@ -2348,7 +2934,7 @@ function onDrawerInput(e) {
 }
 async function onDrawerChange(e) {
   const el = e.target; const id = el.id;
-  if (id === 'ed-area') return edit(t => { t.areaId = el.value || null; }, { drawer: true });
+  if (id === 'ed-area') return edit(t => { const was = !!parentOf(t); if (was && (el.value || null) !== t.areaId) t.parentId = null; setAreaDeep(t, el.value || null); return was && !t.parentId ? 'Moved out of its parent task to the new group' : null; }, { drawer: true });
   if (id === 'ed-type') return edit(t => { t.typeId = el.value || null; });
   if (id === 'ed-pri') return edit(t => { t.priorityId = el.value || null; });
   if (id === 'ed-status') return edit(t => setStatus(t, el.value), { drawer: true });
@@ -2365,6 +2951,8 @@ async function onDrawerChange(e) {
   }
   if (el.dataset.cf && (el.type === 'checkbox' || el.tagName === 'SELECT')) return edit(t => { const v = el.type === 'checkbox' ? el.checked : el.value; if (v === '' || v === false) delete t.custom[el.dataset.cf]; else t.custom[el.dataset.cf] = v; });
   if (id === 'ed-file') { await addFiles(Array.from(el.files || [])); el.value = ''; return; }
+  const st = el.closest('[data-cid]');
+  if (st && el.dataset.st === 'done') { const c = TASK[st.dataset.cid]; let msg; mutate(el.checked ? 'Mark done' : 'Reopen', () => { msg = setStatus(c, el.checked ? doneStatus() : defaultStatus()); c.updated = now(); }); renderDrawer(); if (msg) toast(msg, { undo: true }); return; }
   const sub = el.closest('[data-sid]');
   if (sub && el.dataset.sub === 'done') edit(t => { const s = t.subnotes.find(x => x.id === sub.dataset.sid); if (s) s.done = el.checked; }, { drawer: true });
 }
@@ -2377,8 +2965,23 @@ async function onDrawerClick(e) {
     if (b.dataset.sub === 'del') edit(t => { t.subnotes.splice(i, 1); }, { drawer: true });
     if (b.dataset.sub === 'up' && i > 0) edit(t => { const [s] = t.subnotes.splice(i, 1); t.subnotes.splice(i - 1, 0, s); }, { drawer: true });
     if (b.dataset.sub === 'note') { openNoteSubs.add(sid); renderDrawer(); $(`[data-sid="${sid}"] .sub-note`)?.focus(); }
+    if (b.dataset.sub === 'promote') {
+      const s = t.subnotes[i]; if (!s) return;
+      mutate('Make subtask', () => { t.subnotes.splice(i, 1); D.tasks.push(newTask({ title: s.text || 'Untitled', notes: s.note || '', parentId: t.id, areaId: t.areaId, statusId: s.done ? doneStatus() : defaultStatus() })); t.updated = now(); }, { toast: `“${s.text}” is now a subtask` });
+      renderDrawer();
+    }
     return;
   }
+  const kid = b.closest('[data-cid]');
+  if (kid) {
+    const c = TASK[kid.dataset.cid]; if (!c) return;
+    if (b.dataset.st === 'open') return openEditor(c.id);
+    if (b.dataset.st === 'out') { unnestTasks([c.id]); return renderDrawer(); }
+    if (b.dataset.st === 'tosub') { toSubnote(c); return renderDrawer(); }
+    if (b.dataset.st === 'del') { deleteTasks([c]); return renderDrawer(); }
+    return;
+  }
+  if (b.dataset.color !== undefined) return edit(t => { t.color = b.dataset.color; }, { drawer: true });
   const att = b.closest('[data-aid]');
   if (att) {
     const a = t.attachments.find(x => x.id === att.dataset.aid); if (!a) return;
@@ -2389,9 +2992,10 @@ async function onDrawerClick(e) {
   switch (b.dataset.ed) {
     case 'close': return closeDrawer();
     case 'done': { let msg; mutate(isDone(t) ? 'Reopen' : 'Mark done', () => { msg = setStatus(t, isDone(t) ? defaultStatus() : doneStatus()); t.updated = now(); }); renderDrawer(); toast(msg || (isDone(t) ? 'Marked done' : 'Reopened'), { undo: true }); return; }
-    case 'dup': { let c; mutate('Duplicate task', () => { c = dupTask(t); D.tasks.push(c); }); openEditor(c.id); toast('Duplicated — you are now editing the copy', { undo: true }); return; }
+    case 'dup': { let c; mutate('Duplicate task', () => { const cs = dupDeep(t); D.tasks.push(...cs); c = cs[0]; }); openEditor(c.id); toast('Duplicated — you are now editing the copy', { undo: true }); return; }
+    case 'openparent': { const p = parentOf(t); if (p) openEditor(p.id); return; }
     case 'copy': { await copyText(tasksAsText([t])); toast('Copied as text'); return; }
-    case 'delete': { const id = t.id; closeDrawer(true); mutate('Delete task', () => { D.tasks = D.tasks.filter(x => x.id !== id); sel.delete(id); }, { toast: `Deleted “${t.title}”` }); return; }
+    case 'delete': { closeDrawer(true); deleteTasks([t]); return; }
     case 'resetseen': return edit(t => { t.seen = 1; }, { drawer: true });
     case 'addlink': {
       const r = await askFields('Add a link', [{ key: 'url', label: 'URL', placeholder: 'https://…', type: 'url' }, { key: 'name', label: 'Label (optional)', placeholder: 'e.g. Contract draft' }]);
@@ -2406,6 +3010,10 @@ function onDrawerKey(e) {
     const lines = v.split(/\s*;\s*/).filter(Boolean);
     edit(t => { lines.forEach(l => { const b = stripBullet(l); t.subnotes.push({ id: uid('s'), text: b.text, done: b.done, note: '' }); }); }, { drawer: true });
     $('#ed-subadd')?.focus();
+  }
+  if (e.target.id === 'ed-subtaskadd' && e.key === 'Enter') {
+    e.preventDefault(); const v = e.target.value.trim(); if (!v) return;
+    const c = addSubtaskFromText(TASK[editingId], v); if (c) { renderDrawer(); $('#ed-subtaskadd')?.focus(); }
   }
   if (e.target.id === 'ed-title' && e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
 }
@@ -2433,10 +3041,10 @@ async function openFileAttachment(a) {
 }
 
 /* ---------- modals ---------- */
-function openModal({ title, body, foot = '', wide = false, onClose, cls = '', autofocus = true }) {
+function openModal({ title, body, foot = '', wide = false, onClose, cls = '', autofocus = true, help = '' }) {
   const back = document.createElement('div'); back.className = 'modal-back';
   back.innerHTML = `<div class="modal${wide ? ' wide' : ''} ${cls}" tabindex="-1" role="dialog" aria-modal="true" aria-label="${esc(title)}">
-    <div class="modal-head"><h3>${esc(title)}</h3><button class="icon-btn" data-close aria-label="Close">✕</button></div>
+    <div class="modal-head"><h3>${esc(title)}</h3>${help ? `<button class="help-link" data-guide="${esc(help)}">How this works</button>` : ''}<button class="icon-btn" data-close aria-label="Close">✕</button></div>
     <div class="modal-body">${body}</div>${foot ? `<div class="modal-foot">${foot}</div>` : ''}</div>`;
   $('#modal-root').appendChild(back);
   let downOnBack = false;
@@ -2482,7 +3090,7 @@ function popMenu(anchor, items, { filter = false } = {}) {
   const draw = q => {
     q = (q || '').toLowerCase();
     m.querySelector('.mi').innerHTML = items.map((it, i) => [it, i]).filter(([it]) => !q || (it.label && it.label.toLowerCase().includes(q))).map(([it, i]) =>
-      it.sep ? (q ? '' : '<hr>') : it.hd ? `<div class="hd">${esc(it.hd)}</div>`
+      it.sep ? (q ? '' : '<hr>') : it.hd ? (q ? '' : `<div class="hd">${esc(it.hd)}</div>`) : it.swatches ? `<div class="sw-row">${CARD_COLORS.map(([k, l]) => `<button class="swb${it.value != null && (it.value || '') === k ? ' on' : ''}" data-i="${i}" data-swv="${k}" title="${l}" aria-label="${l}" style="--sw:${k ? tintVar(k) : 'var(--surface)'}"></button>`).join('')}</div>`
         : `<button role="menuitem" data-i="${i}" style="padding-left:${10 + (q ? 0 : (it.indent || 0) * 14)}px">${it.color !== undefined ? `<span class="sw" style="--c:${it.color || 'transparent'};${it.color ? '' : 'border:1px dashed var(--line)'}"></span>` : ''}<span>${esc(it.label)}</span>${it.hint ? `<span class="muted sm" style="margin-left:auto">${esc(it.hint)}</span>` : ''}</button>`).join('');
   };
   draw('');
@@ -2491,7 +3099,7 @@ function popMenu(anchor, items, { filter = false } = {}) {
   let x = Math.min(r.left, innerWidth - mw - 8), y = r.bottom + 4;
   if (y + mh > innerHeight - 8) y = Math.max(8, r.top - mh - 4);
   m.style.left = Math.max(8, x) + 'px'; m.style.top = y + 'px';
-  m.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; const it = items[+b.dataset.i]; closeMenu(); it.onPick && it.onPick(); });
+  m.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; const it = items[+b.dataset.i]; closeMenu(); it.onPick && (it.swatches ? it.onPick(b.dataset.swv) : it.onPick()); });
   m.addEventListener('keydown', e => {
     const bs = $$('button[data-i]', m); const i = bs.indexOf(document.activeElement);
     if (e.key === 'ArrowDown') { e.preventDefault(); (bs[i + 1] || bs[0])?.focus(); }
@@ -2526,7 +3134,7 @@ function openImport(prefill = '', presetKeys = []) {
   const excluded = new Set(); let res = null;
   const areaOpts = opt('', 'Unsorted', o.base || '') + areaTreeFlat().map(({ a, d }) => opt(a.id, ' '.repeat(d) + a.name, o.base)).join('');
   const m = openModal({
-    title: 'Import notes', wide: true,
+    title: 'Import notes', wide: true, help: 'import',
     body: `<div class="imp">
       <div><textarea id="imp-text" class="inp imp-text" spellcheck="false" placeholder="Paste a long list here — from Notes, email, a doc, a spreadsheet…
 
@@ -2547,6 +3155,7 @@ Idea: holiday gift boxes for wholesale">${esc(prefill)}</textarea>
           <label class="field"><span>Source label</span><input class="inp" id="imp-src" placeholder="e.g. Apple Notes" value="${esc(o.source || '')}" list="imp-src-list"></label>
         </div>
         <datalist id="imp-src-list">${['Apple Notes', 'Email', 'Voice memo', 'Notebook', 'Slack', 'Meeting notes', ...new Set(D.tasks.map(t => t.source).filter(Boolean))].slice(0, 30).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
+        <label class="field"><span>Indented lines under a task become</span><select class="inp" id="imp-nest">${[['subnotes', 'Subnotes — a checklist inside the task'], ['subtasks', 'Subtasks — full tasks you can date and sort']].map(x => opt(x[0], x[1], o.nest)).join('')}</select></label>
         <label class="field"><span>When the same note shows up more than once</span><select class="inp" id="imp-dup">${[['merge', 'Merge into one card and count it'], ['keep', 'Keep every copy'], ['skip', 'Skip the repeats']].map(x => opt(x[0], x[1], o.dup)).join('')}</select></label>
         <div class="imp-checks">
           <label class="chk"><input type="checkbox" id="imp-tokens" ${o.tokens ? 'checked' : ''}> Read shortcuts (@ # ! ~ ^ *)</label>
@@ -2564,8 +3173,8 @@ Idea: holiday gift boxes for wholesale">${esc(prefill)}</textarea>
   function readOpts() {
     o.mode = q('#imp-mode').value; o.group = q('#imp-group').value; o.base = q('#imp-base').value || null;
     o.defaultType = q('#imp-type').value; o.source = q('#imp-src').value.trim(); o.dup = q('#imp-dup').value;
-    o.tokens = q('#imp-tokens').checked; o.keywords = q('#imp-kw').checked; o.create = q('#imp-create').checked;
-    U.importOpts = { mode: o.mode, group: o.group, dup: o.dup, tokens: o.tokens, keywords: o.keywords, create: o.create, defaultType: o.defaultType }; saveUI();
+    o.tokens = q('#imp-tokens').checked; o.keywords = q('#imp-kw').checked; o.create = q('#imp-create').checked; o.nest = q('#imp-nest').value;
+    U.importOpts = { mode: o.mode, group: o.group, dup: o.dup, tokens: o.tokens, keywords: o.keywords, create: o.create, defaultType: o.defaultType, nest: o.nest }; saveUI();
   }
   const exKey = (it, i) => dupKey(it.title) || '#' + i;
   function effArea(it) {
@@ -2593,7 +3202,7 @@ Idea: holiday gift boxes for wholesale">${esc(prefill)}</textarea>
     q('#imp-prev').innerHTML = `<table class="tbl"><thead><tr><th><input type="checkbox" id="imp-all" ${inc.length === items.length ? 'checked' : ''} aria-label="Include all"></th><th>Task</th><th>Goes to</th><th>Type</th><th>Priority</th><th>Due</th><th>Time</th><th>Repeats</th><th></th></tr></thead><tbody>${shown.map((it, i) => {
       const aid = effArea(it); const isNewArea = aid && res.ctx.ancestors(aid).some(a => res.ctx.isNew(a.id));
       return `<tr data-i="${i}" class="${it.exclude ? 'excluded' : ''}"><td><input type="checkbox" data-inc ${it.exclude ? '' : 'checked'} aria-label="Include"></td>
-        <td class="t-title">${it.done ? '<s>' : ''}${esc(it.title)}${it.done ? '</s>' : ''}${it.subnotes.length ? `<span class="badge">+${it.subnotes.length} subnotes</span>` : ''}${it.notes ? ' <span class="muted" title="Has notes">✎</span>' : ''}${it.tags.map(g => ` <span class="muted">#${esc(g)}</span>`).join('')}</td>
+        <td class="t-title">${it.done ? '<s>' : ''}${esc(it.title)}${it.done ? '</s>' : ''}${it.subnotes.length ? `<span class="badge">+${plural(it.subnotes.length, o.nest === 'subtasks' ? 'subtask' : 'subnote')}</span>` : ''}${it.notes ? ' <span class="muted" title="Has notes">✎</span>' : ''}${it.tags.map(g => ` <span class="muted">#${esc(g)}</span>`).join('')}</td>
         <td>${aid ? esc(res.ctx.path(aid)) : '<span class="muted">Unsorted</span>'}${isNewArea ? '<span class="badge">new</span>' : ''}${it.autoSorted ? '<span class="badge" title="Matched a group name or keyword">auto</span>' : ''}</td>
         <td>${T[it.typeId] ? esc((T[it.typeId].icon ? T[it.typeId].icon + ' ' : '') + T[it.typeId].name) : ''}</td>
         <td>${PR[it.priorityId] ? esc(PR[it.priorityId].name) : ''}</td>
@@ -2620,7 +3229,7 @@ Idea: holiday gift boxes for wholesale">${esc(prefill)}</textarea>
     if (!res) update(); let out;
     mutate('Import notes', () => { out = commitParsed(res, o, keys); });
     m.close();
-    const bits = [`Imported ${plural(out.created.length, 'task')}`]; if (out.merged) bits.push(`merged ${out.merged} ${out.merged === 1 ? 'repeat' : 'repeats'}`); if (out.skipped) bits.push(`skipped ${out.skipped}`);
+    const bits = [`Imported ${plural(out.created.length, 'task')}`]; if (out.kids) bits.push(`${plural(out.kids, 'subtask')}`); if (out.merged) bits.push(`merged ${out.merged} ${out.merged === 1 ? 'repeat' : 'repeats'}`); if (out.skipped) bits.push(`skipped ${out.skipped}`);
     toast(bits.join(', '), { undo: true });
   });
   if (prefill) update(); else draw0();
@@ -2648,7 +3257,7 @@ function openExport(preset = {}) {
     return o;
   };
   const m = openModal({
-    title: 'Export', wide: true,
+    title: 'Export', wide: true, help: 'export',
     body: `<div class="fmt-grid" id="ex-fmts">${EXPORT_FORMATS.map(f => `<label class="fmt${f.id === st.fmt ? ' on' : ''}"><input type="radio" name="ex-fmt" value="${f.id}" ${f.id === st.fmt ? 'checked' : ''}><b>${esc(f.name)}</b><span>${esc(f.desc)}</span></label>`).join('')}</div>
       <div class="exp-row">
         <label class="field"><span>Which tasks</span><select class="inp" id="ex-scope">${scopes().map(s => opt(s[0], s[1], st.scope)).join('')}</select></label>
@@ -2720,14 +3329,14 @@ function openExport(preset = {}) {
 let triageOn = false;
 function openTriage() {
   const root = cur();
-  const queue = sortTasks(D.tasks.filter(t => !isDone(t) && (root ? t.areaId === root : !(t.areaId && A[t.areaId]))), 'manual').map(t => t.id);
+  const queue = sortTasks(D.tasks.filter(t => !isDone(t) && isRootTask(t) && (root ? t.areaId === root : !(t.areaId && A[t.areaId]))), 'manual').map(t => t.id);
   if (!queue.length) { toast(root ? `Everything in ${A[root].name} is already sorted further.` : 'Nothing is unsorted right now.'); return; }
   if (!D.areas.length) { toast('Add your groups first — Configure → Groups & levels, or “+ Add” on the board.'); }
   snapshot('Triage session');
   let i = 0, level = root; const sortedIds = new Set();
   triageOn = true;
   const m = openModal({
-    title: root ? `Triage — ${A[root].name}` : 'Triage unsorted tasks', body: '<div class="triage" id="tri"></div>', cls: 'tri-modal', autofocus: false,
+    title: root ? `Triage — ${A[root].name}` : 'Triage unsorted tasks', body: '<div class="triage" id="tri"></div>', cls: 'tri-modal', autofocus: false, help: 'triage',
     onClose: () => {
       triageOn = false; document.removeEventListener('keydown', onKey, true); reindex(); save(); renderAll();
       if (sortedIds.size) toast(`Triage: sorted ${plural(sortedIds.size, 'task')}`, { undo: true });
@@ -2752,6 +3361,7 @@ function openTriage() {
         <textarea class="tri-title" id="tri-title" rows="1" aria-label="Title">${esc(t.title)}</textarea>
         ${t.notes ? `<div class="tri-notes">${esc(t.notes)}</div>` : ''}
         ${t.subnotes.length ? `<div class="tri-notes">${t.subnotes.map(s => `${s.done ? '☑' : '☐'} ${esc(s.text)}`).join('\n')}</div>` : ''}
+        ${childrenOf(t.id).length ? `<div class="tri-notes">${taskDescendants(t).map(c => `${'  '.repeat(taskDepth(c) - 1)}↳ ${esc(c.title)}`).join('\n')}</div>` : ''}
         ${t.source || (t.seen || 1) > 1 ? `<div class="muted sm" style="margin-top:8px">${t.source ? 'From ' + esc(t.source) : ''}${(t.seen || 1) > 1 ? ` · noted ×${t.seen}` : ''}</div>` : ''}
       </div>
       <div class="tri-row"><div class="lbl">${upPath.length && level !== root ? `<button class="btn ghost sm" data-tri="up">‹ ${esc(upPath.map(a => a.name).join(' / '))}</button><kbd>⌫</kbd> · ` : ''}${options.length ? `Pick ${esc(aAn(lvlName.toLowerCase()))} — press its number${level !== root ? ', or Enter to keep it here' : ''}` : (level === root ? `No ${esc(lvlName.toLowerCase())} yet — add one` : 'No deeper groups here. Press Enter for the next task.')}</div>
@@ -2771,12 +3381,12 @@ function openTriage() {
   function prev() { if (i > 0) { i--; level = root; render(); } }
   function up() { if (level === root) return; const p = A[level]?.parentId || null; level = root && !inSubtree(p, root) ? root : p; render(); }
   function pickArea(id) {
-    const t = task(); t.areaId = id;
+    const t = task(); setAreaDeep(t, id);
     touch(t); sortedIds.add(t.id);
     if (kids(id).length) { level = id; render(); } else if (U.triageAuto) next(); else { level = id; render(); }
   }
   function cycle(arr, key) { const t = task(); const ix = arr.findIndex(x => x.id === t[key]); t[key] = ix + 1 < arr.length ? arr[ix + 1].id : null; touch(t); render(); }
-  function del() { const t = task(); D.tasks = D.tasks.filter(x => x.id !== t.id); reindex(); save(); render(); }
+  function del() { const t = task(); const gone = new Set(withDescendants([t]).map(x => x.id)); D.tasks = D.tasks.filter(x => !gone.has(x.id)); reindex(); save(); render(); }
   function markDone() { const t = task(); const msg = setStatus(t, doneStatus()); touch(t); if (msg) toast(msg); next(); }
   box.addEventListener('click', async e => {
     const b = e.target.closest('button'); if (!b) return; const t = task();
@@ -2826,8 +3436,9 @@ async function addAreaQuiet(parentId) {
 /* ---------- help ---------- */
 function openHelp() {
   openModal({
-    title: 'How HatRack works', wide: false,
+    title: 'Shortcuts & tips', wide: false, help: 'start',
     body: `<div class="help">
+      <p class="note-line" style="margin:0 0 6px">Want pictures? <button class="linkish" data-guide="start">Open the visual guide</button> — every screen, menu and setting, annotated.</p>
       <h4>The idea</h4>
       <p style="margin:0">Every task hangs on a hat: a <b>${esc(levelName(1))}</b> (a business, organization or “Personal”), then optionally an <b>${esc(levelName(2))}</b> and a <b>${esc(levelName(3))}</b>. Paste your long lists in, sort them visually, then export each sector to the app you run your day in.</p>
       <h4>Sorting</h4>
@@ -2860,6 +3471,34 @@ function openHelp() {
       <p style="margin:0">Everything is saved in this browser on this device — no account, no server. Use Configure → Data to back up or move to another computer.</p>
     </div>`,
   });
+}
+
+/* ---------- visual guide (guide.html, shown inside the app) ---------- */
+const GUIDE_URL = 'guide.html';
+function openGuide(section = '') {
+  const dark = document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  const hash = section ? '#' + encodeURIComponent(section) : '';
+  const src = `${GUIDE_URL}?embed=1&theme=${dark ? 'dark' : 'light'}${hash}`;
+  const existing = $('.guide-modal iframe');
+  if (existing) { existing.src = src; return; }
+  const m = openModal({
+    title: 'HatRack guide', cls: 'guide-modal', autofocus: false,
+    body: `<iframe class="guide-frame" src="${src}" title="HatRack visual guide"></iframe>
+      <div class="empty" id="guide-missing" hidden style="margin:20px auto"><h2>The guide isn’t next to the app yet</h2><p>Upload <code>guide.html</code> and the <code>guide</code> folder to the same place as <code>index.html</code> (they’re in the download). Until then, the quick reference covers the shortcuts.</p><div class="acts"><button class="btn primary" id="guide-tips">Open shortcuts & tips</button></div></div>`,
+    foot: `<span class="left muted sm">Tip: every dialog has a “How this works” link that jumps to its section.</span><a class="btn" href="${GUIDE_URL}${hash}" target="_blank" rel="noopener">Open in a new tab</a><button class="btn primary" data-close>Done</button>`,
+  });
+  const missing = () => { const f = m.querySelector('iframe'); if (f) f.hidden = true; m.querySelector('#guide-missing').hidden = false; };
+  m.querySelector('#guide-tips').addEventListener('click', () => { m.close(); openHelp(); });
+  if (location.protocol.startsWith('http')) fetch(GUIDE_URL, { method: 'HEAD', cache: 'no-store' }).then(r => { if (r.status === 404) missing(); }).catch(() => { });
+}
+function helpMenu(anchor) {
+  popMenu(anchor, [
+    { label: 'Visual guide', hint: 'G', onPick: () => openGuide() },
+    { label: 'Shortcuts & tips', hint: '?', onPick: () => openHelp() },
+    { sep: true },
+    { label: 'Guide: setting up (admins)', onPick: () => openGuide('admin') },
+    { label: 'What’s new', onPick: () => openGuide('whats-new') },
+  ]);
 }
 
 /* ============ HatRack — Configure (settings) ============ */
@@ -2906,7 +3545,7 @@ function paneHierarchy() {
       ${ib('add', `Add ${aAn(levelName(d + 2).toLowerCase())} inside`, '＋')}${ib('del', 'Delete', '✕')}</div>
       ${openAreaNotes.has(a.id) || a.notes ? `<textarea class="inp area-notes" data-k="notes" rows="2" placeholder="Notes about ${esc(a.name)} — shown in the outline" style="margin-left:${d * 24 + 6}px;width:calc(100% - ${d * 24 + 6}px)">${esc(a.notes || '')}</textarea>` : ''}</div>`;
   }).join('');
-  return `<h2>Groups & levels</h2>
+  return `<div class="pane-head"><h2>Groups & levels</h2><button class="help-link" data-guide="admin-groups">How this works</button></div>
     <p>Your ${esc(pluralize(levelName(1).toLowerCase()))} — each business, organization, obligation or “Personal” — and the ${esc(pluralize(levelName(2).toLowerCase()))} and ${esc(pluralize(levelName(3).toLowerCase()))} inside them. Keywords auto-sort imported notes: a note that mentions “wholesale” lands in the group with that keyword (the deepest match wins). Group names count as keywords too.</p>
     <div class="srow" style="padding-left:0"><span class="muted sm" style="min-width:86px">Level names</span>${Array.from({ length: maxD }, (_, i) => `<input class="inp" data-lvl="${i}" value="${esc(levelName(i + 1))}" style="width:140px" aria-label="Name for level ${i + 1}">`).join('<span class="muted">›</span>')}</div>
     <div class="rows" style="margin-top:10px">${rows || '<p class="muted">No groups yet — add your first one.</p>'}</div>
@@ -2914,7 +3553,7 @@ function paneHierarchy() {
 }
 function paneTypes() {
   const cnt = countBy('typeId');
-  return `<h2>Task types</h2><p>What kind of note each item is. Keywords let the importer guess the type — “Remind me…” becomes a Reminder. A line starting with a type name and a colon (“Idea: …”) sets it too.</p>
+  return `<div class="pane-head"><h2>Task types</h2><button class="help-link" data-guide="admin-types">How this works</button></div><p>What kind of note each item is. Keywords let the importer guess the type — “Remind me…” becomes a Reminder. A line starting with a type name and a colon (“Idea: …”) sets it too.</p>
     <div class="rows">${D.types.map((x, i) => `<div class="srow" data-kind="types" data-id="${x.id}">
       <input class="inp emoji" data-k="icon" value="${esc(x.icon || '')}" maxlength="4" aria-label="Icon" placeholder="🙂">
       <input type="color" data-k="color" value="${x.color || '#64748B'}" aria-label="Color">
@@ -2925,7 +3564,7 @@ function paneTypes() {
 }
 function panePriorities() {
   const cnt = countBy('priorityId');
-  return `<h2>Priorities</h2><p>Top of the list is most important. <code>!1</code> in a note means the first one. The Todoist export spreads these across p1–p4.</p>
+  return `<div class="pane-head"><h2>Priorities</h2><button class="help-link" data-guide="admin-priorities">How this works</button></div><p>Top of the list is most important. <code>!1</code> in a note means the first one. The Todoist export spreads these across p1–p4.</p>
     <div class="rows">${D.priorities.map((x, i) => `<div class="srow" data-kind="priorities" data-id="${x.id}">
       <span class="lvl-tag" style="min-width:24px">!${i + 1}</span><input type="color" data-k="color" value="${x.color || '#64748B'}" aria-label="Color">
       <input class="inp grow" data-k="name" value="${esc(x.name)}" aria-label="Name">
@@ -2934,7 +3573,7 @@ function panePriorities() {
 }
 function paneStatuses() {
   const cnt = countBy('statusId');
-  return `<h2>Statuses</h2><p>Your workflow. Statuses marked “counts as done” are hidden by the Open filter. Marking a repeating task done schedules its next date instead.</p>
+  return `<div class="pane-head"><h2>Statuses</h2><button class="help-link" data-guide="admin-statuses">How this works</button></div><p>Your workflow. Statuses marked “counts as done” are hidden by the Open filter. Marking a repeating task done schedules its next date instead.</p>
     <div class="rows">${D.statuses.map((x, i) => `<div class="srow" data-kind="statuses" data-id="${x.id}">
       <input type="color" data-k="color" value="${x.color || '#64748B'}" aria-label="Color">
       <input class="inp grow" data-k="name" value="${esc(x.name)}" aria-label="Name">
@@ -2943,12 +3582,12 @@ function paneStatuses() {
     <div class="set-actions"><button class="btn primary" data-add="statuses">+ Add status</button></div>`;
 }
 function paneDurations() {
-  return `<h2>Durations</h2><p>The time estimates you pick from. When the board is grouped by duration, each one is a column and a task lands in the smallest one that fits.</p>
+  return `<div class="pane-head"><h2>Durations</h2><button class="help-link" data-guide="admin-durations">How this works</button></div><p>The time estimates you pick from. When the board is grouped by duration, each one is a column and a task lands in the smallest one that fits.</p>
     <div class="chips">${durPresets().map(m => `<span class="chip">${fmtDur(m)}<button data-durdel="${m}" aria-label="Remove ${fmtDur(m)}">✕</button></span>`).join('')}</div>
     <div class="set-actions"><input class="inp" id="dur-new" placeholder="e.g. 45m, 3h, 2d" style="width:160px"><button class="btn primary" data-durop="add">Add</button><button class="btn ghost" data-durop="reset">Reset to defaults</button></div>`;
 }
 function paneFields() {
-  return `<h2>Custom fields</h2><p>Track anything else — client, energy level, location, cost. Dropdown fields can become board columns or rows.</p>
+  return `<div class="pane-head"><h2>Custom fields</h2><button class="help-link" data-guide="admin-fields">How this works</button></div><p>Track anything else — client, energy level, location, cost. Dropdown fields can become board columns or rows.</p>
     <div class="rows">${D.fields.map(f => `<div class="srow" data-kind="fields" data-id="${f.id}">
       <input class="inp grow" data-k="name" value="${esc(f.name)}" aria-label="Field name">
       <select class="inp" data-k="kind" aria-label="Field type">${[['text', 'Text'], ['number', 'Number'], ['date', 'Date'], ['select', 'Dropdown'], ['checkbox', 'Checkbox']].map(o => opt(o[0], o[1], f.kind)).join('')}</select>
@@ -2959,10 +3598,11 @@ function paneFields() {
 function paneData() {
   let kb = 0; try { kb = Math.round((localStorage.getItem(LS_KEY) || '').length / 1024); } catch (e) { }
   const files = D.tasks.reduce((n, t) => n + t.attachments.filter(a => a.kind === 'file').length, 0);
-  return `<h2>Data & backup</h2><p>HatRack keeps everything in this browser on this device — there is no account and no server. Download a backup now and then, and use it to move to another computer or browser.</p>
+  return `<div class="pane-head"><h2>Data & backup</h2><button class="help-link" data-guide="admin-data">How this works</button></div><p>HatRack keeps everything in this browser on this device — there is no account and no server. Download a backup now and then, and use it to move to another computer or browser.</p>
     <p class="muted sm">${plural(D.tasks.length, 'task')} in ${plural(D.areas.length, 'group')} · about ${kb} KB${files ? ` · ${plural(files, 'stored file')}` : ''}</p>
     <h3>Back up</h3><div class="set-actions"><button class="btn primary" data-data="backup">Download backup</button><label class="chk sm"><input type="checkbox" id="bk-files" ${files ? 'checked' : ''}> Include stored attachment files</label></div>
-    <h3>Restore</h3><div class="set-actions"><label class="btn" style="cursor:pointer">Restore from a backup…<input type="file" id="bk-restore" accept=".json,application/json" hidden></label><span class="muted sm">You’ll choose whether to replace or merge.</span></div>
+    <h3>Share your setup</h3><div class="set-actions"><button class="btn" data-data="template">Download setup template</button><span class="muted sm">Groups, levels, keywords, types, priorities, statuses, durations and fields — no tasks. Others load it with Restore.</span></div>
+    <h3>Restore</h3><div class="set-actions"><label class="btn" style="cursor:pointer">Restore from a backup…<input type="file" id="bk-restore" accept=".json,application/json" hidden></label><span class="muted sm">Load a backup or a setup template. You’ll choose whether to merge or replace.</span></div>
     <h3>Sample data</h3><div class="set-actions"><button class="btn" data-data="sample">Add the sample rack</button><span class="muted sm">Four example businesses and obligations with tasks to sort.</span></div>
     <h3>Start over</h3><div class="set-actions"><button class="btn danger" data-data="wipe">Delete everything</button></div>
     <p class="muted sm" style="margin-top:22px">HatRack ${APP_VERSION} · a single-file app you can host free on GitHub Pages.</p>`;
@@ -3069,6 +3709,7 @@ async function areaOp(op, a) {
 /* ---------- data: backup / restore / wipe ---------- */
 async function dataAction(a) {
   if (a === 'backup') return downloadBackup($('#bk-files')?.checked);
+  if (a === 'template') return downloadTemplate();
   if (a === 'sample') return loadSample();
   if (a === 'wipe') {
     if (!(await confirmBox('Delete everything?', 'All tasks, groups and settings in this browser will be removed. Undo works until you close the tab — download a backup first if you might want them back.', 'Delete everything', true))) return;
@@ -3089,29 +3730,77 @@ async function downloadBackup(withFiles) {
   toast('Backup downloaded');
 }
 const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+/** a setup template: everything in Configure, no tasks — for handing a standard structure to a team */
+function downloadTemplate() {
+  const out = clone(D); out.tasks = []; out.kind = 'hatrack-setup'; out.exportedAt = new Date().toISOString();
+  downloadText(`hatrack-setup-${todayStr()}.json`, JSON.stringify(out, null, 2), 'application/json');
+  toast('Setup template downloaded — share it, then load it with Restore');
+}
+/** add groups, types, priorities, statuses and fields that aren't here yet (matched by ID or name); returns ID maps */
+function mergeConfig(inc) {
+  const maps = { areas: new Map(), types: new Map(), priorities: new Map(), statuses: new Map(), fields: new Map() };
+  for (const k of ['types', 'priorities', 'statuses', 'fields']) {
+    for (const x of inc[k] || []) {
+      const hit = D[k].find(y => y.id === x.id) || D[k].find(y => norm(y.name) === norm(x.name));
+      if (hit) {
+        maps[k].set(x.id, hit.id);
+        if (k === 'fields' && x.kind === 'select' && hit.kind === 'select') hit.options = [...new Set([...(hit.options || []), ...(x.options || [])])];
+        if (k === 'types' && x.keywords) hit.keywords = [...new Set([...kwList(hit.keywords), ...kwList(x.keywords)])].join(', ');
+      } else { D[k].push(x); maps[k].set(x.id, x.id); }
+    }
+  }
+  const incA = inc.areas || []; const byId = Object.fromEntries(incA.map(a => [a.id, a]));
+  const depth = a => { let d = 0, p = byId[a.parentId], g = 0; while (p && g++ < 64) { d++; p = byId[p.parentId]; } return d; };
+  incA.slice().sort((a, b) => depth(a) - depth(b) || (a.order ?? 0) - (b.order ?? 0)).forEach(a => {
+    const pid = a.parentId ? maps.areas.get(a.parentId) || null : null;
+    const hit = D.areas.find(y => y.id === a.id) || D.areas.find(y => (y.parentId || null) === pid && norm(y.name) === norm(a.name));
+    if (hit) {
+      maps.areas.set(a.id, hit.id);
+      if (a.keywords) hit.keywords = [...new Set([...kwList(hit.keywords), ...kwList(a.keywords)])].join(', ');
+      if (!hit.notes && a.notes) hit.notes = a.notes;
+    } else { const n = { ...a, parentId: pid, order: D.areas.filter(y => (y.parentId || null) === pid).length }; D.areas.push(n); maps.areas.set(a.id, n.id); }
+  });
+  if (Array.isArray(inc.levelNames) && JSON.stringify(D.levelNames) === JSON.stringify(defaultData().levelNames)) D.levelNames = inc.levelNames.slice();
+  D.durations = [...new Set([...D.durations, ...(inc.durations || [])].map(Number))];
+  return maps;
+}
 async function restoreBackup(file) {
   let data;
   try { data = JSON.parse(await file.text()); } catch (e) { toast('That file isn’t valid JSON.'); return; }
   if (!data || !Array.isArray(data.tasks)) { toast('That doesn’t look like a HatRack backup.'); return; }
+  const isTemplate = data.kind === 'hatrack-setup' || (!data.tasks.length && (data.areas || []).length);
   const choice = await new Promise(res => {
     let done = false;
-    const m = openModal({ title: 'Restore backup', body: `<p style="margin:0">This backup has ${plural(data.tasks.length, 'task')} and ${plural((data.areas || []).length, 'group')}${data.files ? ` plus ${plural(Object.keys(data.files).length, 'stored file')}` : ''}.</p><p>Merge keeps what you have and adds anything missing. Replace swaps everything for the backup.</p>`, foot: `<button class="btn" data-close>Cancel</button><button class="btn" data-c="merge">Merge</button><button class="btn danger" data-c="replace">Replace everything</button>`, onClose: () => { if (!done) res(null); } });
+    const m = openModal(isTemplate ? {
+      title: 'Apply setup template',
+      body: `<p style="margin:0">This template has ${plural((data.areas || []).length, 'group')}, ${plural((data.types || []).length, 'task type')}, ${plural((data.priorities || []).length, 'priority', 'priorities')}, ${plural((data.statuses || []).length, 'status', 'statuses')} and ${plural((data.fields || []).length, 'custom field')}.</p><p>Applying adds anything you don’t have yet — matched by name — and keeps all your tasks.</p>`,
+      foot: `<button class="btn" data-close>Cancel</button><button class="btn primary" data-c="merge">Apply setup</button>`, onClose: () => { if (!done) res(null); },
+    } : {
+      title: 'Restore backup',
+      body: `<p style="margin:0">This backup has ${plural(data.tasks.length, 'task')} and ${plural((data.areas || []).length, 'group')}${data.files ? ` plus ${plural(Object.keys(data.files).length, 'stored file')}` : ''}.</p><p>Merge keeps what you have and adds anything missing (groups and types with the same name are combined). Replace swaps everything for the backup.</p>`,
+      foot: `<button class="btn" data-close>Cancel</button><button class="btn" data-c="merge">Merge</button><button class="btn danger" data-c="replace">Replace everything</button>`, onClose: () => { if (!done) res(null); },
+    });
     m.addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (b) { done = true; m.close(); res(b.dataset.c); } });
   });
   if (!choice) return;
-  const files = data.files; delete data.files;
+  const files = data.files; delete data.files; delete data.kind;
   if (files) for (const [id, f] of Object.entries(files)) { try { const blob = await (await fetch(f.data)).blob(); await FileStore.put(id, { name: f.name, type: f.type, size: f.size, blob }); } catch (e) { } }
-  mutate('Restore backup', () => {
-    if (choice === 'replace') { D = migrate(data); reindex(); D.tasks.forEach(fixTask); U.cursor = null; }
-    else {
-      const inc = migrate(data);
-      for (const k of ['areas', 'types', 'priorities', 'statuses', 'fields']) { const have = new Set(D[k].map(x => x.id)); inc[k].forEach(x => { if (!have.has(x.id)) D[k].push(x); }); }
-      reindex();
-      const have = new Set(D.tasks.map(t => t.id)); let ord = maxOrder();
-      inc.tasks.forEach(t => { if (!have.has(t.id)) { t.order = ++ord; D.tasks.push(fixTask(t)); } });
-    }
+  mutate(isTemplate ? 'Apply setup' : 'Restore backup', () => {
+    if (choice === 'replace') { D = migrate(data); normalizeData(); U.cursor = null; return; }
+    const inc = migrate(data);
+    const maps = mergeConfig(inc);
+    reindex();
+    const have = new Set(D.tasks.map(t => t.id)); let ord = maxOrder();
+    inc.tasks.forEach(t => {
+      if (have.has(t.id)) return;
+      t.areaId = maps.areas.get(t.areaId) || null; t.typeId = maps.types.get(t.typeId) || null;
+      t.priorityId = maps.priorities.get(t.priorityId) || null; t.statusId = maps.statuses.get(t.statusId) || null;
+      if (t.custom) t.custom = Object.fromEntries(Object.entries(t.custom).map(([k, v]) => [maps.fields.get(k) || k, v]));
+      t.order = ++ord; D.tasks.push(t);
+    });
+    normalizeData();
   });
-  saveUI(); toast(choice === 'replace' ? 'Backup restored' : 'Backup merged', { undo: true });
+  saveUI(); toast(isTemplate ? 'Setup applied' : choice === 'replace' ? 'Backup restored' : 'Backup merged', { undo: true });
 }
 
 /* ============ HatRack — app shell, keyboard, sample data, start-up ============ */
@@ -3124,7 +3813,7 @@ function closeTopLayer() {
   if (!$('#drawer').hidden) { closeDrawer(); return true; }
   return false;
 }
-function unsortedCount() { const c = cur(); return D.tasks.filter(t => !isDone(t) && (c ? t.areaId === c : !(t.areaId && A[t.areaId]))).length; }
+function unsortedCount() { const c = cur(); return D.tasks.filter(t => !isDone(t) && isRootTask(t) && (c ? t.areaId === c : !(t.areaId && A[t.areaId]))).length; }
 
 function renderHeader() {
   $$('#views button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === U.view)));
@@ -3163,6 +3852,7 @@ function onGlobalKey(e) {
   if (k === 't') { e.preventDefault(); openTriage(); return; }
   if (k === 'e') { e.preventDefault(); openExport(); return; }
   if (e.key === '?') { e.preventDefault(); openHelp(); return; }
+  if (k === 'g') { e.preventDefault(); openGuide(); return; }
 }
 
 /* ---------- sample data ---------- */
@@ -3188,29 +3878,37 @@ function loadSample() {
     reindex();
     const ty = n => D.types.find(x => x.name === n)?.id || null, pr = n => D.priorities.find(x => x.name === n)?.id || null;
     let ord = maxOrder();
-    const add = (title, area, type, pri, dur, due, extra = {}) => D.tasks.push(newTask({ title, areaId: area ? area.id : null, typeId: ty(type), priorityId: pr(pri), duration: dur, due, order: ++ord, source: extra.source || 'Sample', ...extra }));
+    const add = (title, area, type, pri, dur, due, extra = {}) => { const t = newTask({ title, areaId: area ? area.id : null, typeId: ty(type), priorityId: pr(pri), duration: dur, due, order: ++ord, source: extra.source || 'Sample', ...extra }); D.tasks.push(t); return t; };
+    const sub = (parent, title, type, pri, dur, due, extra = {}) => add(title, null, type, pri, dur, due, { parentId: parent.id, areaId: parent.areaId, ...extra });
+    const sn = (text, done = false, note = '') => ({ id: uid('s'), text, done, note });
     add('Reorder oat milk for both cafés', cafe, 'Reminder', 'High', 15, nextWeekdayOnOrAfter(td, 1), { repeat: 'weekly' });
-    add('Recalibrate the main grinder', cafe, 'Task', 'Medium', 60, null, { subnotes: [{ id: uid('s'), text: 'Order replacement burrs', done: true, note: '' }, { id: uid('s'), text: 'Book a slow Tuesday morning', done: false, note: '' }], notes: 'Shots running fast since last week — check burr wear before blaming the beans.' });
-    add('Draft the 2027 wholesale price sheet', whole, 'Task', 'High', 120, d(5));
+    add('Recalibrate the main grinder', cafe, 'Task', 'Medium', 60, null, { subnotes: [sn('Order replacement burrs', true), sn('Book a slow Tuesday morning')], notes: 'Shots running fast since last week — check burr wear before blaming the beans. The Mazzer manual says burrs last roughly 700–900 kg; we are past 800. Keep the old set as a backup for the second café.' });
+    const price = add('Draft the 2027 wholesale price sheet', whole, 'Task', 'High', 120, d(5), { color: 'yellow', notes: 'Green coffee is up about 12% this year. Hold the café blend flat for the two biggest grocery accounts and raise single origins. Send a draft to Dana before it goes out.' });
+    sub(price, 'Collect green coffee costs from the importer', 'Follow-up', 'High', 30, d(2));
+    sub(price, 'Compare two competitor price lists', 'Task', 'Medium', 45, null);
     add('Follow up with Greenway Grocers’ buyer', whole, 'Follow-up', 'High', 15, d(1), { seen: 2 });
-    add('Interview two weekend barista candidates', hire, 'Meeting', 'Medium', 60, d(3));
-    add('Seasonal cold brew flight', cafe, 'Idea', 'Someday', null, null);
-    add('Q4 cash-flow review deck for Harper Dental', harper, 'Task', 'Urgent', 240, d(2), { subnotes: [{ id: uid('s'), text: 'Pull September actuals', done: false, note: '' }, { id: uid('s'), text: 'Model the second chair hire', done: false, note: 'Ask Dr. Harper for the start date' }] });
+    add('Interview two weekend barista candidates', hire, 'Meeting', 'Medium', 60, d(3), { color: 'blue' });
+    add('Seasonal cold brew flight', cafe, 'Idea', 'Someday', null, null, { color: 'green' });
+    const deck = add('Q4 cash-flow review deck for Harper Dental', harper, 'Task', 'Urgent', 240, d(2), { color: 'yellow' });
+    sub(deck, 'Pull September actuals', 'Task', 'High', 60, d(1));
+    const hireModel = sub(deck, 'Model the second chair hire', 'Task', 'High', 120, d(2), { notes: 'Ask Dr. Harper for the start date.' });
+    sub(hireModel, 'Get a payroll quote', 'Follow-up', 'Medium', 15, d(1));
     add('Send Vance Logistics the revised SOW', vance, 'Follow-up', 'High', 30, td);
     add('Send October invoices', admin, 'Reminder', 'High', 30, d(3), { repeat: 'monthly' });
     add('Renew professional liability insurance', admin, 'Task', 'Medium', 30, d(20));
-    add('Confirm the gala venue deposit', gala, 'Task', 'Urgent', 15, d(-1));
-    add('List ten local sponsor prospects', gala, 'Task', 'Medium', 60, null);
+    add('Confirm the gala venue deposit', gala, 'Task', 'Urgent', 15, d(-1), { color: 'red' });
+    const sponsors = add('List ten local sponsor prospects', gala, 'Task', 'Medium', 60, null);
+    sub(sponsors, 'Ask last year’s sponsors first', 'Follow-up', 'Medium', 30, d(4));
     add('Silent auction: “barista for a day” package', gala, 'Idea', 'Low', null, null);
     add('Review the November board agenda', board, 'Task', 'Medium', 30, d(6));
     add('School picture day form', fam, 'Reminder', 'High', 5, d(1));
     add('Dentist cleaning', health, 'Reminder', 'Medium', 60, d(14));
     add('Clean the gutters before the first freeze', house, 'Errand', 'Medium', 120, null);
-    add('Call Mom', fam, 'Reminder', 'Medium', 30, nextWeekdayOnOrAfter(td, 0), { repeat: 'weekly', seen: 3 });
+    add('Call Mom', fam, 'Reminder', 'Medium', 30, nextWeekdayOnOrAfter(td, 0), { repeat: 'weekly', seen: 3, color: 'pink' });
     // unsorted — try Triage on these
     add('Renew the domain for the Ledgerline site', null, 'Reminder', null, null, null, { source: 'Voice memo' });
     add('Ask Priya about the catering quote for the gala', null, null, null, null, null, { source: 'Email' });
-    add('Look into a POS that handles wholesale invoicing', null, null, null, null, null, { source: 'Apple Notes' });
+    add('Look into a POS that handles wholesale invoicing, gift cards and online ordering — compare Square, Toast and Clover pricing for both cafés before the holiday rush', null, null, null, null, null, { source: 'Apple Notes' });
     add('Book the HVAC tune-up', null, null, null, null, null, { source: 'Apple Notes' });
     add('Newsletter for consulting clients', null, 'Idea', null, null, null, { source: 'Notebook' });
     add('Pick up dry cleaning', null, null, null, null, null, { source: 'Notebook' });
@@ -3222,7 +3920,7 @@ function loadSample() {
 
 /* ---------- start-up ---------- */
 function init() {
-  D = loadData(); U = loadUI(); reindex(); D.tasks.forEach(fixTask); reindex();
+  D = loadData(); U = loadUI(); normalizeData();
   const fieldOk = f => !f.startsWith('cf:') || D.fields.some(x => 'cf:' + x.id === f);
   if (!fieldOk(U.group)) U.group = 'area'; if (U.lanes !== 'none' && !fieldOk(U.lanes)) U.lanes = 'none';
   applyTheme();
@@ -3230,10 +3928,15 @@ function init() {
   view.addEventListener('click', onViewClick);
   view.addEventListener('keydown', onViewKey);
   view.addEventListener('dragstart', onDragStart);
-  view.addEventListener('dragend', () => { drag = null; cleanupDrag(); });
+  view.addEventListener('dragstart', onOutlineDragStart);
+  view.addEventListener('dragend', () => { drag = null; odrag = null; cleanupDrag(); olClear(); });
   view.addEventListener('dragover', onDragOver);
+  view.addEventListener('dragover', onOutlineDragOver);
   view.addEventListener('dragleave', onDragLeave);
   view.addEventListener('drop', onDrop);
+  view.addEventListener('drop', onOutlineDrop);
+  view.addEventListener('change', onBoardChange);
+  view.addEventListener('contextmenu', onContextMenu);
   view.addEventListener('mouseover', e => { const c = e.target.closest?.('.cell'); if (c) hoverCell = c; });
   ['change', 'click'].forEach(ev => { view.addEventListener(ev, onListEvent); view.addEventListener(ev, onOutlineEvent); });
   view.addEventListener('click', onReportEvent);
@@ -3251,7 +3954,8 @@ function init() {
   $('#btn-triage').addEventListener('click', () => openTriage());
   $('#btn-export').addEventListener('click', () => openExport());
   $('#btn-settings').addEventListener('click', () => setView(U.view === 'settings' ? 'board' : 'settings'));
-  $('#btn-help').addEventListener('click', openHelp);
+  $('#btn-help').addEventListener('click', e => helpMenu(e.currentTarget));
+  document.addEventListener('click', e => { const g = e.target.closest?.('[data-guide]'); if (g) { e.preventDefault(); closeMenu(); openGuide(g.dataset.guide); } });
   $('#btn-theme').addEventListener('click', () => { U.theme = U.theme === 'auto' ? 'light' : U.theme === 'light' ? 'dark' : 'auto'; saveUI(); applyTheme(); toast(`Theme: ${U.theme === 'auto' ? 'matches your device' : U.theme}`); });
   $('#brand').addEventListener('click', e => { e.preventDefault(); U.cursor = null; setView('board'); });
   $('#quick-form').addEventListener('submit', e => {
@@ -3263,7 +3967,7 @@ function init() {
   document.addEventListener('copy', onCopy); document.addEventListener('cut', onCut); document.addEventListener('paste', onPaste);
   window.addEventListener('beforeunload', flushSave);
   window.addEventListener('storage', e => {
-    if (e.key === LS_KEY && e.newValue) { try { D = migrate(JSON.parse(e.newValue)); reindex(); D.tasks.forEach(fixTask); reindex(); renderAll(); if (editingId) renderDrawer(); } catch (_) { } }
+    if (e.key === LS_KEY && e.newValue) { try { D = migrate(JSON.parse(e.newValue)); normalizeData(); renderAll(); if (editingId) renderDrawer(); } catch (_) { } }
   });
   // keep the "Today" / "Overdue" labels fresh when the tab is left open overnight
   let day = todayStr(); setInterval(() => { if (todayStr() !== day) { day = todayStr(); renderAll(); } }, 60000);

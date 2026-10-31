@@ -1,34 +1,51 @@
 # HatRack
 
-**Every task, on the right hat.** A lightweight visual sorter for entrepreneurs who run several businesses, projects and obligations at once. Paste in the long, messy to-do lists you collect everywhere, sort them onto your parents, entities and sub-branches, then export each sector to the task app you actually work in.
+**Every task, on the right hat.** A lightweight visual sorter for entrepreneurs who run several businesses, projects and obligations at once. Paste in the long, messy to-do lists you collect everywhere, sort them onto your parents, entities and sub-branches, nest subtasks, then export each sector to the task app you actually work in.
 
-![HatRack board with sample data](screenshot.png)
+![HatRack board with sample data](guide/overview.webp)
 
-- **One file, no install.** The whole app is `index.html` — no build step, no server, no account.
+- **No install, no server.** The app is a single `index.html`. Open it, or host it free on GitHub Pages.
 - **Private by default.** Everything is saved in your browser on your device. Nothing is uploaded.
-- **Works offline** too — download `index.html` and open it from your computer.
+- **Illustrated guide built in.** Help (?) → *Visual guide*, or open `guide.html`. Every screen, menu and setting is annotated, with separate paths for daily use and for setting up.
 
 ---
 
+## What's in this folder
+
+| File | What it is |
+|---|---|
+| `index.html` | The app |
+| `guide.html` + `guide/` | The visual guide and its screenshots (keep the folder next to the page) |
+| `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `manifest.webmanifest` | Home-screen icons and install support for phones |
+| `.nojekyll` | Tells GitHub Pages to serve the files as they are |
+| `src/`, `build.py`, `guide-src/` | Source, if you want to change the app (optional — not needed to run it) |
+
 ## Put it on GitHub Pages (5 minutes)
 
-1. On GitHub, click **New repository**. Name it `hatrack` (or anything). Public or private both work for Pages on paid plans; on a free plan the repo must be public.
-2. Click **uploading an existing file** and drag in `index.html`, `README.md`, `screenshot.png` and `.nojekyll`. Commit.
+1. On GitHub, click **New repository**. Name it `hatrack` (or anything). On a free plan the repository must be public for Pages.
+2. Click **uploading an existing file** and drag in **everything in this folder**, including the `guide` folder and `.nojekyll`. Commit.
 3. Go to **Settings → Pages**. Under **Build and deployment**, set **Source** to *Deploy from a branch*, choose **main** and **/ (root)**, then **Save**.
-4. After a minute your app is live at `https://<your-username>.github.io/hatrack/`.
+4. After a minute the app is live at `https://<your-username>.github.io/hatrack/` and the guide at `…/hatrack/guide.html`.
 
 Prefer the command line?
 
 ```bash
 git init hatrack && cd hatrack
-# copy index.html, README.md, screenshot.png and .nojekyll into this folder
+# copy everything from this folder in here
 git add . && git commit -m "HatRack"
 git branch -M main
 git remote add origin https://github.com/<your-username>/hatrack.git
 git push -u origin main
 ```
 
-To run it without GitHub, just double-click `index.html`.
+To run it without GitHub, double-click `index.html`.
+
+### Add it to a phone
+
+- **iPhone:** open the address in Safari → Share → **Add to Home Screen**. It gets the HatRack icon.
+- **Android:** Chrome menu → **Add to Home screen** / **Install app**.
+
+The home-screen app keeps its own data, separate from the browser tab. Move tasks across with Configure → Data → Download backup, then Restore.
 
 ---
 
@@ -37,97 +54,80 @@ To run it without GitHub, just double-click `index.html`.
 Your work is organized as a tree you define in **Configure → Groups & levels**:
 
 ```
-Parent        →  Entity           →  Sub-branch
-Northside Co. →  Wholesale        →  Grocery accounts
-Personal      →  Health
+Parent              →  Entity          →  Sub-branch
+Northside Coffee    →  Wholesale       →  Grocery accounts
+Personal            →  Health
 ```
 
-Rename the levels to whatever fits you (Business / Department / Project…). Each task hangs on one spot in the tree and also has a **type** (Task, Reminder, Idea, Follow-up, Errand, Meeting, Note — all editable), **priority**, **status**, **estimated time**, **due date**, **repeat**, tags, source, notes, subnotes, attachments and any custom fields you add.
+Rename the levels to fit (Business / Department / Project…). Each task hangs on one spot in the tree and has a **type**, **priority**, **status**, **estimated time**, **due date**, **repeat**, tags, source, a **card color**, notes, **subnotes** (a checklist), **subtasks** (full tasks inside it, up to three levels), attachments and any custom fields you add.
 
-### 1 · Bring your notes in — **Import** (or press `I`)
+### 1 · Bring your notes in — Import (`I`)
 
-Paste a long list, open a `.txt` / `.md` / `.csv` file, or drop text straight onto a board column. A live preview shows where every line will land before anything is saved.
+Paste a long list, open a `.txt` / `.md` / `.csv` file, or drop text onto a board column. A live preview shows where every line will land before anything is saved.
 
-- **Headings become groups.** `Northside:` / `# Personal` / `## Health` / ALL-CAPS lines with items under them. Names that already exist are matched; new ones can be created.
-- **Indented lines become subnotes.** `[x]` marks them done.
-- **Blocks** separated by blank lines become one task each — first line is the title, the rest are notes.
-- **Spreadsheets** (CSV, or rows copied from Excel/Sheets with a header row) map columns like Title, Notes, Project, Due, Priority, Estimate. Todoist CSV exports import too.
-- **Auto-sort**: group names and the keywords you give each group (e.g. `wholesale, grocer, distributor`) route notes to the deepest matching group. Type keywords do the same — “Remind me to…” becomes a Reminder.
-- **Repeats are merged.** If you wrote the same reminder five times across notebooks, you get one card marked **×5** (or keep every copy, or skip them — your choice).
+- Headings (`Northside:`, `# Personal`, ALL-CAPS lines) become groups; existing names and keywords are matched.
+- Indented lines become **subnotes** or **subtasks** — your choice.
+- Blocks separated by blank lines become one task each (first line = title, the rest = notes).
+- Spreadsheets with a header row map columns like Title, Notes, Project, Due, Priority, Estimate, Color and Parent ID. Todoist CSV exports import too.
+- Keywords on each group auto-sort notes; type keywords turn “Remind me to…” into a Reminder.
+- The same reminder written five times becomes one card marked **×5**.
 
-### 2 · Sort visually — **Board**
+### 2 · Sort visually — Board
 
-- **Drag** a card to a column to set that field. **Alt/Option-drag** copies instead (or switch it on under *Options*).
-- **Click a column name** to open that group and sort into the level below. The breadcrumb takes you back up.
-- **Columns** and **Rows** can be any field: level, type, priority, status, time, due date or a custom dropdown. Rows give you a grid — e.g. priority across, parent down.
-- **Select** several cards with `Ctrl/⌘`-click or `Shift`-click (or the tick box on touch screens), then press `1`–`9` to send them to a column, or use the bar at the bottom.
-- **Copy & paste**: `Ctrl/⌘ C` copies cards; hover a column and `Ctrl/⌘ V` pastes them there. Copied cards paste into other apps as text. Pasting text from anywhere imports it.
-- **Triage** (`T`) walks through unsorted tasks one at a time — press a number to hang each one up. The fastest way through a long list.
+- **Drag** a card to a column to set that field. **Drop on the middle of another card to make it a subtask.** Drop on a card's top or bottom edge to place it there. **Alt/Option-drag** copies.
+- **Long entries fold to three lines.** “Show more” on a card opens its notes, subnotes and subtasks; Options → *Expand every card* opens them all.
+- **Right-click a card** for color, add subtask, nest under…, move to…, duplicate.
+- **Click a column name** to open that group and sort into the level below.
+- **Columns** and **Rows** can be any field. **Select** cards (`Ctrl/⌘`-click, `Shift`-click, tick box) and press `1`–`9`, or use the bar at the bottom.
+- **Triage** (`T`) walks through unsorted tasks one at a time.
 
-### 3 · Review — **List**, **Outline**, **Reports**
+### 3 · Review — List, Outline, Reports
 
-- **List**: a sortable table with in-place editing and bulk selection.
-- **Outline**: a document view by Parent → Entity → Sub-branch with notes and subnotes. Copy as Markdown, download, or print/save as PDF.
-- **Reports**: open work and hours by group, overdue, the next 14 days, priority/type/status breakdowns, things you keep writing down, stale tasks and where tasks came from.
+- **List:** sortable table with in-place editing; subtasks show their parent.
+- **Outline:** a document by Parent → Entity → Sub-branch. **Drag** tasks to reorder, move them between groups, or nest them; drag subnotes between tasks. Copy as Markdown, download, or print to PDF.
+- **Reports:** open work and hours by group, overdue, the next 14 days, priorities, types, statuses, repeats you keep writing down.
 
-### 4 · Send it on — **Export** (`E`)
+### 4 · Send it on — Export (`E`)
 
-Export everything, what's on screen, a selection, or a single column. Group by any level or field, and optionally get **one file per section**.
-
-| Format | Use it for | How to import |
+| Format | Use it for | Notes |
 |---|---|---|
-| **Todoist CSV** | Todoist | Project → ⋯ → *Import from CSV*. Sections, p1–p4, durations, “every …” repeats and sub-tasks come across. Todoist allows 300 tasks per project — use one file per section. |
-| **Asana CSV** | Asana | Project → *Add tasks via → CSV*. Map Section and Due Date. |
-| **Spreadsheet CSV** | Excel, Google Sheets, Notion, Airtable, ClickUp, Monday | Each app's CSV importer. Every field is a column, including each level. |
-| **Plain list** | Trello, Apple Reminders, Things, Microsoft To Do | Paste — each line becomes a card / to-do. (Trello also takes the CSV via an import power-up.) |
-| **Markdown checklist** | Obsidian, Notion, GitHub issues, any notes app | Paste or open the `.md` file. |
-| **Calendar (.ics)** | Google Calendar, Outlook, Apple Calendar | Dated tasks become all-day events; repeating reminders keep their schedule with a 9 am alert. |
-| **HatRack file** | Moving between computers | Configure → Data → Restore. |
+| **Todoist CSV** | Todoist | Sections, p1–p4, durations, repeats; subtasks become Todoist sub-tasks. 300 tasks per project — use *one file per section*. |
+| **Asana CSV** | Asana | *Add tasks via → CSV*. Subtasks arrive as tasks marked “Subtask of …”. |
+| **Spreadsheet CSV** | Excel, Google Sheets, Notion, Airtable, ClickUp, Monday | Every level, Parent task, Parent ID and Color are columns (re-importable with the hierarchy). |
+| **Plain list** | Trello, Apple Reminders, Things, Microsoft To Do | Subtasks are indented. |
+| **Markdown checklist** | Obsidian, Notion, GitHub | Nested checklists. |
+| **Calendar (.ics)** | Google, Outlook, Apple Calendar | Dated tasks as all-day events; repeats keep their schedule. |
+| **HatRack file** | Another computer | Configure → Data → Restore. |
 
----
+### For admins: share one structure with a team
+
+HatRack has no accounts. The person who sets it up can **Configure → Data → Download setup template** (groups, levels, keywords, types, priorities, statuses, durations, fields — no tasks) and share it. Everyone else loads it with **Restore → Apply setup**, which adds what's missing (matched by name) and keeps their tasks.
 
 ## Shortcuts you can type in any task
 
 | Type | Meaning | Examples |
 |---|---|---|
-| `@Group` | where it goes (matches the start of a name) | `@northside` `@Ledgerline/Admin` `@"Home & personal"` |
+| `@Group` | where it goes | `@northside` `@Ledgerline/Admin` `@"Home & personal"` |
 | `#Type` | type; other hashtags become tags | `#Reminder` `#idea` `#client` |
-| `!priority` | by name or position | `!high` `!1` `!someday` |
+| `!priority` | by name or position | `!high` `!1` |
 | `~time` | estimated time | `~15m` `~1h30m` `~2d` |
-| `^date` | due date | `^today` `^fri` `^11/14` `^nov14` `^+3d` `^eom` |
-| `*repeat` | repeating | `*daily` `*weekdays` `*weekly` `*biweekly` `*monthly` `*quarterly` `*yearly` |
-
-Example: `Call the accountant about Q4 @Ledgerline #Follow-up !high ^fri ~15m`
-
-Marking a repeating task done schedules its next date instead of closing it.
+| `^date` | due date | `^today` `^fri` `^11/14` `^+3d` `^eom` |
+| `*repeat` | repeating | `*daily` `*weekdays` `*weekly` `*monthly` `*yearly` |
 
 ## Keyboard
 
-| Key | Action |
-|---|---|
-| `N` or `/` | Quick add |
-| `I` / `T` / `E` | Import / Triage / Export |
-| `1`–`9` | Move selected cards to that column |
-| `Ctrl/⌘ C`, `V`, `D` | Copy, paste, duplicate cards |
-| `Delete` | Delete selected |
-| `Ctrl/⌘ Z` | Undo (works for imports, moves and deletes) |
-| `Esc` | Close / clear selection |
-| `?` | Help |
-
----
+`N` quick add · `I` import · `T` triage · `E` export · `G` guide · `?` shortcuts · `1`–`9` move selection · `Ctrl/⌘ C / V / D` copy, paste, duplicate · `Delete` · `Ctrl/⌘ Z` undo · `→ / ←` expand or fold the focused card · `Esc` close.
 
 ## Your data
 
-- Tasks live in your browser's storage for the site you open HatRack from. A different browser, device or URL starts empty.
-- **Back up** from Configure → Data now and then. Restoring lets you replace or merge.
-- **Attachments** need no extra software: links (Google Drive, Dropbox, anything) are stored with the task, and files you attach are kept in the browser's built-in database (IndexedDB). Files aren't synced between devices — include them in a backup to move them. Exports list attached file names and link URLs.
-- Clearing your browser's site data deletes HatRack's data too, so keep a backup.
+- Saved in your browser for the address you open HatRack from. A different browser, device or address starts empty; clearing site data erases it. **Back up** from Configure → Data.
+- **Attachments** need no extra software: links are stored with the task; files go in the browser's built-in database (IndexedDB). Tick “Include stored attachment files” when backing up to move them.
 
-## Customizing
+## Changing the app
 
-Everything is in `index.html`. Colors are CSS variables at the top of the `<style>` block (`--accent`, `--hl`, `--bg`…), and the default types, priorities and statuses are in `defaultData()` — though all of those can be changed in Configure without touching code.
+The app is assembled from `src/` (one stylesheet, a page shell and numbered script files). Edit those, then run `python3 build.py` to rebuild `index.html`. To refresh the guide's screenshots after changing the app: `pip install playwright pillow`, then `python3 guide-src/capture.py` and `python3 guide-src/build_guide.py`.
 
 ## Not included (yet)
 
-- Syncing between devices or sharing with a team — that would need a backend (for example Supabase or a Google Drive integration).
-- Touch drag-and-drop varies by phone browser; on phones, tick cards and use **Move to…** instead.
+- Live syncing between devices or a shared team board — that needs a backend (for example Supabase).
+- Touch drag-and-drop varies by phone browser; on phones, tick cards and use **Move to…** or **Nest under…**.
