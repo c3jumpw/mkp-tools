@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AppFrame from "@/components/AppFrame";
-import { FIGURES, type FigureName } from "./figures";
+import { Flow, ListCard, SetOrder, Shot } from "@/components/GuideParts";
 
 export const metadata: Metadata = { title: "Guide · Circuit Book" };
-
-/* The rings and numbers drawn on every screenshot use this blue, so the legend
-   badges match them. It is deliberately not lime: lime means state in the app,
-   and a callout is not a state. */
-const CALLOUT = "bg-[#5ab0ff] text-[#0e1110]";
 
 const JUMPS: [string, string][] = [
   ["start", "Start"],
@@ -27,6 +23,24 @@ export default function GuidePage() {
         <p className="text-sm leading-relaxed text-muted">
           How every screen works. The blue numbers on each picture match the list under it.
         </p>
+        <Link
+          href="/tour?from=/guide"
+          className="mt-4 flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 active:bg-raise"
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-raise text-chalk" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <rect x="2.5" y="4" width="10" height="12" rx="2" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M15.5 6v8M18 7.5v5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="ex block text-[0.95rem] font-semibold text-chalk">Take the tour</span>
+            <span className="block text-sm text-muted">Every screen, one slide at a time. About two minutes.</span>
+          </span>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0 text-faint">
+            <path d="M7.5 5l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
       </div>
 
       <nav aria-label="Guide sections" className="rail flex gap-2 overflow-x-auto px-4 pt-4 pb-1">
@@ -58,6 +72,10 @@ export default function GuidePage() {
           </Step>
         </ol>
         <Flow />
+        <P>Your account works on any phone or computer you sign in on.</P>
+        <Shot name="login" />
+        <P>A new account opens on an empty Today, pointing you to your first routine.</P>
+        <Shot name="today-empty" />
       </Section>
 
       <Section id="today" title="Today">
@@ -65,7 +83,7 @@ export default function GuidePage() {
           The home screen. It shows what is due this weekday, with your most recent unfinished
           session pinned above it.
         </P>
-        <Fig name="today" />
+        <Shot name="today" />
       </Section>
 
       <Section id="library" title="Library">
@@ -73,11 +91,11 @@ export default function GuidePage() {
           Each exercise is entered once and reused by every routine. Edits show up the next time a
           routine using it starts; sessions already logged keep what was done.
         </P>
-        <Fig name="library" />
+        <Shot name="library" />
         <P>Tapping an exercise, or New, opens the editor.</P>
-        <Fig name="editor-top" />
-        <Fig name="editor-muscles" />
-        <Fig name="editor-bottom" />
+        <Shot name="editor-top" />
+        <Shot name="editor-muscles" />
+        <Shot name="editor-bottom" />
       </Section>
 
       <Section id="routines" title="Routines and blocks">
@@ -86,13 +104,13 @@ export default function GuidePage() {
           holds decides the order of its sets:
         </P>
         <SetOrder />
-        <Fig name="routines" />
-        <Fig name="new-routine" />
-        <Fig name="builder-top" />
-        <Fig name="builder-bottom" />
+        <Shot name="routines" />
+        <Shot name="new-routine" />
+        <Shot name="builder-top" />
+        <Shot name="builder-bottom" />
         <P>Tap a block to change its rounds or exercises. Pairing a second exercise makes a superset.</P>
-        <Fig name="block-settings" />
-        <Fig name="picker" />
+        <Shot name="block-settings" />
+        <Shot name="picker" />
       </Section>
 
       <Section id="session" title="Session mode">
@@ -100,14 +118,14 @@ export default function GuidePage() {
           One full-screen card per block. For most sets the only tap you need is the big Done
           button at the bottom.
         </P>
-        <Fig name="session-straight" />
+        <Shot name="session-straight" />
         <P>In a superset or circuit, Done ticks the whole round at once.</P>
-        <Fig name="session-superset" />
+        <Shot name="session-superset" />
         <P>Swap changes this session only. In a superset it first asks which exercise to replace.</P>
-        <Fig name="swap-which" />
-        <Fig name="swap" />
-        <Fig name="leave" />
-        <Fig name="finished" />
+        <Shot name="swap-which" />
+        <Shot name="swap" />
+        <Shot name="leave" />
+        <Shot name="finished" />
         <P>
           The Edit in library link at the bottom of each card leaves the session open; Resume on
           Today brings you back to it.
@@ -115,7 +133,7 @@ export default function GuidePage() {
       </Section>
 
       <Section id="history" title="History and your account">
-        <Fig name="history" />
+        <Shot name="history" />
         <P>
           There is no settings screen: days live on each routine, targets and photos on each
           exercise. Sign out is the only account control.
@@ -128,19 +146,19 @@ export default function GuidePage() {
           themselves when the connection is back, stamped with the time you tapped. Keep the app
           open: once it is closed, you need a signal to get back in.
         </P>
-        <Fig name="offline" />
+        <Shot name="offline" />
         <div className="mt-5 grid gap-3">
-          <Card title="Works with no signal">
+          <ListCard title="Works with no signal">
             <li>The session you have open: ticking sets and finishing</li>
             <li>Swapping, if the session was opened with a signal</li>
             <li>Photos you&rsquo;ve already seen, while the app stays open</li>
-          </Card>
-          <Card title="Needs a signal">
+          </ListCard>
+          <ListCard title="Needs a signal">
             <li>Starting a session</li>
             <li>Getting back in after closing the app, including Resume</li>
             <li>Loading Today, Library, Routines and History</li>
             <li>Adding or editing exercises and routines</li>
-          </Card>
+          </ListCard>
         </div>
       </Section>
 
@@ -203,153 +221,6 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
         {children}
       </span>
     </li>
-  );
-}
-
-/** An annotated screenshot with its numbered legend. */
-function Fig({ name }: { name: FigureName }) {
-  const f = FIGURES[name];
-  return (
-    <figure className="mt-5">
-      <div className="mx-auto max-w-[340px] overflow-hidden rounded-2xl border border-line">
-        {/* Static screenshots from /public; nothing to gain from the image optimizer. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={f.src}
-          width={f.width}
-          height={f.height}
-          alt={`${f.title}, with ${f.legend.length} numbered callouts`}
-          loading="lazy"
-          decoding="async"
-          className="block h-auto w-full"
-        />
-      </div>
-      <figcaption className="mx-auto mt-3 max-w-[340px]">
-        <span className="sr-only">{f.title}</span>
-        <ol className="space-y-2.5">
-          {f.legend.map(([label, text], i) => (
-            <li key={label} className="flex gap-2.5">
-              <span
-                className={`tnum grid h-5 w-5 shrink-0 place-items-center rounded-full text-[0.7rem] font-bold ${CALLOUT}`}
-                aria-hidden="true"
-              >
-                {i + 1}
-              </span>
-              <span className="min-w-0 text-sm leading-snug">
-                <span className="font-semibold text-chalk">{label}.</span>{" "}
-                <span className="text-muted">{text}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </figcaption>
-    </figure>
-  );
-}
-
-/** Set up once, then every workout runs Today → Session → History. */
-function Flow() {
-  const setup: [string, string][] = [
-    ["Library", "Each exercise once"],
-    ["Routines", "Blocks, set to days"],
-  ];
-  const daily: [string, string][] = [
-    ["Today", "What's due, plus your latest unfinished session"],
-    ["Session", "One card per block"],
-    ["History", "Every session; Resume if open"],
-  ];
-  return (
-    <div className="mt-6 space-y-2" role="img" aria-label="Set up the Library and Routines once; each workout then goes Today, Session, History">
-      <FlowGroup label="Set up once" items={setup} />
-      <Arrow label="on its days" />
-      <FlowGroup label="Every workout" items={daily} />
-    </div>
-  );
-}
-
-function FlowGroup({ label, items }: { label: string; items: [string, string][] }) {
-  return (
-    <div className="rounded-xl border border-line-soft bg-surface p-3">
-      <span className="block px-1 pb-2 text-xs font-medium text-faint">{label}</span>
-      <div className="space-y-1.5">
-        {items.map(([name, text], i) => (
-          <div key={name}>
-            {i > 0 && <Arrow />}
-            <div className="rounded-lg border border-line px-3 py-2">
-              <span className="ex block text-sm font-semibold text-chalk">{name}</span>
-              <span className="block text-xs text-muted">{text}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Arrow({ label }: { label?: string }) {
-  return (
-    <div className="flex items-center gap-2 py-0.5 pl-5 text-faint" aria-hidden="true">
-      <svg width="12" height="16" viewBox="0 0 12 16" fill="none">
-        <path d="M6 1v13M1.5 9.5L6 14l4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      {label && <span className="text-xs">{label}</span>}
-    </div>
-  );
-}
-
-/** The order sets are worked in, for each kind of block. */
-function SetOrder() {
-  const rows: { name: string; sub: string; rounds: string[][] }[] = [
-    { name: "Straight sets", sub: "1 exercise, 4 sets", rounds: [["A1", "A2", "A3", "A4"]] },
-    { name: "Superset", sub: "2 exercises, 3 rounds", rounds: [["A1", "B1"], ["A2", "B2"], ["A3", "B3"]] },
-    { name: "Circuit", sub: "3 exercises, 3 rounds", rounds: [["A1", "B1", "C1"], ["A2", "B2", "C2"], ["A3", "B3", "C3"]] },
-  ];
-  return (
-    <div className="mt-4 space-y-4 rounded-xl border border-line-soft bg-surface p-4">
-      {rows.map((row) => (
-        <div key={row.name}>
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="ex text-sm font-semibold text-chalk">{row.name}</span>
-            <span className="text-xs text-faint">{row.sub}</span>
-          </div>
-          <ol className="mt-2 flex flex-wrap gap-x-3 gap-y-2" aria-label={`${row.name} order: ${row.rounds.flat().join(", ")}`}>
-            {row.rounds.map((round, r) => (
-              <li key={r} className="flex flex-col items-center gap-1">
-                <span className="flex gap-1">
-                  {round.map((set) => (
-                    <span
-                      key={set}
-                      className={`tnum grid h-7 w-8 place-items-center rounded-md border text-xs font-bold ${
-                        set.startsWith("A")
-                          ? "border-line bg-raise text-chalk"
-                          : set.startsWith("B")
-                            ? "border-chalk/40 text-chalk"
-                            : "border-dashed border-chalk/40 text-chalk"
-                      }`}
-                    >
-                      {set}
-                    </span>
-                  ))}
-                </span>
-                {row.rounds.length > 1 && <span className="text-[0.65rem] text-faint">Round {r + 1}</span>}
-              </li>
-            ))}
-          </ol>
-        </div>
-      ))}
-      <p className="text-xs leading-relaxed text-faint">
-        Letters are the exercises in the block, in order; the number is the round.
-      </p>
-    </div>
-  );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-line bg-surface p-4">
-      <span className="ex block text-sm font-semibold text-chalk">{title}</span>
-      <ul className="mt-2 list-disc space-y-1 pl-4 text-sm leading-relaxed text-muted marker:text-faint">{children}</ul>
-    </div>
   );
 }
 

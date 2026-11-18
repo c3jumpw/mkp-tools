@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-guide/
 out/
 build/
 .DS_Store

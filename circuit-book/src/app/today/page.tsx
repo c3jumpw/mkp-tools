@@ -7,6 +7,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { DAY_FULL, estimateMinutes, todayIndex } from "@/lib/format";
 import { startSession } from "@/lib/session";
 import AppFrame from "@/components/AppFrame";
+import { TOUR_SEEN_KEY } from "@/lib/tour";
 import { Button, EmptyState, LoadingPanel, Notice, Spinner } from "@/components/ui";
 
 type TodayRoutine = {
@@ -32,6 +33,18 @@ export default function TodayPage() {
   const [starting, setStarting] = useState<string | null>(null);
 
   const day = todayIndex();
+
+  // First visit on this device: show the getting-started tour once. It marks
+  // itself seen as it opens, and is always there again from the Guide.
+  useEffect(() => {
+    let seen = true;
+    try {
+      seen = localStorage.getItem(TOUR_SEEN_KEY) !== null;
+    } catch {
+      /* storage blocked: don't risk opening the tour on every visit */
+    }
+    if (!seen) router.replace("/tour?from=/today");
+  }, [router]);
 
   useEffect(() => {
     let active = true;

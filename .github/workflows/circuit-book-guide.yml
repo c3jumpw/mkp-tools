@@ -1,0 +1,82 @@
+# Keeps Circuit Book's in-app Guide and getting-started tour current.
+#
+# On every change to the app it rebuilds the app against a mock backend,
+# re-takes every annotated screenshot from the real pages, and checks that
+# every page has a screenshot and every screenshot is in the tour and the
+# Guide. On main, refreshed screenshots are committed back, and that commit
+# deploys like any other. See circuit-book/README.md, "Guide and tour".
+name: Circuit Book guide
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "circuit-book/**"
+      - "!circuit-book/public/guide/shots/**"
+      - "!circuit-book/src/app/guide/figures.ts"
+      - "!circuit-book/**/*.md"
+      - ".github/workflows/circuit-book-guide.yml"
+  pull_request:
+    paths:
+      - "circuit-book/**"
+      - ".github/workflows/circuit-book-guide.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: circuit-book-guide-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: circuit-book
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: circuit-book/package-lock.json
+
+      - run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Re-take every guide screenshot
+        run: npm run guide:capture
+
+      - name: Check every page and screenshot is covered
+        run: npm run guide:check
+
+      - name: Type-check against the new screenshots
+        run: npx tsc --noEmit
+
+      # Pull requests: attach the screenshots for review instead of committing.
+      - name: Upload screenshots
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: guide-screenshots
+          path: circuit-book/public/guide/shots/
+
+      - name: Commit refreshed screenshots
+        if: github.event_name != 'pull_request'
+        run: |
+          git add -A public/guide/shots src/app/guide/figures.ts
+          if git diff --cached --quiet; then
+            echo "Guide screenshots already match the app."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh Circuit Book guide screenshots"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

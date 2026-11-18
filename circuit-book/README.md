@@ -115,4 +115,49 @@ start`.
 | `npm run build` | Production build. |
 | `npm start` | Serve the production build. |
 | `npm run typecheck` | Type check without emitting. |
+| `npm run guide:capture` | Re-take every Guide and tour screenshot (see below). |
+| `npm run guide:check` | Fail if a page or screenshot is missing from the Guide or tour. |
 | `python3 scripts/make-icons.py` | Regenerate the app icons. |
+
+## Guide and tour
+
+The app explains itself in two places, built from the same annotated
+screenshots of the real pages:
+
+- **Getting-started tour** (`/tour`): a swipeable slide per screen. Today opens
+  it once on a device's first visit; after that it's under *Take the tour* at
+  the top of the Guide.
+- **Guide** (`/guide`): every screen on one scrolling page, plus offline notes
+  and FAQs. Reached from the **?** button on Today, Library, Routines and History.
+
+The screenshots are generated, never hand-made. `npm run guide:capture` builds
+the app against a local mock of Supabase (`guide-capture/mock-supabase.mjs`,
+with demo data in `fixtures.mjs`), drives the real pages in Chromium with
+Playwright, draws the numbered callouts, and writes the images to
+`public/guide/shots/` and their legends to `src/app/guide/figures.ts`. No real
+account or database is touched. Callouts are tied to buttons and labels by
+name, so a UI change that breaks one fails the run instead of shipping a guide
+that points at the wrong thing.
+
+**CI keeps it current.** `.github/workflows/circuit-book-guide.yml` runs on every
+push and pull request that touches the app: it re-takes the screenshots, runs
+`guide:check` and a type check, and on `main` commits any changed screenshots
+back, which then deploy as usual.
+
+**When you add or change a screen:**
+
+1. Add or update its `shot(...)` in `guide-capture/capture.mjs`: the callouts,
+   the legend text, and the `route` it shows.
+2. Add a slide for it in `src/app/tour/slides.tsx` and a `<Shot>` on the Guide
+   page (`src/app/guide/page.tsx`).
+3. Run `npm run guide:capture` (set `CB_CHROMIUM_PATH` to use an installed
+   Chromium), or push and let CI do it. If you push a new slide without
+   capturing first, that commit's deploy fails its type check until CI's
+   screenshot commit lands a minute later.
+
+`guide:check` fails if a page has no screenshot, or a screenshot is missing
+from the tour or the Guide, so a new screen can't ship undocumented. The words
+in the slides and legends still need a person to write them.
+
+To show a reworked tour to everyone once more, bump `TOUR_SEEN_KEY` in
+`src/lib/tour.ts`.

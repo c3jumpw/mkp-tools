@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+<rect width="400" height="300" fill="#1a1f1d"/>
+<line x1="24" y1="264" x2="376" y2="264" stroke="#2f3633" stroke-width="4" stroke-linecap="round"/>
+<path d="M60 262 L74 228 L88 262 Z" fill="#8b948f"/>
+<path d="M312 262 L326 228 L340 262 Z" fill="#8b948f"/>
+<polyline points="200,104 164,140 152,172" fill="none" stroke="#ecf1ee" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="200,104 236,140 248,172" fill="none" stroke="#ecf1ee" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="200,94 200,162" fill="none" stroke="#ecf1ee" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="200,162 166,202 150,254 136,258" fill="none" stroke="#ecf1ee" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="200,162 234,202 250,254 264,258" fill="none" stroke="#ecf1ee" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="200" cy="68" r="17" fill="#ecf1ee"/>
+<polyline points="122,150 110,162 122,174" fill="none" stroke="#7f8883" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="106,150 94,162 106,174" fill="none" stroke="#7f8883" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="278,150 290,162 278,174" fill="none" stroke="#7f8883" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="294,150 306,162 294,174" fill="none" stroke="#7f8883" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
