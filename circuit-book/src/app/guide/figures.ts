@@ -19,7 +19,7 @@ export type Figure = {
 
 export const FIGURES = {
   "login": {
-    "src": "/guide/shots/login.36ef206d85.webp",
+    "src": "/guide/shots/login.d6e380c148.webp",
     "width": 390,
     "height": 844,
     "title": "Sign in",
@@ -44,7 +44,7 @@ export const FIGURES = {
     ]
   },
   "today": {
-    "src": "/guide/shots/today.b7b9fe6760.webp",
+    "src": "/guide/shots/today.d026221e76.webp",
     "width": 390,
     "height": 844,
     "title": "Today",
@@ -77,7 +77,7 @@ export const FIGURES = {
     ]
   },
   "offline": {
-    "src": "/guide/shots/offline.a942970c98.webp",
+    "src": "/guide/shots/offline.9fba23699e.webp",
     "width": 390,
     "height": 324,
     "title": "Changes waiting to sync",
@@ -94,7 +94,7 @@ export const FIGURES = {
     ]
   },
   "library": {
-    "src": "/guide/shots/library.b302f2ecbb.webp",
+    "src": "/guide/shots/library.ae914ca6c8.webp",
     "width": 390,
     "height": 844,
     "title": "Library",
@@ -127,7 +127,7 @@ export const FIGURES = {
     ]
   },
   "editor-top": {
-    "src": "/guide/shots/editor-top.89439a1591.webp",
+    "src": "/guide/shots/editor-top.be11bdedee.webp",
     "width": 390,
     "height": 778,
     "title": "Workout editor: photos and target",
@@ -160,7 +160,7 @@ export const FIGURES = {
     ]
   },
   "editor-muscles": {
-    "src": "/guide/shots/editor-muscles.e8c8d496b8.webp",
+    "src": "/guide/shots/editor-muscles.6029f68817.webp",
     "width": 390,
     "height": 778,
     "title": "Workout editor: target area",
@@ -185,7 +185,7 @@ export const FIGURES = {
     ]
   },
   "editor-bottom": {
-    "src": "/guide/shots/editor-bottom.7a7f7bf2de.webp",
+    "src": "/guide/shots/editor-bottom.9c6dcd2d72.webp",
     "width": 390,
     "height": 778,
     "title": "Workout editor: category, notes and saving",
@@ -218,7 +218,7 @@ export const FIGURES = {
     ]
   },
   "routines": {
-    "src": "/guide/shots/routines.ab08adc792.webp",
+    "src": "/guide/shots/routines.faecf027be.webp",
     "width": 390,
     "height": 844,
     "title": "Routines",
@@ -243,14 +243,14 @@ export const FIGURES = {
     ]
   },
   "new-routine": {
-    "src": "/guide/shots/new-routine.ab10bea7f3.webp",
+    "src": "/guide/shots/new-routine.e06151cab0.webp",
     "width": 390,
-    "height": 376,
+    "height": 392,
     "title": "New routine",
     "route": "/routines",
     "focus": {
       "y": 0,
-      "height": 376
+      "height": 392
     },
     "legend": [
       [
@@ -268,7 +268,7 @@ export const FIGURES = {
     ]
   },
   "builder-top": {
-    "src": "/guide/shots/builder-top.1631cad538.webp",
+    "src": "/guide/shots/builder-top.692ace87cd.webp",
     "width": 390,
     "height": 844,
     "title": "Routine builder",
@@ -305,7 +305,7 @@ export const FIGURES = {
     ]
   },
   "builder-bottom": {
-    "src": "/guide/shots/builder-bottom.2b6d2ede15.webp",
+    "src": "/guide/shots/builder-bottom.ccb796204f.webp",
     "width": 390,
     "height": 844,
     "title": "Routine builder, further down",
@@ -330,7 +330,7 @@ export const FIGURES = {
     ]
   },
   "block-settings": {
-    "src": "/guide/shots/block-settings.e3ccbdf0a0.webp",
+    "src": "/guide/shots/block-settings.f36d41bcb0.webp",
     "width": 390,
     "height": 508,
     "title": "Block settings",
@@ -359,7 +359,7 @@ export const FIGURES = {
     ]
   },
   "picker": {
-    "src": "/guide/shots/picker.c1ab5c08fa.webp",
+    "src": "/guide/shots/picker.6a80f519a0.webp",
     "width": 390,
     "height": 778,
     "title": "Exercise picker",
@@ -384,7 +384,7 @@ export const FIGURES = {
     ]
   },
   "session-straight": {
-    "src": "/guide/shots/session-straight.24363d7061.webp",
+    "src": "/guide/shots/session-straight.55f549ab77.webp",
     "width": 390,
     "height": 844,
     "title": "Session mode: straight sets",
@@ -425,7 +425,7 @@ export const FIGURES = {
     ]
   },
   "leave": {
-    "src": "/guide/shots/leave.ed993c0b71.webp",
+    "src": "/guide/shots/leave.4f5023bcdd.webp",
     "width": 390,
     "height": 295,
     "title": "Leaving a session",
@@ -446,7 +446,7 @@ export const FIGURES = {
     ]
   },
   "session-superset": {
-    "src": "/guide/shots/session-superset.b32867003e.webp",
+    "src": "/guide/shots/session-superset.83f73e10b5.webp",
     "width": 390,
     "height": 844,
     "title": "Session mode: a superset",
@@ -471,7 +471,7 @@ export const FIGURES = {
     ]
   },
   "swap-which": {
-    "src": "/guide/shots/swap-which.064131b3f3.webp",
+    "src": "/guide/shots/swap-which.92a7eda281.webp",
     "width": 390,
     "height": 279,
     "title": "Swap: choose the exercise",
@@ -488,7 +488,7 @@ export const FIGURES = {
     ]
   },
   "swap": {
-    "src": "/guide/shots/swap.8d6ad959ef.webp",
+    "src": "/guide/shots/swap.af6288ff7a.webp",
     "width": 390,
     "height": 594,
     "title": "Swap: choose the replacement",
@@ -505,7 +505,7 @@ export const FIGURES = {
     ]
   },
   "finished": {
-    "src": "/guide/shots/finished.2681a76e07.webp",
+    "src": "/guide/shots/finished.e31e9fe0a1.webp",
     "width": 390,
     "height": 210,
     "title": "Every set done",
@@ -522,7 +522,7 @@ export const FIGURES = {
     ]
   },
   "history": {
-    "src": "/guide/shots/history.fc749e80b7.webp",
+    "src": "/guide/shots/history.290b25e4e4.webp",
     "width": 390,
     "height": 844,
     "title": "History",
@@ -547,7 +547,7 @@ export const FIGURES = {
     ]
   },
   "today-empty": {
-    "src": "/guide/shots/today-empty.6ce1b1ad3e.webp",
+    "src": "/guide/shots/today-empty.a07bd2b238.webp",
     "width": 390,
     "height": 844,
     "title": "Today on a new account",
