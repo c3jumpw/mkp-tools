@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { roleOf } from "@/lib/roles";
 
 const PUBLIC_PATHS = ["/login", "/auth"];
 
@@ -42,6 +43,14 @@ export async function proxy(request: NextRequest) {
     url.pathname = "/login";
     // Remember where they were heading so sign-in can land them there.
     if (pathname !== "/") url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Admin pages: admins only. Anyone else lands on Today, as if they weren't there.
+  if (user && pathname.startsWith("/admin") && roleOf(user) !== "admin") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/today";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

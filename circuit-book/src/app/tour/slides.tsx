@@ -10,6 +10,7 @@
  */
 import { Flow, ListCard, SetOrder } from "@/components/GuideParts";
 import type { FigureName } from "@/app/guide/figures";
+import type { Audience } from "@/lib/roles";
 
 export type Slide = {
   chapter: Chapter;
@@ -19,9 +20,11 @@ export type Slide = {
   fig?: FigureName;
   /** A diagram or list in place of, or under, the screenshot. */
   extra?: React.ReactNode;
+  /** Who sees the slide. Default: everyone. */
+  audience?: Audience;
 };
 
-export const CHAPTERS = ["Start", "Library", "Routines", "Session", "History", "Offline"] as const;
+export const CHAPTERS = ["Start", "Library", "Routines", "Session", "History", "Offline", "Admin"] as const;
 export type Chapter = (typeof CHAPTERS)[number];
 
 export const SLIDES: Slide[] = [
@@ -209,13 +212,30 @@ export const SLIDES: Slide[] = [
   {
     chapter: "History",
     title: "History",
+    body: <>Every session, newest first, with Resume on any you left open.</>,
+    fig: "history",
+  },
+  {
+    chapter: "History",
+    title: "Your account",
     body: (
       <>
-        Every session, newest first. There&rsquo;s no settings screen: days live on each routine,
+        At the bottom of History. There&rsquo;s no settings screen: days live on each routine,
         targets and photos on each exercise.
       </>
     ),
-    fig: "history",
+    fig: "history-account",
+  },
+  {
+    chapter: "History",
+    title: "What’s new",
+    body: (
+      <>
+        After an update, Today shows what changed the next time you open the app, once. It only
+        lists changes that apply to you.
+      </>
+    ),
+    fig: "whats-new",
   },
 
   /* --- Offline ----------------------------------------------------------- */
@@ -242,5 +262,19 @@ export const SLIDES: Slide[] = [
         </ListCard>
       </div>
     ),
+  },
+
+  /* --- Admin (admins only) ------------------------------------------------ */
+  {
+    chapter: "Admin",
+    audience: "admins",
+    title: "Change log",
+    body: (
+      <>
+        Admins only: every change to Circuit Book since launch. Search or filter it, follow each
+        change to its commits, and download the lot as JSON or CSV at the bottom of the page.
+      </>
+    ),
+    fig: "admin-changelog",
   },
 ];

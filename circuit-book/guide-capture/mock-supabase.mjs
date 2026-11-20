@@ -20,12 +20,27 @@ const ILLUSTRATIONS = path.join(HERE, "illustrations");
 const EXP = 4102444800; // 2100-01-01
 const b64url = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
 
-const USER = {
+const BASE_USER = {
   id: F.USER.id, aud: "authenticated", role: "authenticated", email: F.USER.email,
   email_confirmed_at: "2026-10-01T12:00:00Z", phone: "",
   app_metadata: { provider: "email", providers: ["email"] }, user_metadata: {}, identities: [],
   created_at: "2026-10-01T12:00:00Z", updated_at: "2026-10-01T12:00:00Z",
 };
+
+/**
+ * The demo account's role and What's new marker, switchable with
+ * POST /__user {"role": "admin" | "member", "seen": <seq> | null}.
+ * Starts as an admin who has seen everything, so no pop-up gets in the way.
+ */
+const account = { role: "admin", seen: 1e6 };
+function currentUser() {
+  return {
+    ...BASE_USER,
+    app_metadata: { ...BASE_USER.app_metadata, ...(account.role === "admin" && { cb_role: "admin" }) },
+    user_metadata: account.seen === null ? {} : { cb_seen_changes: account.seen },
+  };
+}
+const USER = BASE_USER;
 const ACCESS = `${b64url({ alg: "HS256", typ: "JWT" })}.${b64url({
   sub: F.USER.id, aud: "authenticated", role: "authenticated", email: F.USER.email,
   exp: EXP, iat: 1790000000, session_id: "guide-capture",
@@ -167,14 +182,22 @@ export function startMock(port) {
       scenario(JSON.parse((await body(req)) || "{}").name);
       return send(200, { ok: true });
     }
+    if (u.pathname === "/__user" && req.method === "POST") {
+      Object.assign(account, JSON.parse((await body(req)) || "{}"));
+      return send(200, account);
+    }
     if (u.pathname === "/__writes") {
       if (req.method === "DELETE") writes.length = 0;
       return send(200, writes);
     }
 
-    if (u.pathname.startsWith("/auth/v1/token")) return send(200, SESSION);
+    if (u.pathname.startsWith("/auth/v1/token")) return send(200, { ...SESSION, user: currentUser() });
     if (u.pathname === "/auth/v1/user") {
-      return (req.headers.authorization || "").includes(ACCESS) ? send(200, USER) : send(401, { msg: "no session" });
+      if (!(req.headers.authorization || "").includes(ACCESS)) return send(401, { msg: "no session" });
+      // updateUser: the pop-up marking changes seen. Logged, not applied, so
+      // every run starts from the same state.
+      if (req.method === "PUT") writes.push(`PUT auth/user ${await body(req)}`);
+      return send(200, currentUser());
     }
     if (u.pathname.startsWith("/auth/v1/logout")) return send(204, null);
     if (u.pathname.startsWith("/auth/v1/")) return send(200, {});

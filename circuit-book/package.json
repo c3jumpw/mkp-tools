@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "guide:capture": "node guide-capture/run.mjs",
-    "guide:check": "node guide-capture/check.mjs"
+    "guide:check": "node guide-capture/check.mjs",
+    "changelog:check": "node scripts/check-changelog.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

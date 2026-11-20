@@ -117,6 +117,7 @@ start`.
 | `npm run typecheck` | Type check without emitting. |
 | `npm run guide:capture` | Re-take every Guide and tour screenshot (see below). |
 | `npm run guide:check` | Fail if a page or screenshot is missing from the Guide or tour. |
+| `npm run changelog:check` | Validate the change log (`src/content/changelog.json`). |
 | `python3 scripts/make-icons.py` | Regenerate the app icons. |
 
 ## Guide and tour
@@ -161,3 +162,31 @@ in the slides and legends still need a person to write them.
 
 To show a reworked tour to everyone once more, bump `TOUR_SEEN_KEY` in
 `src/lib/tour.ts`.
+
+## Change log, What's new and roles
+
+`src/content/changelog.json` is the full history of the app, oldest first:
+what changed, when, what kind of change, who it's for, and whether users are
+told. It's plain JSON so it can be exported or reused anywhere.
+
+- **Admins** see all of it at `/admin/changelog` (History → Admin → Change
+  log), with search, filters and JSON/CSV export.
+- **Everyone** sees announced entries that apply to them in a *What's new*
+  pop-up on Today, once, the first time they open the app after an update.
+  `/api/whats-new` filters by role on the server and by the last entry each
+  person dismissed (kept in their account's user metadata, plus a per-device
+  copy). New accounts start from the day they joined.
+- **Keeping it current:** every change adds an entry (format and rules in
+  `CLAUDE.md`). CI fails a push that changes the app without one.
+
+Roles: everyone is a `member`; admins have `app_metadata.cb_role = "admin"`,
+which users can't set themselves. To make someone an admin, run in the
+Supabase SQL editor:
+
+```sql
+update auth.users
+   set raw_app_meta_data = raw_app_meta_data || '{"cb_role":"admin"}'
+ where email = 'someone@example.com';
+```
+
+They'll see the Admin section the next time they open History.

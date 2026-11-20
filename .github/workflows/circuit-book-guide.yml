@@ -1,10 +1,11 @@
-# Keeps Circuit Book's in-app Guide and getting-started tour current.
+# Keeps Circuit Book's in-app Guide, getting-started tour and change log current.
 #
 # On every change to the app it rebuilds the app against a mock backend,
 # re-takes every annotated screenshot from the real pages, and checks that
 # every page has a screenshot and every screenshot is in the tour and the
 # Guide. On main, refreshed screenshots are committed back, and that commit
-# deploys like any other. See circuit-book/README.md, "Guide and tour".
+# deploys like any other. Last, it checks the change log is valid and that
+# app changes came with an entry. See circuit-book/README.md and CLAUDE.md.
 name: Circuit Book guide
 
 on:
@@ -38,6 +39,8 @@ jobs:
         working-directory: circuit-book
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the change log check compares against the previous push
 
       - uses: actions/setup-node@v4
         with:
@@ -80,3 +83,14 @@ jobs:
           git commit -m "Refresh Circuit Book guide screenshots"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      # Last, so a missing entry never holds up the screenshots.
+      - name: Check the change log
+        env:
+          SINCE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$SINCE" ]; then
+            node scripts/check-changelog.mjs --since "$SINCE"
+          else
+            node scripts/check-changelog.mjs
+          fi

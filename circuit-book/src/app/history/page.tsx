@@ -1,10 +1,12 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { formatDateWithWeekday, formatElapsed } from "@/lib/format";
 import AppFrame from "@/components/AppFrame";
+import { roleOf } from "@/lib/roles";
 import { Button, EmptyState, LoadingPanel, Notice } from "@/components/ui";
 
 type Row = {
@@ -145,10 +147,56 @@ function History() {
         </ul>
       )}
 
+      <AdminLinks />
+
       <div className="px-4 pt-8">
         <SignOut />
       </div>
     </AppFrame>
+  );
+}
+
+/** Admin-only pages, listed for admins and invisible to everyone else. */
+function AdminLinks() {
+  const [admin, setAdmin] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    supabaseBrowser()
+      .auth.getUser()
+      .then(({ data }) => active && setAdmin(roleOf(data.user) === "admin"));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!admin) return null;
+
+  return (
+    <section aria-labelledby="admin-heading" className="px-4 pt-8">
+      <h2 id="admin-heading" className="text-xs font-semibold tracking-wide text-faint uppercase">
+        Admin
+      </h2>
+      <Link
+        href="/admin/changelog"
+        className="mt-2 flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 active:bg-raise"
+      >
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-raise text-chalk" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M10 5.5V10l3 1.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3.2 8.2A7 7 0 1 1 4 13.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <path d="M2.6 4.6v3.8h3.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="ex block text-[0.95rem] font-semibold text-chalk">Change log</span>
+          <span className="block text-sm text-muted">Every update to Circuit Book, newest first</span>
+        </span>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0 text-faint">
+          <path d="M7.5 5l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </Link>
+    </section>
   );
 }
 

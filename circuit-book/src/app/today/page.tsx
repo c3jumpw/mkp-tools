@@ -7,6 +7,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { DAY_FULL, estimateMinutes, todayIndex } from "@/lib/format";
 import { startSession } from "@/lib/session";
 import AppFrame from "@/components/AppFrame";
+import WhatsNew from "@/components/WhatsNew";
 import { TOUR_SEEN_KEY } from "@/lib/tour";
 import { Button, EmptyState, LoadingPanel, Notice, Spinner } from "@/components/ui";
 
@@ -303,6 +304,7 @@ export default function TodayPage() {
           )}
         </>
       )}
+      <WhatsNew />
     </AppFrame>
   );
 }

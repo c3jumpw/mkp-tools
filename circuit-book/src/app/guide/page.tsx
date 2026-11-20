@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AppFrame from "@/components/AppFrame";
 import { Flow, ListCard, SetOrder, Shot } from "@/components/GuideParts";
+import { roleOf } from "@/lib/roles";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Guide · Circuit Book" };
 
@@ -16,7 +18,15 @@ const JUMPS: [string, string][] = [
   ["faq", "FAQ"],
 ];
 
-export default function GuidePage() {
+export default async function GuidePage() {
+  // The admin section is only rendered for admins.
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const admin = roleOf(user) === "admin";
+  const jumps: [string, string][] = admin ? [...JUMPS.slice(0, -1), ["admin", "Admin"], JUMPS.at(-1)!] : JUMPS;
+
   return (
     <AppFrame title="Guide">
       <div className="px-4 pt-5">
@@ -44,7 +54,7 @@ export default function GuidePage() {
       </div>
 
       <nav aria-label="Guide sections" className="rail flex gap-2 overflow-x-auto px-4 pt-4 pb-1">
-        {JUMPS.map(([id, label]) => (
+        {jumps.map(([id, label]) => (
           <a
             key={id}
             href={`#${id}`}
@@ -135,9 +145,16 @@ export default function GuidePage() {
       <Section id="history" title="History and your account">
         <Shot name="history" />
         <P>
-          There is no settings screen: days live on each routine, targets and photos on each
-          exercise. Sign out is the only account control.
+          At the bottom of History: Sign out, and for admins, the Admin section. There is no
+          settings screen: days live on each routine, targets and photos on each exercise.
         </P>
+        <Shot name="history-account" />
+        <h3 className="ex mt-8 text-base font-bold">What&rsquo;s new</h3>
+        <P>
+          After an update, Today shows what changed the next time you open the app, once. It only
+          lists the changes that apply to you, and closing it counts on every device you use.
+        </P>
+        <Shot name="whats-new" />
       </Section>
 
       <Section id="offline" title="Working offline">
@@ -161,6 +178,21 @@ export default function GuidePage() {
           </ListCard>
         </div>
       </Section>
+
+      {admin && (
+        <Section id="admin" title="For admins">
+          <P>
+            Only admins see this section, and the pages it describes. The change log lists every
+            update to Circuit Book since launch, including behind-the-scenes work users are never
+            shown. It&rsquo;s at the bottom of History, under Admin.
+          </P>
+          <Shot name="admin-changelog" />
+          <P>
+            Each change says whether it appeared in users&rsquo; What&rsquo;s new. The bottom of
+            the page downloads the whole log as JSON or CSV.
+          </P>
+        </Section>
+      )}
 
       <Section id="faq" title="Questions">
         <div className="mt-2 divide-y divide-line-soft border-y border-line-soft">

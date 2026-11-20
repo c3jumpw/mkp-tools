@@ -1,0 +1,141 @@
+[
+  {
+    "seq": 1,
+    "date": "2026-10-01",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": false,
+    "title": "Circuit Book launches",
+    "summary": "A personal library of workouts and drills, routines set to days of the week, and a full-screen session mode that walks you through them one station at a time.",
+    "details": [
+      "Library: each exercise entered once, with photos and a target.",
+      "Routines set to weekdays; Today shows what's due.",
+      "Session mode records each tap, and taps made without a signal sync when it's back.",
+      "History of every session, with Resume for unfinished ones.",
+      "Installs to the home screen; each person's data is private to their account."
+    ],
+    "commits": ["e9c2233"]
+  },
+  {
+    "seq": 2,
+    "date": "2026-10-01",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": false,
+    "title": "Blocks: straight sets, supersets and circuits",
+    "summary": "Routines are built from blocks. One exercise is straight sets, two alternate as a superset, three or more run as a circuit, and every set is ticked on its own.",
+    "details": [
+      "Done ticks the next set, or the whole round in a superset or circuit.",
+      "Any set square can be tapped to tick or untick it out of order.",
+      "Existing routines and logged sessions were carried over unchanged."
+    ],
+    "commits": ["929d626"]
+  },
+  {
+    "seq": 3,
+    "date": "2026-10-01",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": false,
+    "title": "Photo sequences",
+    "summary": "An exercise can hold several photos in order. Tap to step through them in a session, or play them on a loop.",
+    "commits": ["929d626"]
+  },
+  {
+    "seq": 4,
+    "date": "2026-10-01",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": false,
+    "title": "Target muscles and body map",
+    "summary": "Mark the muscles an exercise works on a body map. The library filters by muscle, and each routine shows what it covers.",
+    "commits": ["929d626"]
+  },
+  {
+    "seq": 5,
+    "date": "2026-10-30",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": true,
+    "title": "In-app Guide",
+    "summary": "Every screen explained with annotated screenshots, plus offline tips and answers to common questions. Open it from the ? button.",
+    "link": { "href": "/guide", "label": "Open the Guide" },
+    "commits": ["5851fa0", "2382f56", "9da0a00"]
+  },
+  {
+    "seq": 6,
+    "date": "2026-10-30",
+    "kind": "fixed",
+    "audience": "everyone",
+    "announce": true,
+    "title": "Fixes to Swap, deleting exercises and Today",
+    "summary": "A handful of fixes found while writing the Guide.",
+    "details": [
+      "Swapping an exercise now clears its ticked sets everywhere; they used to come back on Resume.",
+      "Deleting an exercise removes any block it was alone in, instead of leaving an empty one.",
+      "The exercise editor no longer stays greyed out after a delete.",
+      "Today counted exercises but called them sets; it now shows the real set count."
+    ],
+    "commits": ["9da0a00", "c9dab61"]
+  },
+  {
+    "seq": 7,
+    "date": "2026-11-18",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": true,
+    "title": "Getting-started tour",
+    "summary": "A swipeable, slide-by-slide walk through every screen. It opens once on a new device, and you can replay it from the top of the Guide.",
+    "link": { "href": "/tour?from=/today", "label": "Take the tour" },
+    "commits": ["855dd58"]
+  },
+  {
+    "seq": 8,
+    "date": "2026-11-18",
+    "kind": "internal",
+    "audience": "admins",
+    "announce": false,
+    "title": "Guide screenshots rebuild themselves",
+    "summary": "Every push re-takes the Guide and tour screenshots from the real app on demo data, and fails if a screen is missing from either.",
+    "details": [
+      "GitHub Actions workflow: .github/workflows/circuit-book-guide.yml.",
+      "First automatic refresh committed by the workflow the same day."
+    ],
+    "commits": ["855dd58", "b7db2eb"]
+  },
+  {
+    "seq": 9,
+    "date": "2026-11-20",
+    "kind": "new",
+    "audience": "everyone",
+    "announce": true,
+    "title": "What's new",
+    "summary": "When an update changes something you use, a summary like this one appears the first time you open the app afterwards. It only lists changes that apply to you.",
+    "commits": []
+  },
+  {
+    "seq": 10,
+    "date": "2026-11-20",
+    "kind": "new",
+    "audience": "admins",
+    "announce": true,
+    "title": "Admin change log",
+    "summary": "Admins get a full history of every change to Circuit Book, filterable and exportable as JSON or CSV. Find it under Admin at the bottom of History.",
+    "link": { "href": "/admin/changelog", "label": "Open the change log" },
+    "commits": []
+  },
+  {
+    "seq": 11,
+    "date": "2026-11-20",
+    "kind": "internal",
+    "audience": "admins",
+    "announce": false,
+    "title": "Admin role and new domain set up",
+    "summary": "Added an admin role, held in each account's app metadata (cb_role), and attached circuitbook.mkcworkspace.com to the Vercel project. The new address goes live once its DNS record is added at GoDaddy.",
+    "details": [
+      "Admins: set with SQL by someone with database access; see the README.",
+      "Users can't change their own role."
+    ],
+    "commits": []
+  }
+]

@@ -1,19 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Focus, Legend } from "@/components/GuideParts";
 import { Button } from "@/components/ui";
+import { canSee, roleOf, type Role } from "@/lib/roles";
+import { supabaseBrowser } from "@/lib/supabase/client";
 import { TOUR_SEEN_KEY } from "@/lib/tour";
 import { CHAPTERS, SLIDES } from "./slides";
-
-
-/** The last slide is the send-off, not a screen of the app. */
-const COUNT = SLIDES.length + 1;
-
-const FIRST_OF = Object.fromEntries(
-  CHAPTERS.map((c) => [c, SLIDES.findIndex((s) => s.chapter === c)]),
-) as Record<(typeof CHAPTERS)[number], number>;
 
 export default function Tour() {
   const router = useRouter();
@@ -21,6 +15,20 @@ export default function Tour() {
   const chips = useRef<HTMLElement>(null);
   const [index, setIndex] = useState(0);
   const [from, setFrom] = useState("/today");
+  const [role, setRole] = useState<Role>("member");
+
+  // Slides for admins only are added once we know who's watching. They come
+  // last, so the slides before them never move.
+  useEffect(() => {
+    supabaseBrowser()
+      .auth.getUser()
+      .then(({ data }) => setRole(roleOf(data.user)))
+      .catch(() => {});
+  }, []);
+  const slides = useMemo(() => SLIDES.filter((s) => canSee(s.audience ?? "everyone", role)), [role]);
+  const chapters = CHAPTERS.filter((c) => slides.some((s) => s.chapter === c));
+  /** The last slide is the send-off, not a screen of the app. */
+  const COUNT = slides.length + 1;
 
   useEffect(() => {
     try {
@@ -39,7 +47,7 @@ export default function Tour() {
     const n = Math.max(0, Math.min(COUNT - 1, i));
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollTo({ left: n * el.clientWidth, behavior: reduce ? "auto" : "smooth" });
-  }, []);
+  }, [COUNT]);
 
   const close = useCallback(() => router.replace(from), [router, from]);
 
@@ -75,7 +83,7 @@ export default function Tour() {
     strip.current?.children[index]?.scrollTo?.({ top: 0 });
   }, [index]);
 
-  const current = SLIDES[index];
+  const current = slides[index];
   const chapter = current?.chapter;
   const last = index === COUNT - 1;
 
@@ -109,13 +117,13 @@ export default function Tour() {
         </div>
 
         <nav ref={chips} aria-label="Tour chapters" className="rail mx-auto flex w-full max-w-lg gap-1.5 overflow-x-auto px-4 pt-2 pb-3">
-          {CHAPTERS.map((c) => {
+          {chapters.map((c) => {
             const active = c === chapter;
             return (
               <button
                 key={c}
                 type="button"
-                onClick={() => go(FIRST_OF[c])}
+                onClick={() => go(slides.findIndex((s) => s.chapter === c))}
                 aria-current={active ? "step" : undefined}
                 className={`inline-flex min-h-8 shrink-0 items-center rounded-full border px-3 text-xs font-medium whitespace-nowrap ${
                   active ? "border-chalk/60 bg-raise text-chalk" : "border-line text-faint active:bg-raise"
@@ -142,7 +150,7 @@ export default function Tour() {
         aria-roledescription="carousel"
         aria-label="Getting started tour"
       >
-        {SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <section
             key={s.title}
             role="group"

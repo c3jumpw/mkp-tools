@@ -11,7 +11,10 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import * as F from "./fixtures.mjs";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const NOW = new Date("2026-10-30T17:30:00-04:00"); // a Friday: Leg Day is scheduled
 const VIEW = { width: 390, height: 844 };
@@ -520,14 +523,74 @@ export async function capture({ base, mock, outDir, chromiumPath }) {
     marks: [
       { n: 1, loc: page.locator("li", { hasText: "still open" }), pad: 0, at: "r" },
       { n: 2, loc: page.locator("li", { hasText: "Leg Day" }).first(), pad: 0, at: "tr" },
-      { n: 3, loc: page.getByRole("button", { name: "Sign out" }), at: "r" },
     ],
     legend: [
       ["Unfinished session", "Still open. Resume picks it up where you left it."],
       ["Finished session", "Date, a bar of sets done, the total, and how long it took."],
+    ],
+  });
+
+  // The bottom of History, signed in as an admin.
+  await page.getByRole("link", { name: /Change log/ }).waitFor();
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(300);
+  await shot(page, "history-account", {
+    title: "Account and admin", route: "/history",
+    marks: [
+      { n: 1, loc: page.getByRole("link", { name: /Change log/ }), pad: 4 },
+      { n: 2, loc: page.getByRole("button", { name: "Sign out" }), at: "r" },
+    ],
+    legend: [
+      ["Admin", "Only admins see this section. Change log opens the full history of updates."],
       ["Sign out", "The only account control in the app."],
     ],
   });
+
+  /* --- Admin: change log ------------------------------------------------------ */
+  await page.goto(`${base}/admin/changelog`);
+  await settle(page);
+  await shot(page, "admin-changelog", {
+    title: "Admin: change log", route: "/admin/changelog",
+    marks: [
+      { n: 1, loc: page.locator("dl").first(), pad: 4 },
+      {
+        n: 2,
+        loc: [page.getByRole("searchbox", { name: "Search the change log" }), page.getByRole("button", { name: /Newest first/ })],
+        pad: 4,
+      },
+      { n: 3, loc: page.locator("article").first(), pad: 2, at: "tl" },
+    ],
+    legend: [
+      ["Summary", "How many changes, and the first and latest dates."],
+      ["Search and filters", "Search, filter by kind or by who it's for, and flip between newest and oldest first."],
+      ["A change", "Its kind, who it's for, the date, what changed, whether users were shown it, and the commits behind it."],
+    ],
+  });
+
+  /* --- What's new ---------------------------------------------------------- */
+  // The newest few announced changes, as someone returning after them sees it.
+  const changelog = JSON.parse(fs.readFileSync(path.join(HERE, "../src/content/changelog.json"), "utf8"));
+  const latest = Math.max(...changelog.map((e) => e.seq));
+  await fetch(`${mock}/__user`, { method: "POST", body: JSON.stringify({ seen: Math.max(0, latest - 3) }) });
+  await page.goto(`${base}/today`);
+  await settle(page);
+  const news = page.getByRole("dialog", { name: "What’s new" });
+  await news.waitFor();
+  await page.waitForTimeout(400);
+  await shot(page, "whats-new", {
+    title: "What's new", route: "/today",
+    marks: [
+      { n: 1, loc: [news.getByRole("heading", { name: "What’s new" }), news.getByText(/updates? to Circuit Book/)], pad: 6, at: "r" },
+      { n: 2, loc: news.locator("article").first(), pad: 2, at: "tl" },
+      { n: 3, loc: news.getByRole("button", { name: "Got it" }) },
+    ],
+    legend: [
+      ["What's new", "Shows once on Today after an update, listing only the changes that apply to you."],
+      ["An update", "What changed and when. Some have a button to try it straight away."],
+      ["Got it", "Closes it until the next update, on every device you use."],
+    ],
+  });
+  await fetch(`${mock}/__user`, { method: "POST", body: JSON.stringify({ seen: 1e6 }) });
 
   /* --- Brand-new account ------------------------------------------------------ */
   await setScenario("empty");
