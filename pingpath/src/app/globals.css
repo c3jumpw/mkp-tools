@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  --bg: #12211c;
+  --surface: #1b2c25;
+  --surface-2: #24382f;
+  --border: #34493f;
+  --text: #efeae0;
+  --text-muted: #93a69b;
+  --accent: #cb9a45;
+  --accent-hover: #e0b15e;
+  --teal: #4f9c8c;
+  --moss: #7fa65a;
+  --rust: #c1583c;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-teal: var(--teal);
+  --color-moss: var(--moss);
+  --color-rust: var(--rust);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--accent);
+  color: #1b2c25;
+}
+
+a {
+  color: inherit;
+}
+
+/* Larger tap targets on touch devices */
+@media (pointer: coarse) {
+  button,
+  a.tap-target {
+    min-height: 44px;
+  }
+}
+
+/* Custom scrollbar for the roster table's horizontal scroll */
+.scroll-thin::-webkit-scrollbar {
+  height: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}

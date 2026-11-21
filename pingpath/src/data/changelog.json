@@ -1,0 +1,333 @@
+{
+  "about": "PingPath change log, newest first. Every update adds an entry at the top whose version matches package.json; the build stops if it doesn't (scripts/check-tour.mjs). audience: everyone = shown to all users in What's new; admin = shown only to admins. Entries marked reconstructed were written afterwards from the deploy history, before notes were kept.",
+  "releases": [
+    {
+      "version": "1.5.1",
+      "date": "2026-11-21",
+      "title": "New address: pingpath.mkcworkspace.com",
+      "summary": "PingPath moved to its own address, and its code is now kept in GitHub.",
+      "slides": ["owner-install"],
+      "changes": [
+        {
+          "kind": "new",
+          "area": "Setup",
+          "audience": "everyone",
+          "title": "PingPath has a new address",
+          "detail": "Open pingpath.mkcworkspace.com, sign in once, and add it to your home screen again. The old link still works.",
+          "slide": "owner-install"
+        },
+        {
+          "kind": "behind-the-scenes",
+          "area": "Setup",
+          "audience": "admin",
+          "title": "Code kept in GitHub",
+          "detail": "PingPath's code now lives in c3jumpw/mkp-tools, folder pingpath, next to Circuit Book, so every change is saved and can be traced."
+        },
+        {
+          "kind": "behind-the-scenes",
+          "area": "Setup",
+          "audience": "admin",
+          "title": "Test links locked",
+          "detail": "Vercel's preview links for PingPath now need a Vercel login. Only the live addresses are public."
+        }
+      ]
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-11-20",
+      "title": "Update notes that follow your account",
+      "summary": "An Admin page with the full history of changes, and What's new notes that follow each person's account and only show what applies to them.",
+      "slides": ["whats-new"],
+      "deployments": ["dpl_45s7ujST5n6Wkz3RQC1gkkEnMbRU"],
+      "changes": [
+        {
+          "kind": "improved",
+          "area": "Help",
+          "audience": "everyone",
+          "title": "What's new follows your account",
+          "detail": "After an update, this note shows the first time you open PingPath on any device, once. If you missed a few updates, it catches you up on all of them.",
+          "slide": "whats-new"
+        },
+        {
+          "kind": "improved",
+          "area": "Help",
+          "audience": "everyone",
+          "title": "Only the changes that apply to you",
+          "detail": "Notes about the owner's setup are left out of everyone else's What's new."
+        },
+        {
+          "kind": "new",
+          "area": "Admin",
+          "audience": "admin",
+          "title": "Admin page with the full change log",
+          "detail": "Settings › Admin lists every update since launch, oldest or newest first, with who each change applies to. Download it as a spreadsheet (CSV) or a data file (JSON) to keep a copy.",
+          "slide": "owner-updates"
+        },
+        {
+          "kind": "new",
+          "area": "Accounts",
+          "audience": "admin",
+          "title": "Admin role",
+          "detail": "The owner's login is the admin. Admins see the Admin page and admin-only update notes. Nobody, admins included, can see anyone else's board."
+        },
+        {
+          "kind": "new",
+          "area": "Setup",
+          "audience": "admin",
+          "title": "New address: pingpath.mkcworkspace.com",
+          "detail": "Connected to the app. It starts working once its CNAME record is added at GoDaddy. The old pingpath-two.vercel.app link keeps working."
+        },
+        {
+          "kind": "behind-the-scenes",
+          "area": "Admin",
+          "audience": "admin",
+          "title": "Updates can't skip the change log",
+          "detail": "Publishing stops if a new version has no entry here, a change doesn't say who it applies to, or the dates are out of order."
+        }
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-11-18",
+      "title": "Getting started tour",
+      "summary": "A step-by-step tour of every screen, on the real app filled with sample people.",
+      "slides": ["welcome", "settings-menu", "done"],
+      "deployments": ["dpl_6XY18jnyCdtwKA7ooT1ikaKWLM7d"],
+      "changes": [
+        {
+          "kind": "new",
+          "area": "Help",
+          "audience": "everyone",
+          "title": "Getting started tour",
+          "detail": "Every screen, step by step, using the real app with sample people and numbered callouts. Settings › Getting started tour.",
+          "slide": "welcome"
+        },
+        {
+          "kind": "new",
+          "area": "Help",
+          "audience": "everyone",
+          "title": "What's new notes",
+          "detail": "A note on Home after each update, and Settings › What's new any time.",
+          "slide": "settings-menu"
+        },
+        {
+          "kind": "improved",
+          "area": "Help",
+          "audience": "everyone",
+          "title": "Guide links into the tour",
+          "detail": "Each section of the guide has a Show me in the tour link."
+        },
+        {
+          "kind": "improved",
+          "area": "Accounts",
+          "audience": "everyone",
+          "title": "Clearer sign-up page",
+          "detail": "Create your account now explains that each login is its own private board."
+        },
+        {
+          "kind": "new",
+          "area": "Help",
+          "audience": "admin",
+          "title": "Owner track in the tour",
+          "detail": "Accounts and invites, installing on a phone, the calendar link and jobs done outside the app.",
+          "slide": "owner-accounts"
+        },
+        {
+          "kind": "behind-the-scenes",
+          "area": "Setup",
+          "audience": "admin",
+          "title": "Updates can't skip the tour",
+          "detail": "Publishing stops if a page has no tour step or a version has no release notes."
+        }
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-10-30",
+      "title": "Illustrated guide",
+      "summary": "A guide page with pictures of every screen.",
+      "deployments": ["dpl_Gjqi2WDhFfoJHEK7jWwrVBT58S78"],
+      "reconstructed": true,
+      "changes": [
+        {
+          "kind": "new",
+          "area": "Help",
+          "audience": "everyone",
+          "title": "Illustrated guide",
+          "detail": "Pictures of every screen with numbered explanations. Tap ? at the top, or Settings › How to use PingPath.",
+          "slide": "done"
+        },
+        {
+          "kind": "new",
+          "area": "Help",
+          "audience": "admin",
+          "title": "Owner section in the guide",
+          "detail": "Accounts and invites, installing on phones, and owner jobs done in Vercel and Supabase."
+        }
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-10-28",
+      "title": "Second numbers, special dates and easier tags",
+      "deployments": ["dpl_28G7tqjr3e6V9cxh76ERD5rU6Ryy"],
+      "reconstructed": true,
+      "slides": ["contact-details", "contact-dates", "tag-edit"],
+      "changes": [
+        {
+          "kind": "new",
+          "area": "Contacts",
+          "audience": "everyone",
+          "title": "Second phone number with a label",
+          "detail": "Work, Home, or your own word. Wishes and blasts can use either number.",
+          "slide": "contact-details"
+        },
+        {
+          "kind": "new",
+          "area": "Contacts",
+          "audience": "everyone",
+          "title": "Special dates",
+          "detail": "Anniversaries or any named event, as many as you like for each person.",
+          "slide": "contact-dates"
+        },
+        {
+          "kind": "new",
+          "area": "Tags",
+          "audience": "everyone",
+          "title": "Edit anyone from a tag's page",
+          "detail": "Tap a person on a tag to change their details without leaving the page.",
+          "slide": "tag-edit"
+        },
+        {
+          "kind": "improved",
+          "area": "App",
+          "audience": "everyone",
+          "title": "Bottom menu easier to tap on iPhone",
+          "detail": "It now sits above the iPhone home bar."
+        }
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-10-13",
+      "title": "Birthdays on Home",
+      "deployments": ["dpl_6rGWQWrta2uXVnBfFoXgP5M7sHqt"],
+      "reconstructed": true,
+      "slides": ["home-today", "home-wish", "home-calendar"],
+      "changes": [
+        {
+          "kind": "new",
+          "area": "Home",
+          "audience": "everyone",
+          "title": "Birthdays and special dates on Home",
+          "detail": "Today, the week ahead, and a month calendar.",
+          "slide": "home-today"
+        },
+        {
+          "kind": "new",
+          "area": "Home",
+          "audience": "everyone",
+          "title": "Send wishes in one tap",
+          "detail": "The message opens in Text, WhatsApp, Email or Instagram, and Home remembers who you've wished this year.",
+          "slide": "home-wish"
+        },
+        {
+          "kind": "new",
+          "area": "Settings",
+          "audience": "everyone",
+          "title": "Google Calendar sync",
+          "detail": "Connect your birthdays calendar with its secret link. Names that match a contact are linked automatically.",
+          "slide": "settings-calendar"
+        },
+        {
+          "kind": "new",
+          "area": "Home",
+          "audience": "everyone",
+          "title": "Quick add",
+          "detail": "Add a person with their numbers, birthday and a special date in one form.",
+          "slide": "home-quickadd"
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-09-18",
+      "title": "PingPath launches",
+      "summary": "First version, published September 18, followed by fixes and polish through September 27.",
+      "deployments": [
+        "dpl_FgzaADHvv4n26yFsyyfK9odz3rRb",
+        "dpl_Hr1yunJnCqWyYXNVUK3TFcw85mgD",
+        "dpl_7LKxUGM8qaoaRHwbTnunoCFW3Mik",
+        "dpl_4LrNwkYTziGQuJcfMY16R5ywj1v1",
+        "dpl_98sy3RNqJVK4swNjDMqdt1EBCaAD",
+        "dpl_AGbB8vKVDpM9tgTyLQas7EfSwq6F",
+        "dpl_iVLFxBpHjhDoMrByujUF3gpuv1r6",
+        "dpl_6N2v4S6dCq65XkbaSocFUqv4hqyD",
+        "dpl_71ikxNm4sfEfUgLZySPtQsCzst8h",
+        "dpl_AXYzHzzNkFKVbHBLMTKTqdnY6MNV",
+        "dpl_83BtRp2kpkN3Gn1rYFyFC4z9nD7V",
+        "dpl_E2H29pJAHgDuPfXBL2E4WRVWsKyc",
+        "dpl_4UF55ncLP9JWNniy9wJBpR5mF2dw",
+        "dpl_GgXo6cH9cdw3FK1GQhfRhu4CiKEf",
+        "dpl_FFWE5Z4GwF8x33iYoE7Fbjj11Cy4"
+      ],
+      "reconstructed": true,
+      "changes": [
+        {
+          "kind": "new",
+          "area": "Contacts",
+          "audience": "everyone",
+          "title": "Contacts",
+          "detail": "Search, filters, statuses, hiding, and bulk actions.",
+          "slide": "contacts-list"
+        },
+        {
+          "kind": "new",
+          "area": "Tags",
+          "audience": "everyone",
+          "title": "Tags",
+          "detail": "Group people and filter by group.",
+          "slide": "tags-list"
+        },
+        {
+          "kind": "new",
+          "area": "Blasts",
+          "audience": "everyone",
+          "title": "Blasts with message steps",
+          "detail": "Write each step once with name fill-ins, add people, and track who's had which step.",
+          "slide": "blasts-list"
+        },
+        {
+          "kind": "new",
+          "area": "Blast Deck",
+          "audience": "everyone",
+          "title": "Blast Deck",
+          "detail": "Work through one step for everyone, one card at a time.",
+          "slide": "deck-setup"
+        },
+        {
+          "kind": "new",
+          "area": "Settings",
+          "audience": "everyone",
+          "title": "Import and find duplicates",
+          "detail": "Bring in a CSV list, and find people who share a phone, email or name.",
+          "slide": "settings-import"
+        },
+        {
+          "kind": "new",
+          "area": "Setup",
+          "audience": "everyone",
+          "title": "Works like an app on your phone",
+          "detail": "Add it to your home screen and it opens full-screen."
+        },
+        {
+          "kind": "new",
+          "area": "Accounts",
+          "audience": "admin",
+          "title": "Invite-only accounts",
+          "detail": "New accounts need the invite code, and each login is its own private board."
+        }
+      ]
+    }
+  ]
+}

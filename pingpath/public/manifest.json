@@ -1,0 +1,12 @@
+{
+  "name": "PingPath",
+  "short_name": "PingPath",
+  "description": "Your outreach, organized.",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#12211c",
+  "theme_color": "#12211c",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
