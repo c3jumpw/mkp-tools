@@ -1,0 +1,13 @@
+# .vercelignore — files NOT uploaded to Vercel (dispatchit.mkcworkspace.com)
+# v1 2026-11-20  The app is static; the server code, version snapshots and
+#                maintainer notes stay in GitHub only. vercel.json itself
+#                can't hold comments (JSON), so its notes live in README
+#                → "Hosting (Vercel)".
+# v2 2026-11-21  Header names the final address (dispatchit); rules unchanged.
+#                Vercel now deploys from GitHub (root directory
+#                mkp-dispatch), and these rules apply there too.
+worker/
+versions/
+README.md
+CLAUDE.md
+.gitignore

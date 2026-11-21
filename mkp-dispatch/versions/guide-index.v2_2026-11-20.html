@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141A">
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml">
+<title>Dispatch It Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!--
+  =============================================================================
+  guide/index.html — Dispatch It Field Guide (in-app help page)
+  =============================================================================
+  PURPOSE
+    Illustrated how-to for everyday users and admins: every screen, menu,
+    control and setting, using real screenshots of the app with numbered
+    callouts. Ships inside the app at mkp-dispatch/guide/ (linked from
+    Home and Settings, cached offline by sw.js) and is also published as a
+    shareable page.
+
+  KEY RESPONSIBILITIES / DATA FLOW
+    - Static content only. No calls to the Worker or ClickUp, no secrets.
+    - Screenshots live in ./img/*.webp. Their callout positions come from
+      BOXES (bottom of the file), which the screenshot script measured from
+      the live DOM, so pins sit exactly on the controls they describe.
+    - Small script: pins + callout highlighting, the Everyone / Everyday /
+      Admin view filter, contents drawer, and current-section marking.
+
+  ASSUMPTIONS / DEPENDENCIES
+    - Describes app.js v16 / Worker v9 (Nov 2026). Screens show fictional
+      sample data captured from the real app against a mocked server.
+    - Screenshots and BOXES were produced by a headless capture script
+      kept outside this repo (it needs Playwright). Small text fixes can
+      be made here directly. TODO: when a screen changes, re-shoot its
+      image and BOXES together, or its pins will point at the old layout;
+      text-only edits are safe without a re-shoot.
+    - Fonts from Google Fonts (IBM Plex, same as the app); system fallbacks
+      if offline.
+    - The same content is also published as a shareable page; this file
+      is that page wrapped in a full HTML document.
+
+  VERSION HISTORY
+    v1  2026-10-30  First guide (ships with app.js v15): 21 screenshots,
+                    13 screens with numbered pins, 5 with outlines, a route
+                    map of both capture paths, threshold scale, admin
+                    setup sequence, settings reference, status-line and
+                    troubleshooting tables, badge legend, business
+                    directory, glossary. Everyday / Admin view filter.
+                    (Published as a shareable page on Oct 30; never pushed
+                    to the repo, so v2 is the first in-app copy.)
+    v2  2026-11-20  For app.js v16: What's new, everyday Settings view,
+                    admin access, change log, new address
+                    (dispatch.mkcworkspace.com) with the moved notice,
+                    ADMIN_PASSCODE + Vercel deploy in setup, re-numbered
+                    Settings callouts (Admin is #2), new ClickUp connections
+                    need an admin's confirmation. 26 screenshots.
+  =============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: field manual — sticky contents rail beside a reading column of
+   "spreads" (phone screenshot + numbered callouts); one column on phones.
+   Palette = the app's own tokens (ink / amber), dark first, with a paper
+   light theme for readers on light mode. */
+:root {
+  --bg: #12141A;          /* app ink */
+  --surface: #1B1E27;     /* app surface */
+  --raised: #232733;      /* app surface-raised */
+  --line: #2E323F;
+  --text: #F3F1EA;
+  --muted: #9AA0AE;
+  --accent: #E8A33D;      /* app amber: fills, pins, buttons */
+  --accent-text: #E8A33D; /* amber used as text on --bg */
+  --on-accent: #12141A;
+  --good: #4CAF7D;
+  --bad: #E2604F;
+  --info: #A9B2FA;
+  --phone-edge: #0B0C10;
+  --shadow: 0 18px 40px rgba(0, 0, 0, .45);
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #F6F3EC; --surface: #FFFFFF; --raised: #EEEAE0; --line: #DDD6C8;
+    --text: #15171D; --muted: #5C616D; --accent: #E8A33D; --accent-text: #8A5710;
+    --on-accent: #12141A; --good: #2D8657; --bad: #B9412F; --info: #4652B8;
+    --phone-edge: #15171D; --shadow: 0 18px 40px rgba(40, 32, 18, .18);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #F6F3EC; --surface: #FFFFFF; --raised: #EEEAE0; --line: #DDD6C8;
+  --text: #15171D; --muted: #5C616D; --accent: #E8A33D; --accent-text: #8A5710;
+  --on-accent: #12141A; --good: #2D8657; --bad: #B9412F; --info: #4652B8;
+  --phone-edge: #15171D; --shadow: 0 18px 40px rgba(40, 32, 18, .18);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 400 16px/1.6 var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--accent-text); text-underline-offset: 2px; }
+code, kbd { font-family: var(--font-mono); font-size: .86em; background: var(--raised); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; margin: 0; }
+h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -.01em; }
+h3 { font-size: 1.08rem; font-weight: 600; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.eyebrow {
+  font: 600 .72rem/1.3 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+
+/* ---- page frame ---------------------------------------------------------- */
+.wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.layout { display: grid; grid-template-columns: 1fr; gap: 32px; }
+@media (min-width: 1000px) { .layout { grid-template-columns: 236px minmax(0, 1fr); gap: 48px; } }
+main { min-width: 0; display: grid; gap: 72px; }
+
+/* ---- top strip ------------------------------------------------------------ */
+.topstrip { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px; border-bottom: 1px solid var(--line); margin-bottom: 36px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 .82rem/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; }
+.brand svg { width: 28px; height: 28px; flex: none; }
+.brand b { color: var(--accent-text); font-weight: 600; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; border-radius: 999px;
+  font: 600 .9rem/1 var(--font-sans); text-decoration: none; border: 1px solid var(--line); color: var(--text); background: var(--surface); cursor: pointer;
+}
+.btn--accent { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+/* ---- hero ------------------------------------------------------------------ */
+.hero { display: grid; gap: 28px; align-items: center; padding-bottom: 8px; }
+@media (min-width: 760px) { .hero { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+.hero h1 { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.1rem); font-weight: 600; letter-spacing: -.02em; margin-top: 12px; }
+.hero h1 em { font-style: normal; color: var(--accent-text); }
+.hero .lede { margin-top: 16px; max-width: 58ch; color: var(--muted); font-size: 1.06rem; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 20px; font-size: .9rem; color: var(--muted); }
+.facts span { display: inline-flex; align-items: center; gap: 6px; }
+.facts b { color: var(--text); font-weight: 500; }
+.hero-shots { display: flex; justify-content: center; gap: 14px; }
+.hero-shots .phone { width: min(46%, 190px); }
+.hero-shots .phone:nth-child(2) { margin-top: 36px; }
+
+/* ---- rail (contents + view switch) ------------------------------------------ */
+.rail { min-width: 0; }
+@media (min-width: 1000px) { .rail-inner { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); max-height: calc(100vh - 40px); overflow: auto; padding-right: 4px; } }
+.viewswitch { display: grid; gap: 8px; margin-bottom: 18px; }
+.seg { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
+.seg button {
+  flex: 1; min-height: 36px; border: 0; border-radius: 9px; background: transparent; color: var(--muted);
+  font: 500 .84rem/1.1 var(--font-sans); cursor: pointer; padding: 6px 8px;
+}
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.toc { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.toc summary { list-style: none; cursor: pointer; padding: 12px 14px; font: 600 .8rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; display: flex; justify-content: space-between; }
+.toc summary::-webkit-details-marker { display: none; }
+.toc summary::after { content: "+"; color: var(--muted); }
+.toc[open] summary::after { content: "–"; }
+.toc nav { padding: 0 8px 10px; display: grid; gap: 14px; }
+.toc h4 { margin: 0 0 4px; padding: 0 8px; font: 600 .68rem/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.toc ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.toc a { display: block; padding: 6px 8px; border-radius: 8px; color: var(--text); text-decoration: none; font-size: .9rem; line-height: 1.3; }
+.toc a:hover { background: var(--raised); }
+.toc a[aria-current="true"] { background: var(--raised); color: var(--accent-text); }
+
+/* ---- view filter --------------------------------------------------------------- */
+body[data-view="everyday"] [data-role="admin"],
+body[data-view="admin"] [data-role="everyday"] { display: none !important; }
+
+/* ---- section heads --------------------------------------------------------------- */
+.sec { display: grid; gap: 28px; scroll-margin-top: 16px; }
+.part { padding-top: 8px; border-top: 1px solid var(--line); display: grid; gap: 6px; }
+.part .eyebrow { color: var(--accent-text); }
+.part h2 { font-size: 1.15rem; font-weight: 500; color: var(--muted); }
+.sec-head { display: grid; gap: 10px; max-width: 70ch; }
+.sec-head .meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sec-head .lede { color: var(--muted); }
+.role {
+  font: 600 .66rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
+  padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted);
+}
+.role--admin { color: var(--accent-text); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+
+/* ---- spread: phone + callouts ------------------------------------------------------ */
+.spread { display: grid; gap: 28px; align-items: start; }
+@media (min-width: 760px) { .spread { grid-template-columns: 300px minmax(0, 1fr); gap: 40px; } .spread--flip { grid-template-columns: minmax(0, 1fr) 300px; } .spread--flip .phone { order: 2; } }
+.phone {
+  position: relative; margin: 0; width: 100%; max-width: 300px; justify-self: center;
+  border-radius: 30px; padding: 7px; background: var(--phone-edge); box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+.phone--sm { max-width: 240px; }
+.phone .screen { position: relative; border-radius: 24px; overflow: hidden; background: #12141A; }
+.phone img { display: block; width: 100%; height: auto; }
+.phone figcaption { position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font: 500 .74rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.phone.has-cap { margin-bottom: 30px; }
+
+.pin {
+  position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--accent); color: #12141A;
+  font: 600 .74rem/1 var(--font-mono); border: 2px solid #12141A; cursor: pointer; padding: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,.5); transition: transform .15s ease; z-index: 2;
+}
+.pin.on { transform: scale(1.25); }
+.hl {
+  position: absolute; border: 2px solid var(--accent); border-radius: 9px; pointer-events: none;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent), 0 0 0 999px rgba(8, 9, 12, .38);
+  opacity: 0; transition: opacity .15s ease; z-index: 1;
+}
+.hl.on { opacity: 1; }
+.hl--soft { opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+
+.callouts { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-width: 0; }
+.callouts li {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid transparent; cursor: default; transition: background .15s ease, border-color .15s ease;
+}
+.callouts li::before {
+  content: attr(data-n); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: #12141A; font: 600 .74rem/1 var(--font-mono); margin-top: 1px;
+}
+.callouts li.on, .callouts li:focus-visible { background: var(--surface); border-color: var(--line); outline: none; }
+.callouts b { font-weight: 600; }
+.callouts .ui { font: 600 .82em/1 var(--font-mono); letter-spacing: .02em; color: var(--accent-text); white-space: nowrap; }
+.callouts p { color: var(--muted); font-size: .95rem; }
+.callouts p b { color: var(--text); }
+
+/* ---- small screenshot strips ------------------------------------------------------------- */
+.strip { display: grid; gap: 40px 24px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: start; }
+.strip .card { display: grid; gap: 14px; justify-items: center; min-width: 0; }
+.strip .phone { max-width: 230px; border-radius: 26px; }
+.strip .phone .screen { border-radius: 20px; }
+.strip .card p { font-size: .92rem; color: var(--muted); text-align: left; max-width: 34ch; }
+.strip .card p b { color: var(--text); }
+.strip .card h3 { font-size: .98rem; justify-self: start; max-width: 34ch; }
+.strip .card .txt { display: grid; gap: 6px; width: 100%; max-width: 34ch; }
+
+/* ---- notes, tips ---------------------------------------------------------------------------- */
+.note { border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; max-width: 72ch; }
+.note .eyebrow { color: var(--accent-text); }
+.note p, .note li { color: var(--muted); font-size: .95rem; }
+.note p b, .note li b { color: var(--text); }
+.note ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.note--warn { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+.note--warn .eyebrow { color: var(--bad); }
+.examples { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ex { border-radius: 12px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 4px; }
+.ex q { quotes: "“" "”"; font-size: .95rem; }
+.ex span { font: 600 .66rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+.ex--good span { color: var(--good); }
+.ex--weak span { color: var(--bad); }
+.ex small { color: var(--muted); font-size: .85rem; }
+
+/* ---- route map (how it works) ---------------------------------------------------------------- */
+.route { display: grid; gap: 22px; }
+.lane { display: grid; gap: 10px; }
+.lane-label { font: 600 .72rem/1.45 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: stretch; }
+.steps li { position: relative; display: flex; min-width: 0; flex: 1 1 150px; max-width: 260px; }
+.steps li > .tkt { flex: 1; }
+.tkt {
+  position: relative; min-width: 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px;
+  font-size: .9rem; line-height: 1.4;
+  /* ticket notches, like the app's mark */
+  -webkit-mask: radial-gradient(circle 7px at 0 50%, transparent 6.5px, #000 7px) left / 51% 100% no-repeat,
+                radial-gradient(circle 7px at 100% 50%, transparent 6.5px, #000 7px) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 7px at 0 50%, transparent 6.5px, #000 7px) left / 51% 100% no-repeat,
+                radial-gradient(circle 7px at 100% 50%, transparent 6.5px, #000 7px) right / 51% 100% no-repeat;
+}
+.tkt b { display: block; font-weight: 600; color: var(--text); }
+.tkt small { color: var(--muted); font-size: .84rem; }
+.steps li:not(:last-child)::after {
+  content: "→"; position: absolute; right: -21px; top: 50%; transform: translateY(-50%); color: var(--accent-text); font-weight: 600;
+}
+.tkt--go { background: color-mix(in srgb, var(--good) 14%, var(--surface)); border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+.tkt--ask { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.fork { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding-left: 0; }
+.fork .tkt { max-width: none; }
+.sink { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-radius: 12px; border: 1px dashed var(--line); color: var(--muted); font-size: .92rem; }
+.sink b { color: var(--text); }
+@media (max-width: 620px) {
+  .steps { flex-direction: column; gap: 22px; }
+  .steps li:not(:last-child)::after { content: "↓"; right: auto; left: 22px; top: auto; bottom: -21px; transform: none; }
+  .steps li { max-width: none; flex: 0 0 auto; }
+}
+
+/* ---- threshold scales -------------------------------------------------------------------------- */
+.scale { position: relative; padding: 96px 0 44px; max-width: 760px; }
+.track { height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--bad), var(--accent) 45%, var(--good)); opacity: .85; }
+.tick { position: absolute; top: 86px; width: 2px; height: 30px; background: var(--text); transform: translateX(-1px); }
+.tick span { position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%); white-space: nowrap; font: 600 .74rem/1.2 var(--font-mono); color: var(--text); text-align: center; }
+.tick--default span { color: var(--accent-text); bottom: 64px; }
+.dot { position: absolute; top: 93px; width: 16px; height: 16px; border-radius: 50%; transform: translateX(-8px); border: 3px solid var(--bg); background: var(--text); }
+.dot span { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: .78rem; color: var(--muted); }
+.dot--end span { left: auto; right: -4px; transform: none; }
+
+/* ---- tables ---------------------------------------------------------------------------------- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 600 .7rem/1.3 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); background: var(--raised); }
+td { color: var(--muted); }
+td:first-child { color: var(--text); font-weight: 500; }
+.yes { color: var(--good); font-weight: 600; }
+.ask { color: var(--accent-text); font-weight: 600; }
+.scope { font: 600 .68rem/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; padding: 4px 7px; border-radius: 5px; background: var(--raised); color: var(--muted); white-space: nowrap; }
+.scope--all { color: var(--accent-text); }
+
+/* ---- numbered setup sequence ----------------------------------------------------------------- */
+.seq { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 10px; max-width: 760px; }
+.seq li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding: 12px 14px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; }
+.seq li::before { content: counter(s); font: 600 .9rem/34px var(--font-mono); text-align: center; height: 34px; border-radius: 10px; background: var(--raised); color: var(--accent-text); }
+.seq b { display: block; font-weight: 600; }
+.seq p { color: var(--muted); font-size: .92rem; }
+.seq .where { font: 600 .66rem/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+pre.cmd { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); overflow-x: auto; font: 500 .82rem/1.55 var(--font-mono); color: var(--text); }
+
+/* ---- business directory + legend -------------------------------------------------------------- */
+.biz { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.biz article { border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.biz small { color: var(--muted); font-size: .84rem; }
+.biz ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: .9rem; }
+.biz li span { color: var(--muted); font-size: .82rem; }
+.tag {
+  justify-self: start; font: 600 .7rem/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: 5px 8px; border-radius: 6px; color: var(--c);
+  background: color-mix(in srgb, var(--c) 18%, var(--surface));
+}
+.badge { font: 600 .68rem/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 7px; border-radius: 6px; white-space: nowrap; }
+.badge--auto { background: color-mix(in srgb, #E8A33D 22%, #1B1E27); color: #E8A33D; }
+.badge--info { background: color-mix(in srgb, #7C8AF6 22%, #1B1E27); color: #A9B2FA; }
+.badge--muted { background: #232733; color: #9AA0AE; }
+.legend { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.legend div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.legend div > span:first-child { justify-self: start; }
+.legend p { font-size: .9rem; color: var(--muted); }
+.gloss { display: grid; gap: 0; grid-template-columns: 1fr; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.gloss div { display: grid; grid-template-columns: minmax(120px, 190px) minmax(0, 1fr); gap: 16px; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+.gloss div:last-child { border-bottom: 0; }
+.gloss dt { font-weight: 600; }
+.gloss dd { margin: 0; color: var(--muted); font-size: .93rem; }
+@media (max-width: 520px) { .gloss div { grid-template-columns: 1fr; gap: 2px; } }
+
+footer.end { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .86rem; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+</style>
+<style>
+  /* Skeleton reset (matches the shared copy's host page). */
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topstrip">
+    <div class="brand">
+      <!-- Ticket mark (from the brand kit): amber ticket, dispatch arrow -->
+      <svg viewBox="0 0 512 512" aria-hidden="true"><mask id="tm"><rect width="512" height="512" fill="#fff"/><circle cx="64" cy="256" r="34" fill="#000"/><circle cx="448" cy="256" r="34" fill="#000"/></mask><rect x="64" y="64" width="384" height="384" rx="78" fill="#E8A33D" mask="url(#tm)"/><path d="M146 256H156" stroke="#12141A" stroke-width="46" stroke-linecap="round"/><path d="M214 256H334" stroke="#12141A" stroke-width="46" stroke-linecap="round"/><path d="M270 170L356 256L270 342" fill="none" stroke="#12141A" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Dispatch <b>It</b> · Field Guide</span>
+    </div>
+    <a class="btn btn--accent" id="app-link" href="https://dispatch.mkcworkspace.com/">Open Dispatch It</a>
+  </div>
+
+  <header class="hero">
+    <div>
+      <p class="eyebrow">For everyone on the team · Admin sections marked</p>
+      <h1>Say it once. It lands in the <em>right ClickUp list</em>.</h1>
+      <p class="lede">Dispatch It is the quick-capture app for the MKC businesses. Type or dictate a task, idea or note and it files it into ClickUp for you. This guide walks through every screen with real screenshots. Tap any numbered pin, or any numbered note, to see where it is.</p>
+      <div class="facts">
+        <span><b>Works on</b> phone and desktop browsers</span>
+        <span><b>Sends to</b> the MKC ClickUp workspace</span>
+        <span><b>Lives at</b> dispatch.mkcworkspace.com</span>
+        <span><b>Covers</b> app v16 · Nov 2026</span>
+      </div>
+    </div>
+    <div class="hero-shots" aria-hidden="true">
+      <div class="phone"><div class="screen"><img src="img/home.webp" width="390" height="844" alt=""></div></div>
+      <div class="phone"><div class="screen"><img src="img/smart.webp" width="390" height="844" alt=""></div></div>
+    </div>
+  </header>
+
+  <div class="layout" style="margin-top:48px">
+    <aside class="rail" aria-label="Guide navigation">
+      <div class="rail-inner">
+        <div class="viewswitch">
+          <span class="eyebrow">Show me</span>
+          <div class="seg" role="group" aria-label="Which sections to show">
+            <button type="button" id="view-all" data-view="all" aria-pressed="true">Everything</button>
+            <button type="button" id="view-everyday" data-view="everyday" aria-pressed="false">Everyday</button>
+            <button type="button" id="view-admin" data-view="admin" aria-pressed="false">Admin</button>
+          </div>
+        </div>
+        <details class="toc" id="toc" open>
+          <summary>Contents</summary>
+          <nav>
+            <div><h4>Start here</h4><ul>
+              <li><a href="#how-it-works">How it works</a></li>
+              <li data-role="everyday"><a href="#getting-in">Getting in</a></li>
+              <li data-role="everyday"><a href="#whats-new">What’s new after an update</a></li>
+            </ul></div>
+            <div data-role="everyday"><h4>Everyday use</h4><ul>
+              <li><a href="#home">Home</a></li>
+              <li><a href="#smart-capture">Smart capture</a></li>
+              <li><a href="#auto-filing">When it files itself</a></li>
+              <li><a href="#confirm">The Confirm screen</a></li>
+              <li><a href="#manual">Choosing the list yourself</a></li>
+              <li><a href="#duplicates">Duplicates</a></li>
+              <li><a href="#follow-ups">Follow-ups</a></li>
+              <li><a href="#accounts">Add to Accounts</a></li>
+              <li><a href="#offline">Drafts, offline, retries</a></li>
+              <li><a href="#activity">Activity and Undo</a></li>
+              <li><a href="#settings-everyday">Settings for everyone</a></li>
+            </ul></div>
+            <div data-role="admin"><h4>Admin</h4><ul>
+              <li><a href="#admin-role">What admins own</a></li>
+              <li><a href="#admin-access">Admin access</a></li>
+              <li><a href="#setup">One-time setup</a></li>
+              <li><a href="#settings-reference">Settings, control by control</a></li>
+              <li><a href="#changelog">Change log</a></li>
+              <li><a href="#tuning">Tuning smart routing</a></li>
+              <li><a href="#sync">Status lines and sync</a></li>
+              <li><a href="#access">Passcode and connection</a></li>
+              <li><a href="#changes">Destinations and updates</a></li>
+            </ul></div>
+            <div><h4>Reference</h4><ul>
+              <li><a href="#businesses">Businesses and capture types</a></li>
+              <li><a href="#troubleshooting">Troubleshooting</a></li>
+              <li><a href="#legend">Badges and terms</a></li>
+            </ul></div>
+          </nav>
+        </details>
+      </div>
+    </aside>
+
+    <main>
+      <!-- ================= START HERE ================= -->
+      <section class="sec" id="how-it-works">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>How it works</h2>
+          <p class="lede">There are two ways to send something. Smart capture lets Gemini pick the list. Manual capture lets you pick it. Both end up in the same place.</p>
+        </div>
+        <div class="route" role="img" aria-label="Smart capture: type or dictate, Gemini reads it, then it either files itself or asks you on the Confirm screen. Manual capture: pick business, pick type, fill form, duplicate check, then sent or queued. Every send is logged in Activity.">
+          <div class="lane">
+            <span class="lane-label">Smart capture · the big New Capture button</span>
+            <ol class="steps">
+              <li><div class="tkt"><b>Type or dictate</b><small>“Pay Jim’s invoice by Friday”</small></div></li>
+              <li><div class="tkt"><b>Gemini reads it</b><small>Picks the list, title, dates, priority. Checks for an existing task.</small></div></li>
+            </ol>
+            <div class="fork">
+              <div class="tkt tkt--go"><b>Confident and new → files itself</b><small>A message with Undo appears for about 8 seconds.</small></div>
+              <div class="tkt tkt--ask"><b>Unsure, or looks like a duplicate → asks you</b><small>The Confirm screen. You choose, edit and send.</small></div>
+            </div>
+          </div>
+          <div class="lane">
+            <span class="lane-label">Manual capture · “Choose the destination yourself”</span>
+            <ol class="steps">
+              <li><div class="tkt"><b>Pick the business</b><small>MKP, Super Admin, CRM…</small></div></li>
+              <li><div class="tkt"><b>Pick the type</b><small>To-Do, Light Bulb, Follow-up…</small></div></li>
+              <li><div class="tkt"><b>Fill the short form</b><small>Title, details, dates, files</small></div></li>
+              <li><div class="tkt"><b>Sent, or saved to send later</b><small>Offline captures wait and retry.</small></div></li>
+            </ol>
+          </div>
+          <div class="sink"><span>⟶</span><span><b>Activity</b> logs every send from every device, with who-decided-what and a two-tap Undo.</span></div>
+        </div>
+        <div class="note">
+          <span class="eyebrow">Good to know</span>
+          <p>If smart routing isn’t set up, the big button skips Gemini and goes straight to the manual path. You can tell which you have: when smart routing is on, the button says <b>Auto-routed</b> under “New Capture”.</p>
+        </div>
+      </section>
+
+      <section class="sec" id="getting-in" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Getting in</h2>
+          <p class="lede">Open <b>dispatch.mkcworkspace.com</b>. Each device needs the team passcode once. After that, Dispatch It opens straight to Home.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone phone--sm" data-shot="lock" data-pins><div class="screen"><img src="img/lock.webp" width="390" height="844" alt="Lock screen with a passcode box and an Unlock button" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="lock">
+            <li data-n="1" tabindex="0"><div><b>Passcode</b><p>Ask an admin for it. It’s saved on this device only, so other people’s devices aren’t affected. A wrong entry shows <b>Wrong passcode — try again.</b></p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Unlock</b><p>Checks the passcode with the server before letting you in.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>How does this work?</b><p>Opens this guide, even before you have the passcode.</p></div></li>
+          </ol>
+        </div>
+        <div class="note">
+          <span class="eyebrow">Put it on your home screen</span>
+          <ul>
+            <li><b>iPhone (Safari):</b> open the app link, tap Share, then <b>Add to Home Screen</b>.</li>
+            <li><b>Android (Chrome):</b> open the link, tap ⋮, then <b>Install app</b> or <b>Add to Home screen</b>.</li>
+            <li><b>Desktop:</b> bookmark it, or use the install icon in Chrome’s address bar.</li>
+          </ul>
+        </div>
+        <div class="spread spread--flip">
+          <figure class="phone phone--sm" data-shot="old-address" data-pins><div class="screen"><img src="img/old-address.webp" width="390" height="844" alt="The old address showing a notice: Dispatch It has moved, with an Open button" loading="lazy"></div></figure>
+          <div class="note">
+            <span class="eyebrow">New address · Nov 2026</span>
+            <p>Dispatch It moved from the old GitHub address to <b>dispatch.mkcworkspace.com</b>. The old copy still works for now and shows this notice.</p>
+            <ol class="callouts" data-shot="old-address">
+              <li data-n="1" tabindex="0"><div><b>The notice</b><p>Appears on Home and the lock screen of the old address. If captures are waiting there, send them first; it says so.</p></div></li>
+              <li data-n="2" tabindex="0"><div><b>Open</b><p>Goes to the new address. Enter the passcode once there and add it to your home screen again. Remove the old home-screen icon after.</p></div></li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="whats-new" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Screen</span></div>
+          <h2>What’s new after an update</h2>
+          <p class="lede">The first time you open Dispatch It after an update, a card lists the changes that apply to you. It shows once per update. Admins also see admin-only notes.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="whats-new" data-pins><div class="screen"><img src="img/whats-new.webp" width="390" height="844" alt="What’s new card: date of the update, an Action needed note highlighted in amber, new and improved notes, and a Got it button" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="whats-new">
+            <li data-n="1" tabindex="0"><div><b>The update</b><p>When it came out and how many changes apply to you.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Action needed</b><p>Outlined in amber and listed first: something you need to do, like opening the new address.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>The other notes</b><p>New, Improved, Fixed, Security or Removed, each with its own icon. If you missed several updates, older ones fold under “Earlier updates”.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Got it</b><p>Closes the card. It won’t come back for this update.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>See all updates</b><p>Every change that applies to you, newest first. Also in Settings → Help → <b>What’s new</b>.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ================= EVERYDAY USE ================= -->
+      <div class="part" data-role="everyday"><span class="eyebrow">Part 1</span><h2>Everyday use · for everyone who captures</h2></div>
+
+      <section class="sec" id="home" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Screen</span></div>
+          <h2>Home</h2>
+          <p class="lede">One big button to capture, and a list of what you sent recently.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="home" data-pins><div class="screen"><img src="img/home.webp" width="390" height="844" alt="Home screen: refresh, activity and settings icons, New Capture button, and a Recent list" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="home">
+            <li data-n="1" tabindex="0"><div><b>Check for updates</b><p>Reloads Dispatch It with the newest version. Tap it when an admin says an update is out.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Activity</b><p>Everything sent from every device, with Undo. See <a href="#activity">Activity and Undo</a>.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Settings</b><p>Connection status, smart routing controls and this device’s options. Most of it is for admins.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>New Capture</b><p>Opens Smart capture. <b>Auto-routed</b> underneath means Gemini will pick the list.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Choose the destination yourself</b><p>Skips Gemini and opens the business picker.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Recent</b><p>Your last 20 sends on this device. The colored tag is the business.</p></div></li>
+            <li data-n="7" tabindex="0"><div><b>How it was filed</b><p><span class="badge badge--auto">Auto 92%</span> filed itself · <span class="badge badge--info">AI 74%</span> you confirmed a suggestion · <span class="badge badge--info">Update</span> added to an existing task · <span class="badge badge--muted">Undone</span>. Manual sends show their type, like “Light Bulb”.</p></div></li>
+            <li data-n="8" tabindex="0"><div><b>Open in ClickUp</b><p>Jumps to the task it created.</p></div></li>
+            <li data-n="9" tabindex="0"><div><b>How to use Dispatch It</b><p>Opens this guide. It also works offline once you’ve opened it once.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="smart-capture" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Screen</span></div>
+          <h2>Smart capture</h2>
+          <p class="lede">Write it the way you’d say it. Gemini works out where it goes, cleans up the title and reads any dates.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="smart" data-pins><div class="screen"><img src="img/smart.webp" width="390" height="844" alt="New Capture screen with a text box, business hint chips, Dictate, Voice note and Attach buttons, and Route and Send" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="smart">
+            <li data-n="1" tabindex="0"><div><b>What’s on your mind?</b><p>Include who, what and when. “by Friday”, “next Tuesday” and “end of month” become real dates. “Urgent” or “ASAP” sets priority.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Hint (optional)</b><p>Tap a business if you already know where it belongs. It steers Gemini but doesn’t force a list. Tap again to clear it.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Dictate</b><p>Speech to text, straight into the box. If you don’t see it, your browser doesn’t support it. Use your keyboard’s microphone instead.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Voice note</b><p>Records audio and attaches the recording to the task.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Attach</b><p>Photos and files, up to 90 MB each. Bigger files need to go into ClickUp directly.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Route &amp; Send</b><p>Shows “Finding the right list…” for a second or two, then files it or opens the Confirm screen.</p></div></li>
+            <li data-n="7" tabindex="0"><div><b>Choose the destination myself</b><p>Takes your text and files to the manual picker, so nothing is retyped.</p></div></li>
+          </ol>
+        </div>
+        <div class="examples">
+          <div class="ex ex--good"><span>Files well</span><q>Renew the domain before Nov 15</q><small>Clear action and a date.</small></div>
+          <div class="ex ex--good"><span>Files well</span><q>Light bulb for Mambay: short video series on capture habits</q><small>Names the business and the kind of item.</small></div>
+          <div class="ex ex--weak"><span>Will ask you</span><q>follow up</q><small>No subject. Gemini can’t tell where it goes.</small></div>
+        </div>
+      </section>
+
+      <section class="sec" id="auto-filing" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>When it files itself</h2>
+          <p class="lede">A capture files itself only when all three are true: auto-filing is switched on, Gemini is at least as confident as the admin’s threshold (85% by default), and no matching open task was found. Everything else goes to the Confirm screen.</p>
+        </div>
+        <div class="spread spread--flip">
+          <figure class="phone" data-shot="auto-toast" data-pins><div class="screen"><img src="img/auto-toast.webp" width="390" height="844" alt="Home screen with a message: Auto-filed to Payable, 92%, with an Undo button" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="auto-toast">
+            <li data-n="1" tabindex="0"><div><b>Where it went</b><p>The list and the confidence score, for example <b>Auto-filed to Payable · 92%</b>.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Undo</b><p>Available for about 8 seconds. It deletes the task it just created. Missed it? Undo from <a href="#activity">Activity</a> any time.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>The badge in Recent</b><p>Shows <span class="badge badge--auto">Auto 92%</span> so you can spot auto-filed items later.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="confirm" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Screen</span></div>
+          <h2>The Confirm screen</h2>
+          <p class="lede">Appears when Gemini isn’t sure, or when it finds a task that looks like the same work. Check the list, fix anything, then send.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="review" data-pins><div class="screen"><img src="img/review.webp" width="390" height="1138" alt="Confirm screen: possible duplicate card, suggested destination with 64% confidence, alternative lists, title, dates, priority and a Create new in Payable button" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="review">
+            <li data-n="1" tabindex="0"><div><b>Looks like an existing task</b><p>An open task that means the same thing, with its list, status and how similar it is.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Add as update</b><p>Posts your note as a comment on that task instead of making a copy. <b>View</b> opens it in ClickUp first.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Confidence</b><p>Green is 85% and up, amber 60–84%, red below 60%.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Reason</b><p>One line on why Gemini chose this list.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Destination options</b><p>★ is the suggestion. Below it are other likely lists with their scores. Tap one to pick it.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Other list…</b><p>Search every list in ClickUp. Lists marked <b>yours</b> are the app’s configured destinations.</p></div></li>
+            <li data-n="7" tabindex="0"><div><b>Why 64%?</b><p>Opens the score breakdown shown below.</p></div></li>
+            <li data-n="8" tabindex="0"><div><b>Title</b><p>Gemini’s cleaned-up version. Edit freely. Your full original text goes in the task description.</p></div></li>
+            <li data-n="9" tabindex="0"><div><b>Due and start dates</b><p>Filled from what you said, with a note like “You said ‘by Friday’”. Clear or change them.</p></div></li>
+            <li data-n="10" tabindex="0"><div><b>Priority</b><p>Urgent, High, Normal, Low, or none.</p></div></li>
+            <li data-n="11" tabindex="0"><div><b>Send</b><p>Names the list you picked. It reads <b>Create new in…</b> when a duplicate was found, so you know you’re making a second task.</p></div></li>
+          </ol>
+        </div>
+        <div class="strip">
+          <div class="card">
+            <figure class="phone" data-shot="review-why" data-outline="1,2"><div class="screen"><img src="img/review-why.webp" width="390" height="438" alt="Score breakdown: Gemini’s own confidence 78%, a close second choice minus 10, Payable’s track record minus 4, final 64%" loading="lazy"></div></figure>
+            <div class="txt"><h3>Why the score is what it is</h3><p>Gemini’s own score is adjusted for things it can’t see: <b>a close second choice</b> (−10), <b>the list’s track record</b> with your team, and <b>where similar tasks already live</b>. The note at the bottom says what auto-filing needs.</p></div>
+          </div>
+          <div class="card">
+            <figure class="phone" data-shot="list-picker" data-outline="1,2"><div class="screen"><img src="img/list-picker.webp" width="390" height="844" alt="Choose a list sheet with a search box and matching lists" loading="lazy"></div></figure>
+            <div class="txt"><h3>Other list…</h3><p>Type part of a name (“finance”) to filter. New ClickUp lists show up here after the workspace syncs. Picking a different list than suggested is a <b>correction</b>, and it teaches the next suggestions.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="manual" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">3 screens</span></div>
+          <h2>Choosing the list yourself</h2>
+          <p class="lede">Business, then type, then a short form. Use it when you know exactly where something goes, or when you’re offline.</p>
+        </div>
+        <div class="strip">
+          <div class="card">
+            <figure class="phone" data-shot="entity"><div class="screen"><img src="img/entity.webp" width="390" height="844" alt="Where’s this going? Six business tiles" loading="lazy"></div></figure>
+            <div class="txt"><h3>1 · Pick the business</h3><p>Six tiles, each in its business color. The same color tags your sends in Recent.</p></div>
+          </div>
+          <div class="card">
+            <figure class="phone" data-shot="entity-carry" data-outline="1"><div class="screen"><img src="img/entity-carry.webp" width="390" height="844" alt="Business picker with a banner: your note comes with you" loading="lazy"></div></figure>
+            <div class="txt"><h3>Coming from Smart capture</h3><p>The banner shows your text is carried over. It pre-fills whichever form you open. <b>Clear</b> drops it.</p></div>
+          </div>
+        </div>
+        <div class="spread">
+          <figure class="phone has-cap" data-shot="type" data-pins><div class="screen"><img src="img/type.webp" width="390" height="850" alt="MKP capture types: To-Do, Light Bulb, New Contact Activity, Meeting, Accounting Item, Subscription, Follow-up, and More lists in this space" loading="lazy"></div><figcaption>2 · Pick the type</figcaption></figure>
+          <ol class="callouts" data-shot="type">
+            <li data-n="1" tabindex="0"><div><b>Capture types</b><p>The destinations set up for this business. Each opens a form shaped for it. A Light Bulb asks for an idea and opportunity, a To-Do asks for dates and priority.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Follow-up / Reminder</b><p>Adds a comment to a task that already exists. See <a href="#follow-ups">Follow-ups</a>.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>More lists in this space</b><p>Other ClickUp lists in the same Space, found automatically. New lists appear here without anyone changing the app.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>A synced list</b><p>Opens a standard task form pointed at that list.</p></div></li>
+          </ol>
+        </div>
+        <div class="spread spread--flip">
+          <figure class="phone has-cap" data-shot="form-task" data-pins><div class="screen"><img src="img/form-task.webp" width="390" height="883" alt="To-Do form with title, details, priority, dates, tags, make this a subtask, assignee, dictate, voice note, attach and Send to ClickUp" loading="lazy"></div><figcaption>3 · Fill the form</figcaption></figure>
+          <ol class="callouts" data-shot="form-task">
+            <li data-n="1" tabindex="0"><div><b>Title</b><p>Required fields have an amber <b>*</b>. Leaving one empty points to it in red.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Details</b><p>Anything longer. Goes into the task description.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Priority</b><p>Urgent, High, Normal or Low.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Start and due dates</b><p>Saved on the day you pick, in your time zone.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Make this a subtask</b><p>Search this list for a parent task and nest the new one under it.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Assignee</b><p>People who have access to that list. Leave it on Unassigned if unsure.</p></div></li>
+            <li data-n="7" tabindex="0"><div><b>Dictate, Voice note, Attach</b><p>Same as on Smart capture. Files up to 90 MB each.</p></div></li>
+            <li data-n="8" tabindex="0"><div><b>Send to ClickUp</b><p>Runs a quick duplicate check first (see next section), then sends.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="duplicates" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Duplicates: “Add as update”</h2>
+          <p class="lede">Before sending, Dispatch It compares your capture with open tasks by meaning, not exact words. “Call Jim about the invoice” matches “follow up w/ Jim re: overdue payment”. If something close exists, you choose.</p>
+        </div>
+        <div class="spread spread--flip">
+          <figure class="phone" data-shot="manual-dup" data-pins><div class="screen"><img src="img/manual-dup.webp" width="390" height="844" alt="Sheet: This might already exist, Website hosting renewal 93% similar, with Add as update, Create new anyway and Cancel" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="manual-dup">
+            <li data-n="1" tabindex="0"><div><b>The closest open task</b><p>Its list, status and similarity. <b>View task</b> opens it. “Also similar” lists runners-up.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Add as update</b><p>Your note becomes a comment on that task. Use this when it’s the same work.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Create new anyway</b><p>When it’s different work that only sounds alike.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Cancel</b><p>Back to the form. Nothing is sent.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="follow-ups" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Follow-ups and reminders</h2>
+          <p class="lede">Every business has a <b>Follow-up / Reminder</b> type. It doesn’t create a task. It adds a note to one that already exists.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="form-followup" data-pins><div class="screen"><img src="img/form-followup.webp" width="390" height="844" alt="Follow-up form with a task search box, matching tasks and a follow-up note box" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="form-followup">
+            <li data-n="1" tabindex="0"><div><b>Find the task</b><p>Type 2 or more characters of its name, or paste its ClickUp ID. It searches that business’s task lists. Required.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Pick it</b><p>Each result shows its status, so you can tell similar names apart.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Follow-up note</b><p>Posted as a comment on that task.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="accounts" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Super Admin only</span></div>
+          <h2>Add to Accounts</h2>
+          <p class="lede">For logins and tool accounts. This form has extra protections because it carries passwords.</p>
+        </div>
+        <div class="spread spread--flip">
+          <figure class="phone" data-shot="account" data-pins><div class="screen"><img src="img/account.webp" width="390" height="1076" alt="Add to Accounts form: account type, tool name, admin username, admin email, password, notes, associated client account, Review Channel or Direct to List" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="account">
+            <li data-n="1" tabindex="0"><div><b>Account Type</b><p>MKC, MKC Client or MKP. Choosing <b>MKC Client</b> adds an <b>Associated client account</b> search and unlocks Direct to List.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Account / Tool name &amp; purpose</b><p>For example “Canva — design team workspace”.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Credentials</b><p>Admin username, admin email, password and notes such as recovery codes.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Review Channel or Direct to List</b><p><b>Review Channel</b> posts it to the ClickUp Chat review channel for filing. <b>Direct to List</b> files it straight into MKC Client Accounts, for MKC Client accounts only.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Safety</b><p>Never saved on the device: no draft, no offline queue. Never sent to Gemini. If the connection drops, the form stays on screen so you can send again.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="offline" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Drafts, offline and retries</h2>
+          <p class="lede">You shouldn’t lose a capture to a dead zone or a closed tab.</p>
+        </div>
+        <div class="strip">
+          <div class="card">
+            <figure class="phone" data-shot="draft" data-outline="1,3"><div class="screen"><img src="img/draft.webp" width="390" height="844" alt="Form with a Draft restored message and a Discard button" loading="lazy"></div></figure>
+            <div class="txt"><h3>Drafts save themselves</h3><p>Every form saves as you type and comes back for 7 days. <b>Discard</b> starts fresh. Add to Accounts never keeps a draft.</p></div>
+          </div>
+          <div class="card">
+            <figure class="phone" data-shot="success"><div class="screen"><img src="img/success.webp" width="390" height="844" alt="Green check: Sent to ClickUp" loading="lazy"></div></figure>
+            <div class="txt"><h3>Sent</h3><p>A green check, then back to Home.</p></div>
+          </div>
+          <div class="card">
+            <figure class="phone" data-shot="success-queued"><div class="screen"><img src="img/success-queued.webp" width="390" height="844" alt="Clock: Saved. It’ll send once you’re back online." loading="lazy"></div></figure>
+            <div class="txt"><h3>Saved for later</h3><p>Offline, manual captures are kept on the device and sent automatically when you’re back online. Smart capture needs a connection, so offline it hands your text to the manual picker.</p></div>
+          </div>
+          <div class="card">
+            <figure class="phone" data-shot="home-pending" data-outline="1"><div class="screen"><img src="img/home-pending.webp" width="390" height="844" alt="Home with a banner: 1 capture waiting to send, Retry now" loading="lazy"></div></figure>
+            <div class="txt"><h3>Waiting to send</h3><p>The banner counts what’s queued. It retries each time Home opens. <b>Retry now</b> tries immediately.</p></div>
+          </div>
+        </div>
+        <div class="note">
+          <span class="eyebrow">“It may or may not have saved this”</span>
+          <p>This means the connection dropped after the request left your phone, so it might already be in ClickUp. <b>Check Activity before sending again.</b> Captures in the waiting queue check for this themselves before they resend.</p>
+        </div>
+      </section>
+
+      <section class="sec" id="activity" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Screen</span></div>
+          <h2>Activity and Undo</h2>
+          <p class="lede">The shared log of everything Dispatch It did in ClickUp, from every device, kept for 180 days.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="activity" data-pins><div class="screen"><img src="img/activity.webp" width="390" height="844" alt="Activity: stats for suggestions kept, auto-filed and undone, then a list of sends with badges and Undo buttons" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="activity">
+            <li data-n="1" tabindex="0"><div><b>Refresh</b><p>Reloads the list. New sends can take up to a minute to appear from other devices.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Scoreboard</b><p>How often suggestions were kept, how many filed themselves, and how many were undone.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Who decided</b><p><span class="badge badge--auto">Auto</span> filed itself · <span class="badge badge--info">Confirmed</span> someone approved a suggestion · <span class="badge badge--muted">Manual</span> picked by hand. <span class="badge badge--info">Update</span> means it was added to an existing task.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Where and when</b><p>The list path and time. <b>moved by you</b> means someone chose a different list than Gemini suggested.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Undo takes two taps</b><p>Tap <b>Undo</b>, then <b>Confirm?</b> within 4 seconds. This stops accidental undos.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Undone</b><p>Stays in the list, struck through.</p></div></li>
+          </ol>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>What was sent</th><th>What Undo does</th><th>When Undo refuses</th></tr></thead>
+            <tbody>
+              <tr><td>A new task</td><td>Deletes it. ClickUp usually keeps deleted tasks in its Trash for a while.</td><td>The task was changed after it was filed, or it has subtasks now. Delete it in ClickUp if you’re sure.</td></tr>
+              <tr><td>An update (comment)</td><td>Removes the comment.</td><td>The comment doesn’t match this send.</td></tr>
+              <tr><td>Files added to an existing task</td><td>They stay. ClickUp doesn’t allow deleting attachments from apps, and the message says so.</td><td>Remove them in ClickUp.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sec" id="settings-everyday" data-role="everyday">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span><span class="eyebrow">Screen</span></div>
+          <h2>Settings for everyone</h2>
+          <p class="lede">Without admin access, Settings is mostly for looking: help, the connection, and whether smart routing is working. The controls are in <a href="#settings-reference">the admin section</a>.</p>
+        </div>
+        <div class="spread spread--flip">
+          <figure class="phone" data-shot="settings-member" data-pins><div class="screen"><img src="img/settings-member.webp" width="390" height="1185" alt="Settings without admin access: Help buttons, Admin access off with Unlock admin, ClickUp connection with Re-check, Smart routing status lines and an admins-only note" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="settings-member">
+            <li data-n="1" tabindex="0"><div><b>Help</b><p>This guide, the settings explained, and <b>What’s new</b>.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Unlock admin</b><p>For admins only. Needs the admin passcode, which is different from the team passcode.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Re-check</b><p>Tests the ClickUp connection. If it shows a problem, tell an admin.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Smart routing status</b><p>Green dots mean it’s working. Amber or red means something needs an admin.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Admins only</b><p>Shows the settings everyone’s captures use, like the auto-file threshold.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ================= ADMIN ================= -->
+      <div class="part" data-role="admin"><span class="eyebrow">Part 2</span><h2>Admin · for whoever runs the system</h2></div>
+
+      <section class="sec" id="admin-role" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>What admins own</h2>
+          <p class="lede">Everyone uses the team passcode. Admins also unlock <b>admin access</b> on their own devices with a second passcode. The server refuses admin actions from every other device, so the controls that change behavior for the whole team stay with admins.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Task</th><th>Everyday users</th><th>Admins</th><th>Where</th></tr></thead>
+            <tbody>
+              <tr><td>Capture, confirm, add updates</td><td class="yes">Yes</td><td class="yes">Yes</td><td>App</td></tr>
+              <tr><td>Undo their own sends</td><td class="yes">Yes</td><td class="yes">Yes</td><td>Toast or Activity</td></tr>
+              <tr><td>Undo someone else’s send</td><td class="ask">Ask first</td><td class="yes">Yes</td><td>Activity</td></tr>
+              <tr><td>Forget passcode on their own device</td><td class="yes">Yes</td><td class="yes">Yes</td><td>Settings → This device</td></tr>
+              <tr><td>See what’s new after an update</td><td class="yes">Yes, their notes</td><td class="yes">Yes, plus admin notes</td><td>Card on open · Settings → Help</td></tr>
+              <tr><td>Auto-filing, thresholds, duplicate strictness</td><td>Blocked</td><td class="yes">Yes</td><td>Settings → Smart routing</td></tr>
+              <tr><td>Sync workspace, build task index, live updates</td><td>Blocked</td><td class="yes">Yes</td><td>Settings → Smart routing</td></tr>
+              <tr><td>Connect or reconnect ClickUp</td><td>Hidden</td><td class="yes">Yes</td><td>Settings → ClickUp</td></tr>
+              <tr><td>Full change log</td><td>Hidden</td><td class="yes">Yes</td><td>Settings → Admin → Open admin page</td></tr>
+              <tr><td>Change the passcodes, Gemini key, private lists</td><td>—</td><td class="yes">Yes</td><td>Terminal (Cloudflare)</td></tr>
+              <tr><td>Add or change capture types</td><td>—</td><td class="yes">Yes</td><td>Code (<code>js/config.js</code>) + GitHub + Vercel</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sec" id="admin-access" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>Admin access</h2>
+          <p class="lede">A second passcode, set on the server, that admins enter once per device in Settings → Admin.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="admin-unlock" data-pins><div class="screen"><img src="img/admin-unlock.webp" width="390" height="250" alt="Settings Admin section with an admin passcode box and Unlock and Cancel buttons" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="admin-unlock">
+            <li data-n="1" tabindex="0"><div><b>Admin passcode</b><p>Checked with the server. A wrong one says <b>That admin passcode didn’t work</b> and isn’t saved.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Unlock</b><p>Turns on admin access for this device only. <b>Lock admin on this device</b> turns it off again. <b>Forget passcode</b> also removes it.</p></div></li>
+          </ol>
+        </div>
+        <ol class="seq">
+          <li><div><b>Set the admin passcode <span class="where">Terminal · worker folder</span></b><p>Use something different from the team passcode. Until it’s set, every device has admin access and Settings warns about it.</p><pre class="cmd">$k = Read-Host "Admin passcode"
+$k | wrangler secret put ADMIN_PASSCODE
+Remove-Variable k</pre></div></li>
+          <li><div><b>Unlock it on your devices <span class="where">App · Settings → Admin</span></b><p>Tap <b>Unlock admin</b>, enter it, then <b>Open admin page</b> to check.</p></div></li>
+          <li><div><b>Change it when needed</b><p>Run the same command with a new value. Admin devices lose access and say so; each admin unlocks again.</p></div></li>
+        </ol>
+        <div class="note">
+          <span class="eyebrow">What the server blocks without it</span>
+          <p>Changing smart routing settings, Sync workspace, building the task index, turning live updates on or off, the Chat channel lookup, and making a new ClickUp connection live. Capturing, duplicates, Activity and Undo work for everyone.</p>
+        </div>
+      </section>
+
+      <section class="sec" id="setup" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>One-time setup</h2>
+          <p class="lede">In order. Steps 1–4 happen in a terminal and on GitHub. Steps 5–8 happen in the app. Repeat only what changes.</p>
+        </div>
+        <ol class="seq">
+          <li><div><b>Sign in to the right accounts <span class="where">Terminal</span></b><p>Cloudflare must be the <b>c1.jumpw</b> account and GitHub <b>c1jumpw</b>; Vercel is <b>c3.jumpw</b>. The wrong account gives “Authentication error 10000” or “Permission denied”.</p><pre class="cmd">wrangler whoami</pre></div></li>
+          <li><div><b>Store the secrets <span class="where">Terminal · worker folder</span></b><p><code>CLICKUP_CLIENT_SECRET</code>, <code>APP_PASSCODE</code>, <code>ADMIN_PASSCODE</code> and <code>GEMINI_API_KEY</code>. Type them with Read-Host, never paste them into chat.</p><pre class="cmd">$k = Read-Host "Paste value"
+$k | wrangler secret put GEMINI_API_KEY
+Remove-Variable k</pre></div></li>
+          <li><div><b>Create the duplicate index, then deploy the server <span class="where">Terminal · worker folder</span></b><p>The deploy output should list <code>TASK_VECTORS</code> and a <code>*/15 * * * *</code> schedule.</p><pre class="cmd">wrangler vectorize create dispatch-tasks --dimensions=768 --metric=cosine
+wrangler deploy</pre></div></li>
+          <li><div><b>Publish the app <span class="where">GitHub + Vercel</span></b><p>Push <code>mkp-tools</code> (keeps the repo and the old address current), then deploy to dispatch.mkcworkspace.com from the <code>mkp-dispatch</code> folder, signed in to Vercel as <b>c3.jumpw</b>. The first time, also add the DNS record at GoDaddy: <code>CNAME dispatch → 2464471139e6a868.vercel-dns-016.com</code>.</p><pre class="cmd">npx vercel deploy --prod</pre></div></li>
+          <li><div><b>Connect to ClickUp <span class="where">App · Settings</span></b><p>Approve with an account in the MKC workspace. The server refuses any other workspace. Once the admin passcode is set, the new connection waits until an admin device confirms it; on your own device that happens by itself when you land back in Settings. One connection serves every device.</p></div></li>
+          <li><div><b>Sync workspace <span class="where">App · Settings</span></b><p>Reads every Space, Folder, List, status and custom field name.</p></div></li>
+          <li><div><b>Build task index <span class="where">App · Settings</span></b><p>Turns on duplicate detection. Keep the screen open. A few thousand tasks take a few minutes, and it pauses and resumes by itself if Gemini slows it down.</p></div></li>
+          <li><div><b>Turn on live updates <span class="where">App · Settings</span></b><p>ClickUp changes then sync within seconds instead of every 15 minutes. Then share <b>dispatch.mkcworkspace.com</b> and the team passcode, in person or through a password manager.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="sec" id="settings-reference" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span><span class="eyebrow">Screen</span></div>
+          <h2>Settings, control by control</h2>
+          <p class="lede">With admin access on. Help opens this guide. Admin shows this device’s access. ClickUp and Smart routing apply to <b>all devices</b>. This device applies only to the phone or computer you’re holding.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="settings" data-pins><div class="screen"><img src="img/settings.webp" width="390" height="1636" alt="Settings: ClickUp connection, Smart routing status lines, auto-file switch, thresholds, duplicate check, sync buttons, and this device options" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="settings">
+            <li data-n="1" tabindex="0"><div><b>Help</b><p><b>Open the Field Guide</b> opens this page. <b>What each setting does</b> jumps straight to this section. <b>What’s new</b> lists the changes for you.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Admin</b><p>“Admin access is on for this device ✓”, <b>Open admin page</b> (the change log), and <b>Lock admin on this device</b>. See <a href="#admin-access">Admin access</a>.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Connected as…</b><p>A live check every time Settings opens. Red text says what’s wrong.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Connect to ClickUp</b><p>Opens ClickUp’s approval page. The access is stored on the server, never on the device. On an admin device the new connection is confirmed automatically when you return; it doesn’t go live otherwise. <span class="scope scope--all">All devices</span></p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Re-check</b><p>Tests the connection again.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Status lines</b><p>Gemini, workspace sync, task index, live updates and accuracy. Each is explained in <a href="#sync">Status lines and sync</a>.</p></div></li>
+            <li data-n="7" tabindex="0"><div><b>Auto-file when confident</b><p>Off means every smart capture goes to the Confirm screen. <span class="scope scope--all">All devices</span></p></div></li>
+            <li data-n="8" tabindex="0"><div><b>Auto-file threshold</b><p>Cautious 92%, Balanced 85% (default), Bold 75%. See <a href="#tuning">Tuning</a>. <span class="scope scope--all">All devices</span></p></div></li>
+            <li data-n="9" tabindex="0"><div><b>Duplicate check on manual sends</b><p>Strict, Normal (default) or Loose. Loose catches more, and asks more often. <span class="scope scope--all">All devices</span></p></div></li>
+            <li data-n="10" tabindex="0"><div><b>Sync workspace</b><p>Rereads ClickUp’s structure now. Shows progress underneath.</p></div></li>
+            <li data-n="11" tabindex="0"><div><b>Build / Rebuild task index</b><p>Reads open tasks for duplicate detection. Keep the screen open. If it stops, tap again and it continues where it left off.</p></div></li>
+            <li data-n="12" tabindex="0"><div><b>Live updates</b><p>Turn on, turn off, or <b>Re-enable</b> if ClickUp suspended them after failed deliveries.</p></div></li>
+            <li data-n="13" tabindex="0"><div><b>Proxy Worker URL (advanced)</b><p>The server this device talks to. Leave it as is unless an admin gives you a new one. <span class="scope">This device</span></p></div></li>
+            <li data-n="14" tabindex="0"><div><b>Forget passcode on this device</b><p>Locks this device until the passcode is entered again. Use it on shared or lost devices. <span class="scope">This device</span></p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sec" id="changelog" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span><span class="eyebrow">Screen</span></div>
+          <h2>Change log</h2>
+          <p class="lede">Every change to Dispatch It since the first version on Jul 23, 2026, in date order. Open it from Settings → Admin → <b>Open admin page</b>.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="admin" data-pins><div class="screen"><img src="img/admin.webp" width="390" height="1500" alt="Admin page: release and admin passcode summary, shortcuts, and the change log with order, filter, search, copy, and a timeline of releases" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="admin">
+            <li data-n="1" tabindex="0"><div><b>Summary</b><p>The release this app is on, and whether the admin passcode is set.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>Shortcuts</b><p>Smart routing settings, Activity, and the admin part of this guide.</p></div></li>
+            <li data-n="3" tabindex="0"><div><b>Order</b><p><b>Oldest first</b> (default) reads as a history. <b>Newest first</b> puts the latest on top. Remembered on this device.</p></div></li>
+            <li data-n="4" tabindex="0"><div><b>Who it applies to</b><p>All, notes everyone sees, or admin-only notes.</p></div></li>
+            <li data-n="5" tabindex="0"><div><b>Search</b><p>Matches titles, notes, versions and technical details, for example “passcode” or “server v8”.</p></div></li>
+            <li data-n="6" tabindex="0"><div><b>Copy as text</b><p>Copies what’s shown, with versions and details, ready to paste into a doc or a ClickUp task.</p></div></li>
+            <li data-n="7" tabindex="0"><div><b>Release date</b><p>Each dot on the timeline is one release.</p></div></li>
+            <li data-n="8" tabindex="0"><div><b>Versions</b><p>The file versions that shipped, for anyone digging into the code.</p></div></li>
+            <li data-n="9" tabindex="0"><div><b>Kind</b><p>New, Improved, Fixed, Security, Removed, or <b>Action needed</b>.</p></div></li>
+            <li data-n="10" tabindex="0"><div><b>Audience</b><p><b>Everyone</b> notes also appear in What’s new for every device. <b>Admin</b> notes only on admin devices.</p></div></li>
+            <li data-n="11" tabindex="0"><div><b>Technical detail</b><p>Only in this view: files, settings and secret <i>names</i>, never their values.</p></div></li>
+          </ol>
+        </div>
+        <div class="note">
+          <span class="eyebrow">Keeping it current</span>
+          <ul>
+            <li>The log lives in one file, <code>js/changelog.js</code>, as data. Every change to the app adds one release there, in the same update.</li>
+            <li>Each note says who it’s for. Devices show new notes once, the next time they open.</li>
+            <li>The rules are written down for whoever changes the app next (person or AI) in <code>CLAUDE.md</code> and the README.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="sec" id="tuning" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>Tuning smart routing</h2>
+          <p class="lede">The threshold decides how sure Gemini must be before a capture files itself. Below it, people are asked. A likely duplicate is always asked, whatever the threshold.</p>
+        </div>
+        <div class="scale" aria-label="Auto-file threshold scale from 50 to 100 percent">
+          <div class="track" title="50% at the left edge, 100% at the right"></div>
+          <div class="tick" style="left:50%"><span>Bold<br>75%</span></div>
+          <div class="tick tick--default" style="left:70%"><span>Balanced<br>85% · default</span></div>
+          <div class="tick" style="left:84%"><span>Cautious<br>92%</span></div>
+          <div class="dot" style="left:28%"><span>64% → asks</span></div>
+          <div class="dot dot--end" style="left:92%"><span>96% → files</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>If Activity shows…</th><th>Try</th></tr></thead>
+            <tbody>
+              <tr><td>90%+ suggestions kept, almost nothing undone</td><td><b>Bold 75%</b>. Fewer interruptions.</td></tr>
+              <tr><td>Auto-filed items get undone or moved</td><td><b>Cautious 92%</b>. Fewer surprises.</td></tr>
+              <tr><td>The first week, or after big changes in ClickUp</td><td>Switch <b>Auto-file</b> off. Every capture is confirmed, and each choice teaches the system.</td></tr>
+              <tr><td>Duplicate prompts on things that aren’t the same</td><td>Duplicate check <b>Strict</b> (93% similar).</td></tr>
+              <tr><td>Obvious repeats slip through</td><td>Duplicate check <b>Loose</b> (86%), or <b>Rebuild task index</b>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <span class="eyebrow">How it learns</span>
+          <p>When someone picks a different list or undoes an auto-filed capture, that correction is saved. It lowers that list’s track record and is shown to Gemini as an example on later captures. The model itself isn’t retrained, so a correction takes effect on the very next capture.</p>
+        </div>
+      </section>
+
+      <section class="sec" id="sync" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>Status lines and sync</h2>
+          <p class="lede">The dots at the top of Smart routing: green is fine, amber needs a step, red is broken.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Line says</th><th>Meaning</th><th>Do this</th></tr></thead>
+            <tbody>
+              <tr><td>Gemini connected · <code>gemini-3.8-flash</code></td><td>Smart routing can run.</td><td>Nothing.</td></tr>
+              <tr><td>Gemini not set up</td><td>The server has no Gemini key.</td><td>Store <code>GEMINI_API_KEY</code>, then <code>wrangler deploy</code>.</td></tr>
+              <tr><td>58 lists in 6 spaces · synced 12m ago</td><td>The workspace map is current.</td><td>Sync again after big restructures.</td></tr>
+              <tr><td>Workspace not synced yet</td><td>Only configured lists can be suggested.</td><td>Tap <b>Sync workspace</b>.</td></tr>
+              <tr><td>Task index built · 1,204 open tasks</td><td>Duplicate detection is on.</td><td>Rebuild after bulk imports or clean-ups.</td></tr>
+              <tr><td>Task index not built</td><td>No duplicate checks yet.</td><td>Tap <b>Build task index</b>.</td></tr>
+              <tr><td>Duplicate detection off</td><td>The server’s vector index is missing.</td><td>Run <code>wrangler vectorize create…</code> and redeploy.</td></tr>
+              <tr><td>Live updates on</td><td>ClickUp changes arrive within seconds.</td><td>Nothing.</td></tr>
+              <tr><td>Live updates off</td><td>Changes are picked up every 15 minutes.</td><td>Tap <b>Turn on live updates</b>.</td></tr>
+              <tr><td>Live updates suspended</td><td>ClickUp paused them after failed deliveries.</td><td>Tap <b>Re-enable live updates</b>.</td></tr>
+              <tr><td>87% of 46 suggestions kept · …</td><td>The accuracy so far.</td><td>Use it to tune the threshold.</td></tr>
+              <tr><td>Last sync error (…)</td><td>The last background sync failed.</td><td>Tap Sync. If it says “Exceeded CPU” repeatedly, the Cloudflare free plan is too small. Workers Paid ($5/month) fixes it.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sec" id="access" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>Passcode and connection</h2>
+          <p class="lede">One passcode protects the app on every device. ClickUp access lives on the server, so devices never hold it.</p>
+        </div>
+        <ol class="seq">
+          <li><div><b>Change the passcode</b><p>From the <code>worker</code> folder. Every device then sees “passcode was rejected”. Each person taps <b>Forget passcode on this device</b> and enters the new one. Do this when someone leaves the team.</p><pre class="cmd">$k = Read-Host "New passcode"
+$k | wrangler secret put APP_PASSCODE
+Remove-Variable k</pre></div></li>
+          <li><div><b>Change the admin passcode</b><p>Same as above with <code>ADMIN_PASSCODE</code>. Only admin devices are affected; each admin unlocks again in Settings → Admin.</p></div></li>
+          <li><div><b>Reconnect ClickUp</b><p>When anyone sees “The ClickUp connection expired”, open Settings → <b>Connect to ClickUp</b> on any device and approve.</p></div></li>
+          <li><div><b>Rotate the Gemini key</b><p>Make a new key in Google AI Studio, store it with <code>wrangler secret put GEMINI_API_KEY</code>, then delete the old key in AI Studio.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="sec" id="changes" data-role="admin">
+        <div class="sec-head">
+          <div class="meta"><span class="role role--admin">Admin</span></div>
+          <h2>Destinations and updates</h2>
+          <p class="lede">What needs code, and what happens on its own.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Change</th><th>How</th><th>Goes live</th></tr></thead>
+            <tbody>
+              <tr><td>A new list in ClickUp</td><td>Nothing. It shows under “More lists in this space” and as a smart-routing option after the next sync.</td><td>Seconds with live updates, otherwise ≤ 15 min</td></tr>
+              <tr><td>Add or rename a capture type</td><td>Edit <code>js/config.js</code> (business → type → List ID). The List ID is the number after <code>/li/</code> in the list’s ClickUp URL.</td><td>After push. Users tap Check for updates.</td></tr>
+              <tr><td>Keep a list away from Gemini</td><td>Add its ID to <code>PRIVATE_LIST_IDS</code> in <code>worker/wrangler.toml</code>, then <code>wrangler deploy</code>. MKC Client Accounts is already private.</td><td>Immediately after deploy</td></tr>
+              <tr><td>App screens and text</td><td>Push to <code>c1jumpw/mkp-tools</code>, then <code>npx vercel deploy --prod</code> from <code>mkp-dispatch</code> (signed in to Vercel as c3.jumpw).</td><td>Under a minute after the deploy. Users see What’s new on next open.</td></tr>
+              <tr><td>Any change at all</td><td>Add a release to <code>js/changelog.js</code> in the same update: date, title, and one note per change, marked Everyone or Admin.</td><td>With that update</td></tr>
+              <tr><td>Server logic (the Worker)</td><td><code>wrangler deploy</code> from <code>mkp-dispatch\worker</code>.</td><td>Immediately</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= REFERENCE ================= -->
+      <div class="part"><span class="eyebrow">Part 3</span><h2>Reference</h2></div>
+
+      <section class="sec" id="businesses">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Businesses and capture types</h2>
+          <p class="lede">What each tile offers on the manual path. Every business also has <b>Follow-up / Reminder</b>, which comments on an existing task.</p>
+        </div>
+        <div class="biz">
+          <article><span class="tag" style="--c:#E8A33D">MKP</span><small>Personal</small><ul><li>To-Do</li><li>Light Bulb <span>idea</span></li><li>New Contact Activity</li><li>New Meeting / Apt / Event</li><li>Accounting Item</li><li>Subscription</li></ul></article>
+          <article><span class="tag" style="--c:#7C8AF6">Super Admin</span><small>Org management</small><ul><li>Task</li><li>Light Bulb · Automation Idea</li><li>Process / System Idea</li><li>Receivable · Payable</li><li>Subscription</li><li>Team Directory Update</li><li>Add to Accounts <span>credentials</span></li></ul></article>
+          <article><span class="tag" style="--c:#4CAF7D">CRM &amp; Operations</span><small>Clients &amp; pipeline</small><ul><li>New Lead · New Contact</li><li>Pipeline Update · CRM Task</li><li>Company / Account Note</li><li>Activity Log · Email Follow-up</li><li>Lead Magnet Idea</li><li>Plan / Product Idea</li></ul></article>
+          <article><span class="tag" style="--c:#E2604F">JTG Admin</span><small>Jump Tech Group — agency</small><ul><li>F5 CEO Task</li><li>BMS Task · F5 Task</li><li>Light Bulb</li><li>Content Idea</li></ul></article>
+          <article><span class="tag" style="--c:#D06BC2">Mambay Co</span><small>Independent projects &amp; brand</small><ul><li>Task</li><li>Light Bulb</li><li>Content Idea</li></ul></article>
+          <article><span class="tag" style="--c:#3FA7D6">Unywebs</span><small>Marketplace / reseller</small><ul><li>Task · Light Bulb · Content Idea</li><li>New Hosting Account Request</li><li>New Systems.io Account Request</li><li>New Zoho Email Request</li></ul></article>
+        </div>
+        <p class="eyebrow" style="text-transform:none;letter-spacing:.02em;font-weight:500">“Super Admin” is a business in ClickUp, not a permission level.</p>
+      </section>
+
+      <section class="sec" id="troubleshooting">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Troubleshooting</h2>
+          <p class="lede">The message you see, and what to do. Rows marked Admin need someone with terminal or Settings access.</p>
+        </div>
+        <div class="spread">
+          <figure class="phone" data-shot="smart-error" data-pins><div class="screen"><img src="img/smart-error.webp" width="390" height="844" alt="Smart capture showing an error: Gemini is rate-limiting requests right now, with a link to choose the destination myself" loading="lazy"></div></figure>
+          <ol class="callouts" data-shot="smart-error">
+            <li data-n="1" tabindex="0"><div><b>Errors appear in place</b><p>Your text stays in the box. <b>Details</b> holds the technical message, which is useful to send to an admin.</p></div></li>
+            <li data-n="2" tabindex="0"><div><b>A way forward</b><p>Most errors offer a next step. Here, <b>Choose the destination myself</b> carries your text to the manual picker.</p></div></li>
+          </ol>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>You see</th><th>Do this</th><th>Who</th></tr></thead>
+            <tbody>
+              <tr><td>The app looks old, or What’s new never appeared</td><td>Tap <b>Check for updates</b>, wait 5 seconds, tap again. On a computer press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>.</td><td>Anyone</td></tr>
+              <tr><td>No “Auto-routed” under New Capture</td><td>Smart routing is off or unreachable. Use the manual path. Admin: check the Settings status lines.</td><td>Anyone · Admin</td></tr>
+              <tr><td>Gemini is rate-limiting requests</td><td>Wait a minute, or <b>Choose the destination myself</b>.</td><td>Anyone</td></tr>
+              <tr><td>This device’s passcode was rejected</td><td>The passcode changed. Settings → <b>Forget passcode on this device</b>, then enter the new one.</td><td>Anyone</td></tr>
+              <tr><td>Only admins can do this</td><td>That control is admin-only. Admins: Settings → Admin → <b>Unlock admin</b>. If you were unlocked before, the admin passcode was changed.</td><td>Admin</td></tr>
+              <tr><td>“Dispatch It has moved”</td><td>Tap <b>Open</b>, enter the passcode at dispatch.mkcworkspace.com and add it to your home screen. Send any waiting captures from the old address first.</td><td>Anyone</td></tr>
+              <tr><td>An admin has to confirm a new ClickUp connection</td><td>Someone approved ClickUp on a device without admin access. An admin taps <b>Connect to ClickUp</b> on their own device instead.</td><td>Admin</td></tr>
+              <tr><td>The ClickUp connection expired</td><td>Settings → <b>Connect to ClickUp</b>.</td><td>Admin</td></tr>
+              <tr><td>“…may or may not have saved this”</td><td>Open Activity and look for it before sending again.</td><td>Anyone</td></tr>
+              <tr><td>N captures waiting to send</td><td>They retry by themselves. Tap <b>Retry now</b> once you have signal.</td><td>Anyone</td></tr>
+              <tr><td>Undo says the task was changed, or has subtasks</td><td>Delete it in ClickUp if you’re sure.</td><td>Anyone</td></tr>
+              <tr><td>A file is over the 90 MB limit</td><td>Add it to the task in ClickUp directly.</td><td>Anyone</td></tr>
+              <tr><td>A new ClickUp list isn’t offered</td><td>Wait 15 minutes, or Settings → <b>Sync workspace</b>.</td><td>Admin</td></tr>
+              <tr><td>A custom field in that list rejected the value</td><td>The list’s field setup changed. Send to another list, then tell an admin.</td><td>Anyone · Admin</td></tr>
+              <tr><td>Terminal: Authentication error 10000 / Permission denied to c3jumpw</td><td>Signed in to the wrong account. <code>wrangler logout</code> then <code>wrangler login</code> as c1.jumpw. For git, remove the GitHub entry in Windows Credential Manager and push again.</td><td>Admin</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sec" id="legend">
+        <div class="sec-head">
+          <div class="meta"><span class="role">Everyone</span></div>
+          <h2>Badges and terms</h2>
+        </div>
+        <div class="legend">
+          <div><span class="badge badge--auto">Auto 92%</span><p>Filed itself at that confidence.</p></div>
+          <div><span class="badge badge--info">AI 74%</span><p>In Recent: someone confirmed Gemini’s suggestion.</p></div>
+          <div><span class="badge badge--info">Confirmed 71%</span><p>In Activity: the same thing, with the score.</p></div>
+          <div><span class="badge badge--muted">Manual</span><p>Destination picked by hand.</p></div>
+          <div><span class="badge badge--info">Update</span><p>Added as a comment to an existing task.</p></div>
+          <div><span class="badge badge--muted">Undone</span><p>Reversed from the toast or Activity.</p></div>
+        </div>
+        <dl class="gloss">
+          <div><dt>Capture</dt><dd>Anything you send: a task, idea, note, follow-up or account.</dd></div>
+          <div><dt>Destination</dt><dd>The ClickUp list a capture lands in, shown as Space › Folder › List.</dd></div>
+          <div><dt>Confidence</dt><dd>How sure the suggestion is, after adjusting Gemini’s own score with your team’s history.</dd></div>
+          <div><dt>Threshold</dt><dd>The confidence needed to file without asking. Set by admins.</dd></div>
+          <div><dt>Duplicate</dt><dd>An open task that means the same thing as your capture.</dd></div>
+          <div><dt>Task index</dt><dd>The searchable copy of open tasks used to find duplicates.</dd></div>
+          <div><dt>Workspace sync</dt><dd>Dispatch It’s map of ClickUp’s Spaces, Folders and Lists.</dd></div>
+          <div><dt>Live updates</dt><dd>ClickUp telling Dispatch It about changes as they happen.</dd></div>
+          <div><dt>Worker</dt><dd>The small Cloudflare server that holds the ClickUp connection and runs smart routing.</dd></div>
+          <div><dt>Admin access</dt><dd>A second passcode, per device, for the controls that affect everyone.</dd></div>
+          <div><dt>Change log</dt><dd>The dated history of every change, on the admin page.</dd></div>
+          <div><dt>What’s new</dt><dd>The card after an update showing only the changes for you.</dd></div>
+          <div><dt>Private lists</dt><dd>Lists whose contents are never sent to Gemini, like MKC Client Accounts.</dd></div>
+        </dl>
+      </section>
+
+      <footer class="end">
+        <span>Dispatch It Field Guide · v2 · Nov 2026 · Screens show sample data.</span>
+        <a href="#how-it-works">Back to top ↑</a>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+/*
+ * Guide interactions.
+ * BOXES: per screenshot, the measured on-screen box of each numbered
+ * control, as percentages of the image ([n, left, top, width, height]).
+ * Generated by build-guide.py from the screenshot script's boxes.json.
+ */
+const BOXES = {"lock":[[1,16.67,47.33,66.67,6.04],[2,16.67,55.51,66.67,6.16],[3,31.49,63.33,37.03,4.38]],"whats-new":[[1,0.26,8.12,99.49,20.58],[2,4.87,36.75,90.26,14.43],[3,4.87,52.13,90.26,9.62],[4,4.87,87.8,90.26,6.16],[5,37.0,94.67,25.97,3.44]],"home":[[1,4.1,2.13,9.23,4.27],[2,76.92,2.13,9.23,4.27],[3,86.67,2.13,9.23,4.27],[4,5.13,8.53,89.74,16.82],[5,23.05,26.54,53.87,3.44],[6,5.13,36.49,89.74,5.09],[7,67.95,38.03,16.92,2.01],[8,87.44,38.15,3.85,1.78],[9,27.26,76.07,45.46,4.38]],"smart":[[1,5.13,11.02,89.74,20.59],[2,5.13,33.51,89.74,7.58],[3,5.13,43.46,24.79,4.38],[4,32.49,43.46,29.74,4.38],[5,64.79,43.46,23.9,4.38],[6,5.13,88.74,89.74,6.16],[7,25.87,96.09,48.26,2.25]],"review":[[1,5.13,6.33,89.74,23.69],[2,8.97,18.59,37.87,3.51],[3,70.1,32.74,20.92,1.32],[4,8.97,34.94,82.05,1.78],[5,8.97,37.6,82.05,12.13],[6,8.97,46.04,82.05,3.69],[7,8.97,50.61,82.05,1.49],[8,5.13,56.67,89.74,4.04],[9,5.13,62.12,89.74,6.06],[10,5.13,76.84,89.74,4.22],[11,5.13,94.2,89.74,4.57]],"review-why":[[1,8.97,58.7,82.05,19.85],[2,8.97,81.52,82.05,8.9]],"list-picker":[[1,5.13,21.71,89.74,4.86],[2,5.13,27.99,89.74,4.5]],"auto-toast":[[1,4.1,82.35,91.79,6.28],[2,81.64,83.89,10.41,3.2],[3,67.95,38.03,16.92,2.01]],"smart-error":[[1,5.13,63.54,89.74,13.34],[2,8.97,70.6,51.77,2.25]],"entity-carry":[[1,5.13,8.53,89.74,6.64],[2,5.13,16.82,43.33,18.2]],"entity":[[1,5.13,8.53,89.74,57.45]],"type":[[1,5.13,8.47,89.74,53.18],[2,5.13,55.06,89.74,6.59],[3,5.13,63.76,89.74,3.65],[4,5.13,75.06,89.74,6.59]],"form-task":[[1,5.13,10.53,89.74,5.21],[2,5.13,18.12,89.74,12.0],[3,5.13,32.5,89.74,5.44],[4,5.13,40.32,89.74,5.44],[5,5.13,60.7,43.54,4.19],[6,5.13,67.27,89.74,5.44],[7,5.13,73.16,89.74,4.19],[8,5.13,92.53,89.74,5.89]],"manual-dup":[[1,5.13,59.17,89.74,11.68],[2,5.13,79.27,89.74,5.57],[3,5.13,85.78,89.74,5.57],[4,5.13,92.3,89.74,5.57]],"success":[[1,41.79,41.92,16.41,8.06]],"form-followup":[[1,8.46,15.94,83.08,4.86],[2,8.46,21.74,83.08,4.5],[3,5.13,35.49,89.74,12.56]],"success-queued":[[1,41.79,41.92,16.41,8.06],[2,8.67,53.65,82.64,2.67]],"home-pending":[[1,5.13,8.53,89.74,4.86],[2,72.85,9.83,18.18,2.25]],"draft":[[1,4.1,82.35,91.79,6.28],[2,75.36,83.89,16.69,3.2],[3,5.13,11.02,89.74,5.45]],"account":[[1,5.13,8.64,89.74,4.46],[2,5.13,15.06,89.74,4.28],[3,5.13,33.74,89.74,4.28],[4,5.13,60.27,89.74,3.81],[5,5.13,76.58,89.74,3.62]],"activity":[[1,86.67,2.13,9.23,4.27],[2,5.13,8.53,89.74,8.89],[3,8.72,25.36,56.26,2.01],[4,8.72,23.1,56.26,1.78],[5,72.72,43.54,19.08,3.44],[6,5.13,61.73,89.74,9.72]],"settings-member":[[1,5.13,8.35,89.74,6.75],[2,5.13,29.92,34.59,3.12],[3,5.13,40.17,22.87,3.12],[4,5.13,54.26,89.74,9.97],[5,5.13,65.33,89.74,3.29]],"admin-unlock":[[1,5.13,42.91,89.74,18.36],[2,5.13,65.27,18.9,14.77]],"settings":[[1,5.13,6.05,89.74,4.89],[2,5.13,21.67,89.74,4.89],[3,5.13,33.77,89.74,1.19],[4,5.13,35.7,42.95,2.26],[5,50.13,35.7,22.87,2.26],[6,5.13,47.1,89.74,7.22],[7,83.08,54.32,11.79,1.71],[8,5.13,56.03,89.74,2.51],[9,5.13,64.62,89.74,2.51],[10,5.13,72.29,38.23,2.26],[11,45.41,72.29,41.56,2.26],[12,5.13,75.04,39.18,2.26],[13,5.13,83.84,89.74,2.81],[14,29.87,87.39,60.0,2.26]],"admin":[[1,5.13,4.8,89.74,8.65],[2,5.13,14.65,89.74,5.47],[3,5.13,24.55,89.74,2.73],[4,5.13,27.95,89.74,2.73],[5,5.13,31.35,55.28,2.73],[6,62.46,31.49,32.41,2.47],[7,11.28,38.72,83.59,1.03],[8,11.28,41.27,83.59,1.06],[9,14.36,43.81,8.31,1.13],[10,24.67,43.81,17.03,1.13],[11,14.36,67.74,77.44,1.15]],"old-address":[[1,8.97,9.83,62.13,10.84],[2,74.18,13.25,16.87,4.03]]};
+
+(function () {
+  // ---- soft outlines on small strip screenshots (no numbers) -----------------
+  document.querySelectorAll('figure[data-outline]').forEach((fig) => {
+    const data = BOXES && BOXES[fig.dataset.shot];
+    const screen = fig.querySelector('.screen');
+    if (!data || !screen) return;
+    const want = fig.dataset.outline.split(',').map(Number);
+    data.filter(([n]) => want.includes(n)).forEach(([, x, y, w, h]) => {
+      const hl = document.createElement('span');
+      hl.className = 'hl hl--soft';
+      hl.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
+      screen.append(hl);
+    });
+  });
+
+  // ---- pins + highlight boxes over each annotated screenshot ----------------
+  // Each pin sits on a corner or edge of its control. Small controls are
+  // placed first (they have the fewest good spots); each pin takes the
+  // first candidate spot that keeps it clear of pins already placed, or
+  // the roomiest spot if none is fully clear. Positions are stored as
+  // percentages, so they scale with the screenshot.
+  const PIN_GAP = 27; // px between pin centres (pins are 24px)
+  const SPOTS = ['tr', 'tl', 'br', 'bl', 'r', 'l', 't', 'b'];
+  function spot(kind, b) {
+    const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    return {
+      tr: [b.x + b.w, b.y], tl: [b.x, b.y], br: [b.x + b.w, b.y + b.h], bl: [b.x, b.y + b.h],
+      r: [b.x + b.w, cy], l: [b.x, cy], t: [cx, b.y], b: [cx, b.y + b.h]
+    }[kind];
+  }
+  function placePins(items, W, H) {
+    const clampX = (v) => Math.min(Math.max(v, 13), W - 13);
+    const clampY = (v) => Math.min(Math.max(v, 13), H - 13);
+    const placed = [];
+    const out = {};
+    const order = items.slice().sort((a, b) => (a[3] * a[4]) - (b[3] * b[4]));
+    order.forEach(([n, x, y, w, h]) => {
+      const box = { x: x / 100 * W, y: y / 100 * H, w: w / 100 * W, h: h / 100 * H };
+      let best = null;
+      for (const k of SPOTS) {
+        const [px, py] = spot(k, box);
+        const c = [clampX(px), clampY(py)];
+        const room = placed.length ? Math.min(...placed.map(([qx, qy]) => Math.hypot(c[0] - qx, c[1] - qy))) : Infinity;
+        if (!best || room > best.room) best = { c, room };
+        if (room >= PIN_GAP) { best = { c, room }; break; }
+      }
+      placed.push(best.c);
+      out[n] = [best.c[0] / W * 100, best.c[1] / H * 100];
+    });
+    return out;
+  }
+
+  document.querySelectorAll('figure[data-pins]').forEach((fig) => {
+    const name = fig.dataset.shot;
+    const data = BOXES && BOXES[name];
+    const screen = fig.querySelector('.screen');
+    if (!data || !screen) return;
+    const list = document.querySelector(`.callouts[data-shot="${name}"]`);
+    const img = screen.querySelector('img');
+    // Lay pins out at the screenshot's displayed size (falls back to the
+    // phone frame's max width before the image has a size).
+    const W = screen.clientWidth || 286;
+    const H = W * (img.getAttribute('height') / img.getAttribute('width'));
+    const pos = placePins(data, W, H);
+    data.forEach(([n, x, y, w, h]) => {
+      const hl = document.createElement('span');
+      hl.className = 'hl';
+      hl.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
+      hl.dataset.n = n;
+      const pin = document.createElement('button');
+      pin.type = 'button';
+      pin.className = 'pin';
+      pin.textContent = n;
+      pin.dataset.n = n;
+      pin.setAttribute('aria-label', `Show note ${n}`);
+      pin.style.left = `${pos[n][0]}%`;
+      pin.style.top = `${pos[n][1]}%`;
+      screen.append(hl, pin);
+      pin.addEventListener('mouseenter', () => activate(fig, list, n));
+      pin.addEventListener('mouseleave', () => activate(fig, list, null));
+      pin.addEventListener('click', () => {
+        activate(fig, list, n);
+        const li = list && list.querySelector(`li[data-n="${n}"]`);
+        if (li) li.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      });
+    });
+    if (!list) return;
+    list.querySelectorAll('li[data-n]').forEach((li) => {
+      const n = Number(li.dataset.n);
+      li.addEventListener('mouseenter', () => activate(fig, list, n));
+      li.addEventListener('mouseleave', () => activate(fig, list, null));
+      li.addEventListener('focus', () => activate(fig, list, n));
+      li.addEventListener('click', () => activate(fig, list, n));
+    });
+  });
+
+  /** activate — highlights note n on one figure + its list (null clears). */
+  function activate(fig, list, n) {
+    fig.querySelectorAll('.hl, .pin').forEach((el) => el.classList.toggle('on', Number(el.dataset.n) === n));
+    if (list) list.querySelectorAll('li[data-n]').forEach((li) => li.classList.toggle('on', Number(li.dataset.n) === n));
+  }
+
+  // ---- Everything / Everyday / Admin filter ---------------------------------
+  // Remembered per viewer (convenience only; storage may be unavailable).
+  const KEY = 'dispatchGuideView';
+  const buttons = document.querySelectorAll('.seg [data-view]');
+  function setView(v) {
+    document.body.dataset.view = v;
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    try { localStorage.setItem(KEY, v); } catch (e) { /* storage blocked: fine */ }
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  let saved = 'all';
+  try { saved = localStorage.getItem(KEY) || 'all'; } catch (e) { /* default */ }
+  if (['all', 'everyday', 'admin'].includes(saved)) setView(saved);
+  // A link to an admin section shows it even if the filter would hide it.
+  function revealTarget() {
+    const id = location.hash.slice(1);
+    const el = id && document.getElementById(id);
+    if (el && getComputedStyle(el).display === 'none') setView('all');
+  }
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+
+  // ---- contents drawer: open on wide screens, closed on phones ---------------
+  const toc = document.getElementById('toc');
+  const wide = matchMedia('(min-width: 1000px)');
+  const syncToc = () => { toc.open = wide.matches; };
+  syncToc();
+  wide.addEventListener('change', syncToc);
+  toc.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => { if (!wide.matches) toc.open = false; }));
+
+  // ---- mark the section in view ------------------------------------------------
+  const links = new Map([...toc.querySelectorAll('a[href^="#"]')].map((a) => [a.getAttribute('href').slice(1), a]));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        links.forEach((a) => a.removeAttribute('aria-current'));
+        const a = links.get(e.target.id);
+        if (a) a.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('main .sec[id]').forEach((s) => io.observe(s));
+  }
+
+  // ---- inside the app, the top button returns to it ------------------------------
+  // Inside the app (new address, old address, or local testing).
+  if (['dispatch.mkcworkspace.com', 'c1jumpw.github.io', 'localhost'].includes(location.hostname)) {
+    const app = document.getElementById('app-link');
+    app.textContent = '← Back to Dispatch It';
+    app.href = '../';
+  }
+})();
+</script>
+</body>
+</html>
