@@ -564,14 +564,14 @@ export const FIGURES = {
     ]
   },
   "admin-changelog": {
-    "src": "/guide/shots/admin-changelog.9a5ece98f9.webp",
+    "src": "/guide/shots/admin-changelog.ab0f8871cd.webp",
     "width": 390,
     "height": 844,
     "title": "Admin: change log",
     "route": "/admin/changelog",
     "focus": {
       "y": 0,
-      "height": 826
+      "height": 699
     },
     "legend": [
       [
@@ -589,14 +589,14 @@ export const FIGURES = {
     ]
   },
   "whats-new": {
-    "src": "/guide/shots/whats-new.f78143aa14.webp",
+    "src": "/guide/shots/whats-new.60d3caa8ba.webp",
     "width": 390,
     "height": 844,
     "title": "What's new",
     "route": "/today",
     "focus": {
-      "y": 182,
-      "height": 662
+      "y": 282,
+      "height": 562
     },
     "legend": [
       [
