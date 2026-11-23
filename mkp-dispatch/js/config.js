@@ -175,6 +175,11 @@
  *                    and the owner chose to keep it. v14 never shipped
  *                    with the old value. APP_HOME_URL comment updated for
  *                    the code's move to c3jumpw/mkp-tools. No logic change.
+ *   v16 2026-11-22  DEFAULT_PROXY_URL → https://dispatch-clickup-proxy
+ *                    .c3-jumpw.workers.dev: the server moved to the c3.jumpw
+ *                    Cloudflare account (Worker v10). OAUTH_REDIRECT_URI
+ *                    follows it, so the ClickUp app's redirect URL list
+ *                    must include the new address.
  * =========================================================================
  */
 
@@ -219,8 +224,16 @@ function isOldAddress() {
 //   storage.js falls back to this value if the user hasn't manually
 //   overridden the Worker URL in Settings (e.g. while testing a second,
 //   separate Worker).
+//   v16: c3.jumpw account since 2026-11-22 (was dispatch-clickup-proxy
+//   .c1-jumpw.workers.dev, which the old c1jumpw.github.io copy still
+//   uses).
+//   TODO: Storage.saveSettings() writes the CURRENT proxyUrl along with any
+//   other setting, so a device that has saved settings keeps the old URL
+//   if this ever changes again. Harmless for this move (every device on
+//   the new address starts fresh). To fix: only store proxyUrl when it
+//   differs from DEFAULT_PROXY_URL.
 // -----------------------------------------------------------------------
-const DEFAULT_PROXY_URL = 'https://dispatch-clickup-proxy.c1-jumpw.workers.dev';
+const DEFAULT_PROXY_URL = 'https://dispatch-clickup-proxy.c3-jumpw.workers.dev';
 
 // Destination Chat channel for "Add to Accounts" submissions —
 // confirmed via GET /chat/channels lookup on 2026-07-25 (name:

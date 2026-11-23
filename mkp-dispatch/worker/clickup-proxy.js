@@ -74,6 +74,10 @@
  *     GEMINI_THINKING_LEVEL      - (vars, v8) see lib/gemini.js
  *     env.TASK_VECTORS           - (Vectorize binding, v8, optional)
  *     env.PRIVATE_LIST_IDS       - (var, v8) lists never sent to Gemini
+ *     env.MIGRATE_FROM           - (var, v10, NEW server only) URL of the
+ *                                   old Worker that POST /admin/import-from
+ *                                   may copy history from. Unset = import
+ *                                   disabled. See lib/migrate.js.
  *   Free-plan limits that shaped v8: 10ms CPU and 50 external
  *   subrequests per invocation, 1,000 KV writes/day. See
  *   lib/workspace-index.js for how sync work is chunked around them.
@@ -183,6 +187,18 @@
  *                    known team and comparisons are constant-time; to add
  *                    one, count failures per IP in KV with a short TTL
  *                    (watch the 1,000 writes/day free-plan budget).
+ *   v10 2026-11-22  Server moved from the c1.jumpw Cloudflare account to
+ *                    c3.jumpw (new URL dispatch-clickup-proxy.c3-jumpw
+ *                    .workers.dev; Cloudflare can't transfer Workers or KV
+ *                    between accounts). Two admin-only routes copy the
+ *                    history across, server to server (lib/migrate.js):
+ *                      GET  /admin/export       (old server) one page of
+ *                           settings, feedback, index, audit records —
+ *                           never the ClickUp token or webhook secret
+ *                      POST /admin/import-from  (new server) pulls a page
+ *                           from env.MIGRATE_FROM and writes it
+ *                    Both run before the ClickUp-token check, so the copy
+ *                    works before ClickUp is reconnected. No other change.
  * =========================================================================
  */
 
@@ -195,6 +211,7 @@ import {
 } from './lib/workspace-index.js';
 import { suggestPlacement, findDuplicates, commitCapture, recordManual } from './lib/routing-engine.js';
 import { listAudit, getAudit, undoAction, getFeedback, accuracySummary, statusError } from './lib/audit-log.js';
+import { exportPage, importFrom } from './lib/migrate.js';
 
 // v2-style ClickUp paths the generic passthrough will forward, each with
 // the ONLY methods the app needs. Anything else is rejected, so this
@@ -247,8 +264,14 @@ const ADMIN_ROUTES = new Set([
   'POST /routing/webhook',
   'POST /routing/index-tasks',
   'GET /chat/channels',
-  'POST /oauth/confirm'
+  'POST /oauth/confirm',
+  // v10: one-time history copy between accounts (lib/migrate.js).
+  'GET /admin/export',
+  'POST /admin/import-from'
 ]);
+
+// v10: the history-copy routes (also in ADMIN_ROUTES above).
+const MIGRATION_ROUTES = new Set(['GET /admin/export', 'POST /admin/import-from']);
 
 // v9: where the OAuth callback parks a new ClickUp token until an admin
 // confirms it (see handleOAuthCallback / POST /oauth/confirm). Expires on
@@ -309,9 +332,10 @@ export default {
     const isChatLog = url.pathname === '/log/chat' && request.method === 'POST';
     const isRoleCheck = routeKey === 'GET /auth/role';
     const isConnectConfirm = routeKey === 'POST /oauth/confirm';
+    const isMigration = MIGRATION_ROUTES.has(routeKey);
 
     const isPassthrough = isAllowedPassthrough(request.method, url.pathname);
-    if (!isPassthrough && !isChatChannelsLookup && !isChatLog && !isRouting && !isRoleCheck && !isConnectConfirm) {
+    if (!isPassthrough && !isChatChannelsLookup && !isChatLog && !isRouting && !isRoleCheck && !isConnectConfirm && !isMigration) {
       return json({ error: 'Endpoint not allowed by proxy.' }, 404, corsHeaders);
     }
 
@@ -337,6 +361,14 @@ export default {
     // there's no live token yet.
     if (isConnectConfirm) {
       return safely(() => confirmPendingConnection(env), corsHeaders);
+    }
+
+    // v10: history copy. Before the token check so the new server can
+    // import before ClickUp is reconnected (the old one has a token anyway).
+    if (isMigration) {
+      return safely(async () => (routeKey === 'GET /admin/export'
+        ? exportPage(env, url.searchParams.get('cursor'))
+        : importFrom(env, request, await readJsonBody(request, 4096))), corsHeaders);
     }
 
     const accessToken = await env.TOKEN_STORE.get(KEYS.token);

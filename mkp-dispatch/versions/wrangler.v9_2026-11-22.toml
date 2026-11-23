@@ -1,0 +1,168 @@
+# =============================================================================
+# wrangler.toml — Cloudflare Worker deployment config for dispatch-clickup-proxy
+# =============================================================================
+# PURPOSE
+#   Deployment + binding config for the proxy Worker (clickup-proxy.js and
+#   its ./lib modules, bundled automatically by `wrangler deploy`).
+#   Values here are either public (safe to commit) or references to
+#   secrets stored separately in Cloudflare (never written to this file).
+#
+# VERSION HISTORY
+#   v1  2026-07-23  Personal-token era. Only ALLOWED_ORIGIN as a var;
+#                    CLICKUP_TOKEN set out-of-band via `wrangler secret`.
+#   v2  2026-07-23  Switched to OAuth app model. Added CLICKUP_CLIENT_ID
+#                    (public) and APP_URL vars, and the TOKEN_STORE KV
+#                    namespace binding used to persist the OAuth access
+#                    token. CLICKUP_CLIENT_SECRET set via `wrangler
+#                    secret put`, same as CLICKUP_TOKEN was previously.
+#   v3  2026-07-24  Added APP_PASSCODE (secret) — a shared-secret device
+#                    gate. See clickup-proxy.js v3 for enforcement details.
+#   v4  2026-07-25  Added WORKSPACE_ID and CHAT_CHANNEL_ID vars for the
+#                    auto-log-to-Chat feature (clickup-proxy.js v4).
+#   v5  2026-07-25  Corrected CHAT_CHANNEL_ID after verifying via GET
+#                    /chat/channels — the real value is the full slug
+#                    (e.g. "4-90170798185-8"), not the numeric-only
+#                    value guessed from the app URL in v4.
+#   v6  2026-10-10  Smart routing (clickup-proxy.js v8):
+#                    - Gemini vars: GEMINI_MODEL, GEMINI_THINKING_LEVEL,
+#                      GEMINI_EMBED_MODEL, EMBED_DIMS. Key itself is the
+#                      new GEMINI_API_KEY secret (never in this file).
+#                    - PRIVATE_LIST_IDS: lists never sent to Gemini.
+#                    - [[vectorize]] binding TASK_VECTORS → index
+#                      "dispatch-tasks" (create it first, see below).
+#                    - [triggers] cron: one sync step every 15 minutes.
+#   v7  2026-11-20  Domain move + admin role (clickup-proxy.js v9):
+#                    - ALLOWED_ORIGIN now lists BOTH the new address
+#                      (dispatch.mkcworkspace.com) and the old GitHub Pages
+#                      origin, so devices still on the old URL can finish
+#                      sending queued captures. Remove the old one after
+#                      everyone has moved.
+#                    - APP_URL → https://dispatch.mkcworkspace.com/ (where
+#                      "Connect to ClickUp" returns after approval).
+#                    - New optional secret ADMIN_PASSCODE (see bottom).
+#   v8  2026-11-21  Address is dispatchit.mkcworkspace.com (the DNS record's
+#                    name; "dispatch" was the plan). ALLOWED_ORIGIN and
+#                    APP_URL updated; v7 never deployed with the old name.
+#                    Deploys now run on Cloudflare Workers Builds: every
+#                    push to main of c3jumpw/mkp-tools (where the code
+#                    moved) that touches mkp-dispatch/worker/ runs
+#                    `npx wrangler deploy` with this file. ADMIN_PASSCODE
+#                    was set in the Cloudflare dashboard on 2026-11-21.
+#   v9  2026-11-22  Moved to the c3.jumpw Cloudflare account (worker URL
+#                    dispatch-clickup-proxy.c3-jumpw.workers.dev). New KV
+#                    namespace id (c3's "dispatch-clickup-proxy-TOKEN_STORE")
+#                    and a new Vectorize index of the same name, created in
+#                    c3's dashboard. New var MIGRATE_FROM (the old c1
+#                    Worker) for the one-time history copy. The old Worker
+#                    deploys from wrangler.c1.toml until it's retired.
+#                    ALLOWED_ORIGIN is the new address only (the old copy
+#                    uses the old Worker).
+# =============================================================================
+
+name = "dispatch-clickup-proxy"
+main = "clickup-proxy.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+# Origins allowed to call this Worker via fetch() from a browser (CORS).
+# Comma-separated; each must match exactly — protocol + domain, no path,
+# no trailing slash. v9: only the new address. The old c1jumpw.github.io
+# copy talks to the OLD Worker (its own built-in URL), which keeps
+# accepting it — see wrangler.c1.toml.
+ALLOWED_ORIGIN = "https://dispatchit.mkcworkspace.com"
+
+# Full URL (including path) of the deployed app. Used only as the
+# redirect target after a successful/failed OAuth handshake.
+APP_URL = "https://dispatchit.mkcworkspace.com/"
+
+# ClickUp OAuth app's Client ID. Public by design (identifies the app,
+# grants no access on its own).
+CLICKUP_CLIENT_ID = "CB58HH6R33DAM091WKD5OG4EO5NSWP0I"
+
+# ClickUp Workspace ID — public, same value used in js/config.js.
+WORKSPACE_ID = "25724879"
+
+# Default Chat channel for the activity log. VERIFIED via
+# GET <worker-url>/chat/channels on 2026-07-25 ("MKP Space").
+CHAT_CHANNEL_ID = "4-90170798185-8"
+
+# --- Smart routing (v6) -------------------------------------------------
+# Reasoning model for placement / due dates / duplicate verdicts.
+# "gemini-3.8-flash" is Google's GA Flash model as of 2026-09-02. Swap to
+# any generateContent-capable model ID here and redeploy — no code change.
+GEMINI_MODEL = "gemini-3.8-flash"
+
+# Gemini 3.x "thinking" depth: low | medium | high. "low" keeps routing
+# answers to ~1–3 seconds, which matters for a capture app. Ignored for
+# non-3.x models.
+GEMINI_THINKING_LEVEL = "low"
+
+# Embedding model + vector size for duplicate detection. EMBED_DIMS MUST
+# match the Vectorize index's --dimensions (768). Changing either means
+# deleting/recreating the index and rebuilding it from Settings.
+GEMINI_EMBED_MODEL = "gemini-embedding-2"
+EMBED_DIMS = "768"
+
+# Lists whose names and task contents must NEVER be sent to Gemini —
+# comma-separated ClickUp list IDs. Ships with MKC Client Accounts
+# (901711853904), whose tasks hold admin logins and passwords. Add any
+# other sensitive list here and redeploy.
+PRIVATE_LIST_IDS = "901711853904"
+
+# v9: the old server (c1.jumpw account) that POST /admin/import-from may
+# copy history from — the ONLY address it will contact. Empty it (or
+# delete this line) once the copy is done; import is then disabled.
+# TODO: remove with lib/migrate.js after the c1 Worker is deleted.
+MIGRATE_FROM = "https://dispatch-clickup-proxy.c1-jumpw.workers.dev"
+
+# -----------------------------------------------------------------------
+# KV namespace: persists the OAuth access_token AND all smart-routing
+# state (workspace index, settings, feedback, audit log — see
+# lib/store.js for the key layout). Created once via:
+#   wrangler kv namespace create TOKEN_STORE
+# -----------------------------------------------------------------------
+[[kv_namespaces]]
+binding = "TOKEN_STORE"
+# v9: c3.jumpw account, namespace "dispatch-clickup-proxy-TOKEN_STORE"
+# (created in the dashboard 2026-11-22). The c1 namespace was
+# 529827efc99e46b6aab8d32bb154edef (now only in wrangler.c1.toml).
+id = "1fed4b61ec434b2f98b9cffa424dc277"
+
+# -----------------------------------------------------------------------
+# Vectorize index for semantic duplicate detection (one vector per open
+# task). Create ONCE before the first deploy of v8:
+#   wrangler vectorize create dispatch-tasks --dimensions=768 --metric=cosine
+# v9: on c3 it was created on 2026-11-22 from the dashboard session (the
+# Vectorize page has no create button, and the Workers Builds token has
+# no Vectorize permission, so a build step can't create it either).
+# Free plan includes 5M stored dimensions (~6,500 open tasks at 768 dims)
+# and 30M queried dimensions/month (~39,000 lookups).
+# -----------------------------------------------------------------------
+[[vectorize]]
+binding = "TASK_VECTORS"
+index_name = "dispatch-tasks"
+
+# -----------------------------------------------------------------------
+# Cron: one bounded sync step every 15 minutes (structure refresh, custom
+# field names, or a page of recently-changed tasks). The free plan allows
+# 5 cron triggers per account; this uses 1.
+# -----------------------------------------------------------------------
+[triggers]
+crons = ["*/15 * * * *"]
+
+# -----------------------------------------------------------------------
+# Secrets (NOT stored in this file — held encrypted by Cloudflare). Set
+# them in the dashboard (Workers & Pages → dispatch-clickup-proxy →
+# Settings → Variables and secrets → Add, type Secret) or with
+# `wrangler secret put`. They survive every deploy:
+#   CLICKUP_CLIENT_SECRET   ClickUp OAuth app's Client Secret
+#   APP_PASSCODE            team passcode
+#   GEMINI_API_KEY          Google AI Studio key (v6)
+#   ADMIN_PASSCODE          second passcode for admins (v7); must differ
+#                           from APP_PASSCODE. Until it's set, every
+#                           passcode holder can use the admin controls.
+# v9: all four re-entered on the c3 Worker (secrets can't be copied
+# between accounts). During the history copy, APP_PASSCODE and
+# ADMIN_PASSCODE must be the SAME on both Workers (import-from forwards
+# the caller's codes to the old server).
+# -----------------------------------------------------------------------

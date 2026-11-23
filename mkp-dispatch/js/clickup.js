@@ -154,6 +154,12 @@
  *                    ONLY on admin requests (ADMIN_PATHS): the admin code
  *                    isn't sent with every capture, and a server without
  *                    the v9 CORS allow-list can't break everyday calls.
+ *   v12 2026-11-22  ADMIN_PATHS also covers /admin/export and
+ *                    /admin/import-from (Worker v10 one-time history copy
+ *                    after the server moved to the c3.jumpw account). Run
+ *                    from an admin device's browser console, e.g.
+ *                    ClickUp.request('/admin/import-from', {method:'POST',
+ *                    json:{cursor}}); see README "Moving the server".
  * =========================================================================
  */
 
@@ -177,7 +183,7 @@ const ClickUp = (() => {
    */
   // v11: Worker paths that read the admin code (its ADMIN_ROUTES plus
   // /auth/role). Keep in step with worker/clickup-proxy.js ADMIN_ROUTES.
-  const ADMIN_PATHS = [/^\/auth\/role$/, /^\/routing\/(settings|sync|webhook|index-tasks)$/, /^\/oauth\/confirm$/, /^\/chat\/channels$/];
+  const ADMIN_PATHS = [/^\/auth\/role$/, /^\/routing\/(settings|sync|webhook|index-tasks)$/, /^\/oauth\/confirm$/, /^\/chat\/channels$/, /^\/admin\/(export|import-from)$/];
 
   /**
    * authHeaders

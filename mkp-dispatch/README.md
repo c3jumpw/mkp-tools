@@ -29,6 +29,11 @@
                     steps and the manual-deploy TODO are gone). Secrets
                     can be set in the Cloudflare dashboard.
                     Troubleshooting rows updated.
+    v7  2026-11-22  The server moved to the c3.jumpw Cloudflare account
+                    (new Worker URL, KV and Vectorize; history copied).
+                    New section "Moving the server (c1 → c3)"; secrets,
+                    deploy, hosting and setup text name c3; the old c1
+                    Worker and its retirement are documented.
 -->
 
 # Dispatch It
@@ -102,7 +107,7 @@ Safe to share: the Client ID, Workspace ID, list IDs, the Worker URL,
 and the KV / Vectorize names. They identify things; they grant nothing.
 
 \* Workers & Pages → dispatch-clickup-proxy → Settings → Variables and
-secrets → Add → tick **Secret**, signed in as c1.jumpw. Type the value
+secrets → Add → tick **Secret**, signed in as **c3.jumpw**. Type the value
 yourself. Secrets survive every deploy.
 
 In a terminal, always enter secrets with `Read-Host` (see below) — on
@@ -112,6 +117,10 @@ wrong value.
 ---
 
 ## 1. Worker setup (first time)
+
+The Worker lives on the **c3.jumpw** Cloudflare account (since
+2026-11-22; see "Moving the server"). These are the original terminal
+steps; the dashboard does the same today.
 
 1. `npm install -g wrangler` then `wrangler login`.
 2. From `worker/`: `wrangler kv namespace create TOKEN_STORE`, and put
@@ -189,8 +198,11 @@ screens stop working.
 
 Who pushes: c3jumpw owns the repo, and Claude sessions push as c3jumpw.
 A terminal still works too: `wrangler deploy` from `worker/` signed in to
-Cloudflare as **c1.jumpw** (the Worker stays on that account), and `git
-push` as c3jumpw.
+Cloudflare as **c3.jumpw**, and `git push` as c3jumpw.
+
+While the old c1 Worker is still up, a push that changes `worker/` also
+redeploys it (c1's Workers Builds runs `npx wrangler deploy --config
+wrangler.c1.toml`), so both run the same code.
 
 The app's service worker is **network-first** (since `sw.js` v3): an
 installed app picks up a new deploy the next time it opens online. The
@@ -278,8 +290,10 @@ refresh icon on Home forces it immediately.
 
 - Browser storage is per address, so each person enters the passcode
   once on the new address and re-adds it to their home screen.
-- The Worker accepts both addresses (`ALLOWED_ORIGIN`, comma-separated).
-  When nobody uses the old one any more, remove it and push.
+- Two servers during the move: the new address talks to the c3 Worker
+  (`dispatch-clickup-proxy.c3-jumpw.workers.dev`); the old copy still
+  talks to the old c1 Worker (`dispatch-clickup-proxy.c1-jumpw.workers.dev`),
+  which keeps working until it's deleted.
 - `vercel.json` (no comments possible in JSON): `sw.js` is served with
   `Cache-Control: no-cache` so updates are picked up, plus `nosniff` and
   a referrer policy on every file. `.vercelignore` keeps `worker/`,
@@ -293,6 +307,48 @@ refresh icon on Home forces it immediately.
   It has no DNS record and serves nothing; remove it or add a GoDaddy
   `CNAME dispatch → 2464471139e6a868.vercel-dns-016.com` and set it to
   redirect to dispatchit if people ever type the short name.
+
+## Moving the server (c1 → c3, 2026-11-22)
+
+Cloudflare can't transfer a Worker or its data between accounts, so the
+server was rebuilt on **c3.jumpw** and the history copied across:
+
+1. c3 dashboard: KV namespace `dispatch-clickup-proxy-TOKEN_STORE` (id in
+   `wrangler.toml`) and Vectorize index `dispatch-tasks` (768, cosine).
+   The Vectorize page has no create button, and the Workers Builds token
+   can't create indexes, so it was created through the dashboard's own
+   API from the browser.
+2. Worker created from the repo with Workers Builds (root
+   `mkp-dispatch/worker`). The four secrets were typed into its settings.
+   `APP_PASSCODE` and `ADMIN_PASSCODE` must match the old Worker's while
+   copying.
+3. ClickUp app (Settings → Apps → API): the new
+   `https://dispatch-clickup-proxy.c3-jumpw.workers.dev/oauth/callback`
+   redirect added.
+4. Old Worker updated to v10 too (Workers Builds on c1, `--config
+   wrangler.c1.toml`) so it can export.
+5. From an admin device on dispatchit.mkcworkspace.com, in the browser
+   console:
+   ```js
+   let cursor = '', done = false, total = 0;
+   while (!done) {
+     const r = await ClickUp.request('/admin/import-from', { method: 'POST', json: { cursor } });
+     total += r.written; cursor = r.cursor || ''; done = r.done;
+   }
+   total
+   ```
+   It copies settings, learned corrections, the workspace index and
+   every Activity record (with its expiry). Never the ClickUp token or
+   the webhook secret. The free plan allows 1,000 KV writes a day; if the
+   copy stops there, run it again the next day with the cursor it gives.
+6. Settings on the new address: Connect to ClickUp, Sync workspace,
+   Build task index, Turn on live updates (the old Worker's webhook was
+   switched off).
+
+Retiring the old Worker (when nobody uses the old address): disconnect
+its build in c1's dashboard, delete the Worker, its KV namespace and
+Vectorize index, remove `MIGRATE_FROM` from `wrangler.toml`, and delete
+`wrangler.c1.toml` and `lib/migrate.js` (and their two routes).
 
 ## Roles and admin access
 

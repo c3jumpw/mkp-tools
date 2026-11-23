@@ -48,6 +48,15 @@
 #                    moved) that touches mkp-dispatch/worker/ runs
 #                    `npx wrangler deploy` with this file. ADMIN_PASSCODE
 #                    was set in the Cloudflare dashboard on 2026-11-21.
+#   v9  2026-11-22  Moved to the c3.jumpw Cloudflare account (worker URL
+#                    dispatch-clickup-proxy.c3-jumpw.workers.dev). New KV
+#                    namespace id (c3's "dispatch-clickup-proxy-TOKEN_STORE")
+#                    and a new Vectorize index of the same name, created in
+#                    c3's dashboard. New var MIGRATE_FROM (the old c1
+#                    Worker) for the one-time history copy. The old Worker
+#                    deploys from wrangler.c1.toml until it's retired.
+#                    ALLOWED_ORIGIN is the new address only (the old copy
+#                    uses the old Worker).
 # =============================================================================
 
 name = "dispatch-clickup-proxy"
@@ -57,12 +66,10 @@ compatibility_date = "2024-11-01"
 [vars]
 # Origins allowed to call this Worker via fetch() from a browser (CORS).
 # Comma-separated; each must match exactly — protocol + domain, no path,
-# no trailing slash. v7: new address first, old GitHub Pages origin kept
-# for the move. TODO: once every device uses dispatchit.mkcworkspace.com
-# (Activity shows no sends from the old address for a couple of weeks),
-# delete ",https://c1jumpw.github.io" and push (the server redeploys
-# itself). Harmless until then: both addresses still need the passcode.
-ALLOWED_ORIGIN = "https://dispatchit.mkcworkspace.com,https://c1jumpw.github.io"
+# no trailing slash. v9: only the new address. The old c1jumpw.github.io
+# copy talks to the OLD Worker (its own built-in URL), which keeps
+# accepting it — see wrangler.c1.toml.
+ALLOWED_ORIGIN = "https://dispatchit.mkcworkspace.com"
 
 # Full URL (including path) of the deployed app. Used only as the
 # redirect target after a successful/failed OAuth handshake.
@@ -102,6 +109,12 @@ EMBED_DIMS = "768"
 # other sensitive list here and redeploy.
 PRIVATE_LIST_IDS = "901711853904"
 
+# v9: the old server (c1.jumpw account) that POST /admin/import-from may
+# copy history from — the ONLY address it will contact. Empty it (or
+# delete this line) once the copy is done; import is then disabled.
+# TODO: remove with lib/migrate.js after the c1 Worker is deleted.
+MIGRATE_FROM = "https://dispatch-clickup-proxy.c1-jumpw.workers.dev"
+
 # -----------------------------------------------------------------------
 # KV namespace: persists the OAuth access_token AND all smart-routing
 # state (workspace index, settings, feedback, audit log — see
@@ -110,12 +123,18 @@ PRIVATE_LIST_IDS = "901711853904"
 # -----------------------------------------------------------------------
 [[kv_namespaces]]
 binding = "TOKEN_STORE"
-id = "529827efc99e46b6aab8d32bb154edef"
+# v9: c3.jumpw account, namespace "dispatch-clickup-proxy-TOKEN_STORE"
+# (created in the dashboard 2026-11-22). The c1 namespace was
+# 529827efc99e46b6aab8d32bb154edef (now only in wrangler.c1.toml).
+id = "1fed4b61ec434b2f98b9cffa424dc277"
 
 # -----------------------------------------------------------------------
 # Vectorize index for semantic duplicate detection (one vector per open
 # task). Create ONCE before the first deploy of v8:
 #   wrangler vectorize create dispatch-tasks --dimensions=768 --metric=cosine
+# v9: on c3 it was created on 2026-11-22 from the dashboard session (the
+# Vectorize page has no create button, and the Workers Builds token has
+# no Vectorize permission, so a build step can't create it either).
 # Free plan includes 5M stored dimensions (~6,500 open tasks at 768 dims)
 # and 30M queried dimensions/month (~39,000 lookups).
 # -----------------------------------------------------------------------
@@ -136,15 +155,14 @@ crons = ["*/15 * * * *"]
 # them in the dashboard (Workers & Pages → dispatch-clickup-proxy →
 # Settings → Variables and secrets → Add, type Secret) or with
 # `wrangler secret put`. They survive every deploy:
-#   CLICKUP_CLIENT_SECRET   ← already set
-#   APP_PASSCODE            ← already set
-#   GEMINI_API_KEY          ← NEW in v6 (Google AI Studio key)
-#   ADMIN_PASSCODE          ← NEW in v7, set 2026-11-21. Second passcode for
-#                             admins; must differ from APP_PASSCODE.
-#                             Until it's set, every passcode holder can use
-#                             the admin controls (pre-v7 behavior).
-#
-# CLICKUP_TOKEN (from the old personal-token setup) may still exist as
-# a secret on this Worker from v1 — unused since v2. Remove it with:
-#   wrangler secret delete CLICKUP_TOKEN
+#   CLICKUP_CLIENT_SECRET   ClickUp OAuth app's Client Secret
+#   APP_PASSCODE            team passcode
+#   GEMINI_API_KEY          Google AI Studio key (v6)
+#   ADMIN_PASSCODE          second passcode for admins (v7); must differ
+#                           from APP_PASSCODE. Until it's set, every
+#                           passcode holder can use the admin controls.
+# v9: all four re-entered on the c3 Worker (secrets can't be copied
+# between accounts). During the history copy, APP_PASSCODE and
+# ADMIN_PASSCODE must be the SAME on both Workers (import-from forwards
+# the caller's codes to the old server).
 # -----------------------------------------------------------------------

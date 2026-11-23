@@ -60,6 +60,8 @@
                     secrets go in the Cloudflare dashboard, and a push to
                     GitHub now deploys the server and app (no Vercel CLI
                     step); the code lives in c3jumpw/mkp-tools.
+    v4  2026-11-22  The server is on the c3.jumpw Cloudflare account now:
+                    account names in setup and troubleshooting updated.
   =============================================================================
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -872,7 +874,7 @@ footer.end { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--li
           <p class="lede">In order. Steps 1–4 happen in a terminal and on GitHub. Steps 5–8 happen in the app. Repeat only what changes.</p>
         </div>
         <ol class="seq">
-          <li><div><b>Sign in to the right accounts <span class="where">Browser</span></b><p>Cloudflare is the <b>c1.jumpw</b> account (the server lives there). GitHub is <b>c3jumpw</b>, which owns <code>c3jumpw/mkp-tools</code>, and Vercel is <b>c3.jumpw</b>. In a terminal, the wrong Cloudflare account gives “Authentication error 10000”.</p></div></li>
+          <li><div><b>Sign in to the right accounts <span class="where">Browser</span></b><p>Everything is on c3: Cloudflare <b>c3.jumpw</b> (the server), GitHub <b>c3jumpw</b> (owns <code>c3jumpw/mkp-tools</code>) and Vercel <b>c3.jumpw</b>. In a terminal, the wrong Cloudflare account gives “Authentication error 10000”.</p></div></li>
           <li><div><b>Store the secrets <span class="where">Cloudflare · Worker settings</span></b><p><code>CLICKUP_CLIENT_SECRET</code>, <code>APP_PASSCODE</code>, <code>ADMIN_PASSCODE</code> and <code>GEMINI_API_KEY</code>: Workers &amp; Pages → dispatch-clickup-proxy → Settings → Variables and secrets → Add, tick <b>Secret</b>. Type each value yourself and never paste it into chat. They survive every deploy.</p></div></li>
           <li><div><b>Create the duplicate index <span class="where">Terminal · once</span></b><p>Already done for this workspace. Only needed if the index is ever deleted.</p><pre class="cmd">wrangler vectorize create dispatch-tasks --dimensions=768 --metric=cosine</pre></div></li>
           <li><div><b>Publish <span class="where">GitHub</span></b><p>Push to <code>main</code> on <code>c3jumpw/mkp-tools</code>. That deploys everything: Cloudflare rebuilds the server when <code>worker/</code> changed, and Vercel publishes dispatchit.mkcworkspace.com when the app changed. Changes the app depends on go to the server first. The old address (c1jumpw.github.io) no longer updates. The DNS record at GoDaddy is already in place: <code>CNAME dispatchit → 2464471139e6a868.vercel-dns-016.com</code>.</p></div></li>
@@ -1088,7 +1090,7 @@ footer.end { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--li
               <tr><td>A new ClickUp list isn’t offered</td><td>Wait 15 minutes, or Settings → <b>Sync workspace</b>.</td><td>Admin</td></tr>
               <tr><td>A custom field in that list rejected the value</td><td>The list’s field setup changed. Send to another list, then tell an admin.</td><td>Anyone · Admin</td></tr>
               <tr><td>A push didn’t go live</td><td>Check the build: Cloudflare → the Worker → Builds (server), Vercel → Deployments (app). The server only rebuilds when <code>worker/</code> changed.</td><td>Admin</td></tr>
-              <tr><td>Terminal: Authentication error 10000 / Permission denied to c3jumpw</td><td>Signed in to the wrong account. <code>wrangler logout</code> then <code>wrangler login</code> as c1.jumpw. For git, remove the GitHub entry in Windows Credential Manager and push again.</td><td>Admin</td></tr>
+              <tr><td>Terminal: Authentication error 10000 / Permission denied to c3jumpw</td><td>Signed in to the wrong account. <code>wrangler logout</code> then <code>wrangler login</code> as c3.jumpw. For git, remove the GitHub entry in Windows Credential Manager and push again.</td><td>Admin</td></tr>
             </tbody>
           </table>
         </div>

@@ -66,6 +66,10 @@
  *                    release, so a separate admin-only Nov 21 release would
  *                    have hidden the move notes from everyone. Helpers
  *                    unchanged.
+ *   v3  2026-11-22  Same unreleased Nov 20 release (same reason): added the
+ *                    server's move to the c3.jumpw Cloudflare account with
+ *                    its history copied over, and updated its versions to
+ *                    what ships (server v10, config v16).
  * =========================================================================
  */
 
@@ -223,7 +227,7 @@ const CHANGELOG = [
     id: '2026-11-20',
     date: '2026-11-20',
     title: 'What’s new, admin access and a new address',
-    versions: 'app v16 · server v9 · config v15 · wrangler v8 · guide v3 (live Nov 21)',
+    versions: 'app v16 · server v10 · config v16 · guide v4 (live Nov 22)',
     items: [
       { audience: 'everyone', kind: 'new', text: 'Dispatch It has a new address: dispatchit.mkcworkspace.com.' },
       { audience: 'everyone', kind: 'action', text: 'Use dispatchit.mkcworkspace.com from now on, and add it to your home screen if you haven’t. You enter the passcode once there. The old address shows a link to it for now.' },
@@ -235,8 +239,9 @@ const CHANGELOG = [
       { audience: 'admin', kind: 'security', text: 'A new ClickUp connection only goes live after an admin device confirms it. Before, anyone with access to the workspace could replace the shared connection through the public approval link.', detail: 'server v9: OAuth callback parks the token 15 min (access_token_pending); POST /oauth/confirm (admin-only). Only once ADMIN_PASSCODE is set.' },
       { audience: 'admin', kind: 'new', text: 'The app is hosted on Vercel now. The old GitHub Pages copy keeps working and points people to the new address.', detail: 'Vercel project mkp-tools-dispatch-it (team C3’s projects) · GoDaddy DNS: CNAME dispatchit → 2464471139e6a868.vercel-dns-016.com (the plan was dispatch.mkcworkspace.com; renamed to match the DNS record before release) · vercel.json, .vercelignore' },
       { audience: 'admin', kind: 'improved', text: 'Updates go live on their own: a push to main on GitHub redeploys the server and the app. No terminal needed. The code now lives in the c3jumpw account’s mkp-tools repo.', detail: 'Moved from c1jumpw/mkp-tools to c3jumpw/mkp-tools (Vercel’s free plan only deploys repos owned by the team’s GitHub login) · Cloudflare Workers Builds on dispatch-clickup-proxy (root mkp-dispatch/worker, npx wrangler deploy, watch path mkp-dispatch/worker/*) · Vercel Git link (root mkp-dispatch) · the old address (c1jumpw.github.io) stays on app v15 with a moved bar' },
-      { audience: 'admin', kind: 'security', text: 'The admin passcode is set. Admin controls on each device need it once: Settings → Admin → Unlock admin.', detail: 'ADMIN_PASSCODE secret, set 2026-11-21 in the Cloudflare dashboard (Worker → Settings → Variables and secrets)' },
-      { audience: 'admin', kind: 'action', text: 'Once every device has moved, remove the old address from ALLOWED_ORIGIN. The server redeploys itself when the change is pushed.', detail: 'worker/wrangler.toml · ALLOWED_ORIGIN = "https://dispatchit.mkcworkspace.com"' }
+      { audience: 'admin', kind: 'improved', text: 'The server moved to the c3 Cloudflare account, so everything Dispatch It runs on is now under c3. Activity, learned corrections and routing settings were copied over; ClickUp was reconnected and the duplicate index rebuilt.', detail: 'Worker v10 at dispatch-clickup-proxy.c3-jumpw.workers.dev (config v16 DEFAULT_PROXY_URL) · new KV dispatch-clickup-proxy-TOKEN_STORE + Vectorize dispatch-tasks on c3 · one-time copy via GET /admin/export (old) and POST /admin/import-from (new, MIGRATE_FROM) · the old c1 Worker stays up for the old address (wrangler.c1.toml)' },
+      { audience: 'admin', kind: 'security', text: 'The admin passcode is set. Admin controls on each device need it once: Settings → Admin → Unlock admin.', detail: 'ADMIN_PASSCODE secret on the c3 Worker (Settings → Variables and secrets); same value as on the old c1 Worker during the copy' },
+      { audience: 'admin', kind: 'action', text: 'Once nobody uses the old address any more, delete the old server on the c1 Cloudflare account. Until then it keeps the old copy working.', detail: 'Old Worker dispatch-clickup-proxy on c1.jumpw (deploys from worker/wrangler.c1.toml): disconnect its build, delete the Worker, its KV namespace and Vectorize index, then delete wrangler.c1.toml and lib/migrate.js' }
     ]
   }
 ];

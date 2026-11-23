@@ -9,6 +9,9 @@
                     Builds, Vercel Git link); section 4 rewritten, "server
                     before app" spelled out for pushes, What's new rule
                     for new devices added to section 1.
+    v3  2026-11-22  Server moved to the c3.jumpw Cloudflare account; the
+                    old c1 Worker (wrangler.c1.toml) and its retirement
+                    noted in section 4.
 -->
 
 # Working on Dispatch It
@@ -91,13 +94,16 @@ on 2026-11-21). Everything deploys from a push to its `main`:
 |---|---|---|
 | App (static) | `dispatchit.mkcworkspace.com`, Vercel project `mkp-tools-dispatch-it` (team "C3's projects") | Vercel Git link, root `mkp-dispatch`, pushes that change `mkp-dispatch/` |
 | App, old address | `c1jumpw.github.io/mkp-tools/mkp-dispatch/` (Pages of the old repo) | Not deployed any more: frozen at app v15 plus a "moved" bar |
-| Server | Cloudflare Worker `dispatch-clickup-proxy` | Workers Builds, root `mkp-dispatch/worker`, `npx wrangler deploy`; only when `worker/` changed |
+| Server | Cloudflare Worker `dispatch-clickup-proxy` on **c3.jumpw** (`dispatch-clickup-proxy.c3-jumpw.workers.dev`) | Workers Builds, root `mkp-dispatch/worker`, `npx wrangler deploy`; only when `worker/` changed |
+| Old server (temporary) | Same Worker name on **c1.jumpw**, serves the old address | c1's Workers Builds, `npx wrangler deploy --config wrangler.c1.toml`, same trigger |
 | Field Guide | `guide/index.html` + `guide/img/` | With the app |
 
-Accounts: GitHub **c3jumpw** (repo owner; Claude sessions push as
-c3jumpw) and Vercel **c3.jumpw**; Cloudflare stays **c1.jumpw** (the
-Worker, its secrets and KV live there). In a terminal, the wrong
-Cloudflare account causes "Authentication error 10000" (wrangler).
+Accounts: everything is on c3 — GitHub **c3jumpw** (repo owner; Claude
+sessions push as c3jumpw), Vercel **c3.jumpw**, Cloudflare **c3.jumpw**
+(Worker, secrets, KV, Vectorize since 2026-11-22). The only thing left on
+c1 is the old server for the old address; see README "Moving the server"
+for how to retire it. A server change must work with both configs until
+then (`wrangler.toml` and `wrangler.c1.toml` share the code).
 
 DNS for mkcworkspace.com is at GoDaddy:
 `CNAME dispatchit → 2464471139e6a868.vercel-dns-016.com`.
