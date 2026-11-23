@@ -15,7 +15,9 @@ Live at **https://pingpath.mkcworkspace.com** (also https://pingpath-two.vercel.
 - Supabase (project **mkp-tools**, shared with Circuit Book): auth and data, all
   tables prefixed `pingpath_` with row-level security, so each login only sees
   its own board
-- Hosted on Vercel, project **pingpath** (root directory `pingpath`)
+- Hosted on Vercel, project **pingpath** (root directory `pingpath`), linked to
+  this repo: every push to `main` that touches `pingpath/` goes live; pushes
+  that only change the other apps are skipped
 
 ## Help that ships with the app
 

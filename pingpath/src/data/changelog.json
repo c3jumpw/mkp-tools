@@ -2,11 +2,34 @@
   "about": "PingPath change log, newest first. Every update adds an entry at the top whose version matches package.json; the build stops if it doesn't (scripts/check-tour.mjs). audience: everyone = shown to all users in What's new; admin = shown only to admins. Entries marked reconstructed were written afterwards from the deploy history, before notes were kept.",
   "releases": [
     {
+      "version": "1.5.2",
+      "date": "2026-11-22",
+      "title": "Sign-up emails use the new address",
+      "summary": "Sign-up confirmation links open pingpath.mkcworkspace.com, and updates now publish straight from GitHub.",
+      "changes": [
+        {
+          "kind": "fixed",
+          "area": "Accounts",
+          "audience": "admin",
+          "title": "Sign-up emails use the new address",
+          "detail": "The confirmation link in a new account's email now opens pingpath.mkcworkspace.com instead of the old Vercel address."
+        },
+        {
+          "kind": "behind-the-scenes",
+          "area": "Setup",
+          "audience": "admin",
+          "title": "Updates publish from GitHub",
+          "detail": "Every change pushed to c3jumpw/mkp-tools goes live on its own. Changes to the other apps in that repo don't rebuild PingPath."
+        }
+      ]
+    },
+    {
       "version": "1.5.1",
       "date": "2026-11-21",
       "title": "New address: pingpath.mkcworkspace.com",
       "summary": "PingPath moved to its own address, and its code is now kept in GitHub.",
       "slides": ["owner-install"],
+      "deployments": ["dpl_3Qe9gPwUnS2WKwEtHGy6paB43gmD"],
       "changes": [
         {
           "kind": "new",

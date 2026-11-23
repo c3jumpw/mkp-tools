@@ -18,6 +18,13 @@ checklist.
 3. **Checks passing**: `npm run tour:check` and `npx tsc --noEmit`.
    `npm run build` runs the tour check first and fails without it.
 
+## Deploying
+
+Push to `main`. Vercel project `pingpath` builds this folder and publishes it
+to pingpath.mkcworkspace.com (and the older pingpath-two.vercel.app). Pushes
+that don't touch `pingpath/` are skipped. A build that fails the tour check
+never goes live.
+
 ## Data
 
 Supabase project mkp-tools (shared with Circuit Book). PingPath tables are
