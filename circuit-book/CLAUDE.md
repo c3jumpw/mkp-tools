@@ -62,5 +62,15 @@ component. Tour slides and Guide sections take an `audience` too.
 
 ## Domain
 
-Production: https://circuitbook.mkcworkspace.com (DNS at GoDaddy, CNAME to Vercel).
-The old https://mkp-tools-circuit-book.vercel.app still serves the app.
+Production: https://circuitbook.mkcworkspace.com, live since 2026-11-22. DNS is
+at GoDaddy: CNAME `circuitbook` to `f7c2714a3440f51b.vercel-dns-016.com`.
+
+The old https://mkp-tools-circuit-book.vercel.app redirects there (308, set on
+that domain in the Vercel project's Domains). Vercel Authentication still
+covers previews and the other *.vercel.app aliases, but not the custom domain.
+
+Sign-up confirmation links go back to the origin the person signed up on
+(`emailRedirectTo` in `src/app/login/page.tsx`). The Supabase project is
+shared with PingPath, so that origin must be listed under Authentication >
+URL Configuration > Redirect URLs; otherwise Supabase falls back to the
+project's Site URL, which isn't Circuit Book's.

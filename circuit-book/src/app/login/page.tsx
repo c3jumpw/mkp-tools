@@ -35,7 +35,13 @@ function LoginForm() {
 
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        // The Supabase project is shared with other tools, so its default
+        // Site URL isn't Circuit Book: say where the confirmation link goes.
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/login` },
+        });
         if (error) throw error;
         // When email confirmation is on, there is no session yet.
         if (!data.session) {

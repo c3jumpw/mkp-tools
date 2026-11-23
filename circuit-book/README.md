@@ -4,6 +4,8 @@ A workout library, a routine planner, and a station-by-station session tracker.
 Installable to a phone's home screen and built to stay usable in a basement gym
 or on a field with no signal.
 
+Live at **https://circuitbook.mkcworkspace.com**.
+
 ## What it does
 
 **Library** — every lift and drill you actually do, each with a sequence of

@@ -14,7 +14,9 @@
       "History of every session, with Resume for unfinished ones.",
       "Installs to the home screen; each person's data is private to their account."
     ],
-    "commits": ["e9c2233"]
+    "commits": [
+      "e9c2233"
+    ]
   },
   {
     "seq": 2,
@@ -29,7 +31,9 @@
       "Any set square can be tapped to tick or untick it out of order.",
       "Existing routines and logged sessions were carried over unchanged."
     ],
-    "commits": ["929d626"]
+    "commits": [
+      "929d626"
+    ]
   },
   {
     "seq": 3,
@@ -39,7 +43,9 @@
     "announce": false,
     "title": "Photo sequences",
     "summary": "An exercise can hold several photos in order. Tap to step through them in a session, or play them on a loop.",
-    "commits": ["929d626"]
+    "commits": [
+      "929d626"
+    ]
   },
   {
     "seq": 4,
@@ -49,7 +55,9 @@
     "announce": false,
     "title": "Target muscles and body map",
     "summary": "Mark the muscles an exercise works on a body map. The library filters by muscle, and each routine shows what it covers.",
-    "commits": ["929d626"]
+    "commits": [
+      "929d626"
+    ]
   },
   {
     "seq": 5,
@@ -59,8 +67,15 @@
     "announce": true,
     "title": "In-app Guide",
     "summary": "Every screen explained with annotated screenshots, plus offline tips and answers to common questions. Open it from the ? button.",
-    "link": { "href": "/guide", "label": "Open the Guide" },
-    "commits": ["5851fa0", "2382f56", "9da0a00"]
+    "link": {
+      "href": "/guide",
+      "label": "Open the Guide"
+    },
+    "commits": [
+      "5851fa0",
+      "2382f56",
+      "9da0a00"
+    ]
   },
   {
     "seq": 6,
@@ -76,7 +91,10 @@
       "The exercise editor no longer stays greyed out after a delete.",
       "Today counted exercises but called them sets; it now shows the real set count."
     ],
-    "commits": ["9da0a00", "c9dab61"]
+    "commits": [
+      "9da0a00",
+      "c9dab61"
+    ]
   },
   {
     "seq": 7,
@@ -86,8 +104,13 @@
     "announce": true,
     "title": "Getting-started tour",
     "summary": "A swipeable, slide-by-slide walk through every screen. It opens once on a new device, and you can replay it from the top of the Guide.",
-    "link": { "href": "/tour?from=/today", "label": "Take the tour" },
-    "commits": ["855dd58"]
+    "link": {
+      "href": "/tour?from=/today",
+      "label": "Take the tour"
+    },
+    "commits": [
+      "855dd58"
+    ]
   },
   {
     "seq": 8,
@@ -101,7 +124,10 @@
       "GitHub Actions workflow: .github/workflows/circuit-book-guide.yml.",
       "First automatic refresh committed by the workflow the same day."
     ],
-    "commits": ["855dd58", "b7db2eb"]
+    "commits": [
+      "855dd58",
+      "b7db2eb"
+    ]
   },
   {
     "seq": 9,
@@ -111,7 +137,9 @@
     "announce": true,
     "title": "What's new",
     "summary": "When an update changes something you use, a summary like this one appears the first time you open the app afterwards. It only lists changes that apply to you.",
-    "commits": []
+    "commits": [
+      "c8fa6aa"
+    ]
   },
   {
     "seq": 10,
@@ -121,8 +149,13 @@
     "announce": true,
     "title": "Admin change log",
     "summary": "Admins get a full history of every change to Circuit Book, filterable and exportable as JSON or CSV. Find it under Admin at the bottom of History.",
-    "link": { "href": "/admin/changelog", "label": "Open the change log" },
-    "commits": []
+    "link": {
+      "href": "/admin/changelog",
+      "label": "Open the change log"
+    },
+    "commits": [
+      "c8fa6aa"
+    ]
   },
   {
     "seq": 11,
@@ -136,6 +169,32 @@
       "Admins: set with SQL by someone with database access; see the README.",
       "Users can't change their own role."
     ],
+    "commits": [
+      "c8fa6aa"
+    ]
+  },
+  {
+    "seq": 12,
+    "date": "2026-11-22",
+    "kind": "improved",
+    "audience": "everyone",
+    "announce": true,
+    "title": "New address: circuitbook.mkcworkspace.com",
+    "summary": "Circuit Book now lives at circuitbook.mkcworkspace.com. The old address sends you here automatically.",
+    "details": [
+      "Sign in once on the new address with your usual email and password. Your routines, library and history are all here.",
+      "If you added Circuit Book to your Home Screen, add it again from the new address and remove the old icon."
+    ],
+    "commits": []
+  },
+  {
+    "seq": 13,
+    "date": "2026-11-22",
+    "kind": "fixed",
+    "audience": "everyone",
+    "announce": false,
+    "title": "Sign-up emails link back to Circuit Book",
+    "summary": "The confirmation link in a new account's email now opens Circuit Book at the address the person signed up on.",
     "commits": []
   }
 ]
