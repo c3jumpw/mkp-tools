@@ -7,8 +7,24 @@ import type { NextConfig } from "next";
 // build still type-checks everything.
 const guideCapture = process.env.CB_GUIDE_CAPTURE === "1";
 
+/** Where Circuit Book lives, and the address it used to have. */
+const HOME = "https://circuitbook.mkcworkspace.com";
+const OLD_HOST = "mkp-tools-circuit-book.vercel.app";
+
 const nextConfig: NextConfig = {
   ...(guideCapture && { distDir: ".next-guide", typescript: { ignoreBuildErrors: true } }),
+  // Old links and Home Screen icons land on the new address. Only the old
+  // production host matches, so preview and deployment URLs keep working.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: OLD_HOST }],
+        destination: `${HOME}/:path*`,
+        permanent: true,
+      },
+    ];
+  },
   // The service worker must never be served from a stale cache, or a deploy
   // can leave an old worker in charge of the shell indefinitely.
   async headers() {

@@ -185,7 +185,9 @@
       "Sign in once on the new address with your usual email and password. Your routines, library and history are all here.",
       "If you added Circuit Book to your Home Screen, add it again from the new address and remove the old icon."
     ],
-    "commits": []
+    "commits": [
+      "42cbd8b"
+    ]
   },
   {
     "seq": 13,
@@ -195,6 +197,8 @@
     "announce": false,
     "title": "Sign-up emails link back to Circuit Book",
     "summary": "The confirmation link in a new account's email now opens Circuit Book at the address the person signed up on.",
-    "commits": []
+    "commits": [
+      "42cbd8b"
+    ]
   }
 ]
