@@ -1,7 +1,7 @@
 {
   "app": "My PD - Personal Development Library",
   "address": "https://mypd.mkcworkspace.com/",
-  "updated": "2026-11-22",
+  "updated": "2026-11-24",
   "announceSince": "2026.11.20",
   "about": "Every update to My PD, oldest first. The app's files live in c3jumpw/mkp-tools (folder pdl) and Vercel publishes them to mypd.mkcworkspace.com on every push. The library itself (media, covers, summaries, transcripts, collections, Trash) stays in c1jumpw/mkp-tools/pdl/media. Releases up to 2026.10.10 were rebuilt from the commit history of pdl/index.html in c1jumpw/mkp-tools; the commits listed there are the uploads that make up each release. The app reads this file to show What's new: items for everyone after unlocking, admin items on devices that use Organize. A device that has never seen What's new (a new phone, or any device at a new address) is shown only the newest release. Releases older than announceSince are history only and are never announced.",
   "fields": {
@@ -523,7 +523,9 @@
       "summary": "A built-in guide, update notes like these, and a new home at mypd.mkcworkspace.com.",
       "versions": "index.html v13 · guide.html v2 · changelog.json v1",
       "repo": "c3jumpw/mkp-tools",
-      "commits": [],
+      "commits": [
+        "5578b86"
+      ],
       "note": "Includes the guide prepared on 30 October 2026. First release served from c3jumpw/mkp-tools through Vercel; earlier history stays in c1jumpw/mkp-tools.",
       "items": [
         {
